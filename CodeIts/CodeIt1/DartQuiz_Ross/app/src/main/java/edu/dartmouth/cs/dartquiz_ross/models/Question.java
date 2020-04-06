@@ -4,6 +4,8 @@ public class Question {
 
     private int mQuestionResID;
     private boolean mAnswerIsTrue;
+
+    //this variable is used to maintain the state even if rotated
     private boolean mCheatQuestion;
 
     public Question(int mQuestionResID, boolean mAnswerIsTrue, boolean mCheatQuestion) {

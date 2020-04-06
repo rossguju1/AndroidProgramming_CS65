@@ -13,11 +13,12 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-condensed-medium"
+        android:fontFamily="sans-serif-medium"
         android:padding="24dp"
         android:text="Are you sure you want to do this?"
-        android:textSize="18sp"
-        />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/show_answer_text"
@@ -33,7 +34,9 @@
         android:layout_height="wrap_content"
         android:background="@android:color/darker_gray"
         android:text="Show Answer"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
 
 </LinearLayout>

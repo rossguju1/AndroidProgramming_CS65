@@ -46,8 +46,10 @@ public class QuizActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt(KEY_CURRENT_INDEX, mCurrentIndex);
+
+        //int array is used to keep track if the user cheated on a question
         outState.putIntArray(KEY_CHEAT_BANK, mUserCheatBank);
-        Log.d(TAG, "onCreate()");
+        Log.d(TAG, "onSaveInstanceState()");
     }
 
     @Override
@@ -56,13 +58,23 @@ public class QuizActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Log.d(TAG, "onCreate()");
 
+        // if the app goes through the life cycle again
+        // recover the previous states of the current question index
+        // and if they cheated on that question
         if (savedInstanceState != null) {
+            // get previous cheat states of the questions
             mUserCheatBank = savedInstanceState.getIntArray(KEY_CHEAT_BANK);
+
+            // initialize our model Questions class with the previous
+            // states holding the values if the user cheated or not
             for (int i = 0; i < mQuestionBank.length; i++) {
+
+                // 0 means they didnt cheat
                 if (mUserCheatBank[i] == 0) {
                     mQuestionBank[i].setmCheatQuestion(false);
 
                 } else {
+                    // otherwise its 1 which means they previously cheated
                     mQuestionBank[i].setmCheatQuestion(true);
                 }
             }
@@ -139,7 +151,12 @@ public class QuizActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CHEATED && resultCode == RESULT_OK && data != null){
+
+            // update the mQuestionBank if the user cheated
+            // this is our model class
             mQuestionBank[mCurrentIndex].setmCheatQuestion(data.getBooleanExtra(CheatActivity.EXTRA_USER_CHEATED, false));
+
+            // update the mUserCheatBank
             mUserCheatBank[mCurrentIndex] = 1;
         }
     }
@@ -172,12 +189,13 @@ public class QuizActivity extends AppCompatActivity {
 
     private void checkAnswer(boolean answer){
 
+        //first check the mQuestionBank to see if the user cheated
         if(mQuestionBank[mCurrentIndex].getmCheatQuestion()){
             Toast.makeText(QuizActivity.this, "Cheating Is Wrong", Toast.LENGTH_SHORT).show();
 
         } else{
 
-
+            //otherwise check if they got the question right
         if (mQuestionBank[mCurrentIndex].getmAnswerIsTrue() == answer){
             Toast.makeText(QuizActivity.this, "Correct", Toast.LENGTH_SHORT).show();
         } else {

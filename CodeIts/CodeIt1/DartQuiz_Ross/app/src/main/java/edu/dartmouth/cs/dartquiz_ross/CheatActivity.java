@@ -17,6 +17,7 @@ public class CheatActivity extends AppCompatActivity {
 
     private boolean mCheated = false;
 
+    // onSaveInstanceState saves the state of mCheated i.e. even if they rotate the phone
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -28,6 +29,7 @@ public class CheatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cheat);
 
+        // check if the app had a previous state
         if (savedInstanceState != null){
             mCheated = savedInstanceState.getBoolean(KEY_CHEATED);
 
@@ -36,6 +38,7 @@ public class CheatActivity extends AppCompatActivity {
         mShowAnswerButton = findViewById(R.id.show_answer_button);
         mShowAnswerText = findViewById(R.id.show_answer_text);
 
+        // check if the Show Answer button was clicked
         if (mCheated){
             mShowAnswerText.setText(Boolean.toString(getIntent().getBooleanExtra(QuizActivity.EXTRA_ANSWER, false)));
             answerShown();
@@ -47,6 +50,7 @@ public class CheatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 mShowAnswerText.setText(Boolean.toString(getIntent().getBooleanExtra(QuizActivity.EXTRA_ANSWER, false)));
                 answerShown();
+                // the user clicked on show answer so set variable to true
                 mCheated = true;
             }
         });
