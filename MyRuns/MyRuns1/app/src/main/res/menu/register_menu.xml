@@ -3,9 +3,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/register_button"
-        android:title="Register"
+        android:id="@+id/btnSave"
+        android:title="@string/ui_button_save_title"
         app:showAsAction="always"
-        android:orderInCategory="0"/>
+        android:orderInCategory="0"
+
+        />
 
 </menu>
