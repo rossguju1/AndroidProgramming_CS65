@@ -1,4 +1,7 @@
 package edu.dartmouth.cs.myruns1.models;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class Profiles {
     private String mName;
