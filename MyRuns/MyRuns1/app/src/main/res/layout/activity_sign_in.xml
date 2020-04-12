@@ -14,26 +14,30 @@
         android:text="@string/ui_profile_email_hint" >
     </TextView>
 
-    <EditText
+    <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/email1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:hint="@string/ui_profile_email_hint"
         android:inputType="textEmailAddress"
-        android:singleLine="true" >
-    </EditText>
+        android:hint="@string/ui_profile_email_hint"
+        />
 
-    <EditText
-        android:id="@+id/editText6"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPassword"
-        android:hint="@string/email_password"
-        app:passwordToggleEnabled="true"
+        app:passwordToggleEnabled="true" >
 
-        />
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:hint="@string/email_password"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+
 
     <Button
         android:id="@+id/signinButton"

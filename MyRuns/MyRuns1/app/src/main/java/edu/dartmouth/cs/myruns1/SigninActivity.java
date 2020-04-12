@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import android.app.Activity;
@@ -13,12 +14,23 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import edu.dartmouth.cs.myruns1.models.ProfilePreferences;
+
+import edu.dartmouth.cs.myruns1.RegisterProfileActivity;
+
+
+
 
 public class SigninActivity extends AppCompatActivity {
 
+    public static final String TAG = "tag";
     private static final String DEBUG_TAG = "debugger";
     private Button mSignInButton;
     private Button mRegisterButton;
+
+    private EditText mEmail;
+
+    private EditText mPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +49,10 @@ public class SigninActivity extends AppCompatActivity {
         mSignInButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
+
+
+
+
 
                 Intent intent = new Intent(SigninActivity.this, MainMyRunsActivity.class);
                 startActivity(intent);

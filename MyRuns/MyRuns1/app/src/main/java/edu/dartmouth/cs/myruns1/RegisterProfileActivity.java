@@ -3,6 +3,7 @@ import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.os.Build;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -10,12 +11,13 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 import android.Manifest;
-import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+
+import androidx.appcompat.app.ActionBar;
 import androidx.fragment.app.DialogFragment;
 
 
@@ -28,6 +30,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
 
 import android.app.Activity;
 
@@ -45,11 +48,18 @@ import android.widget.Toast;
 
 import com.soundcloud.android.crop.Crop;
 
+import org.w3c.dom.Text;
+
+import edu.dartmouth.cs.myruns1.models.Profiles;
+
+import edu.dartmouth.cs.myruns1.models.ProfilePreferences;
+
 
 public class RegisterProfileActivity extends AppCompatActivity {
 
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
+    private static final String INTENT_FROM = "from";
     private Button mChangeButton;
 
     public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
@@ -62,7 +72,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     private EditText mEditName;
     private RadioGroup mRadioGenderGroup;
-    private RadioButton mRadioGender;
+    private RadioButton mMale;
+    private RadioButton mFemale;
     private EditText mEditEmail;
     private EditText mEditPassword;
     private EditText mEditPhoneNumber;
@@ -71,11 +82,16 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
 
+    public ProfilePreferences mPreference;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //setUpActionBar();
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
 
         setContentView(R.layout.activity_profile);
 
@@ -86,6 +102,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         mEditName = (EditText) findViewById(R.id.editName);
 
         mRadioGenderGroup = (RadioGroup) findViewById(R.id.radioGender);
+
+        mMale = (RadioButton) findViewById(R.id.radioGenderM);
+
+        mFemale = (RadioButton) findViewById(R.id.radioGenderF);
 
         mEditEmail = (EditText) findViewById(R.id.editEmail);
 
@@ -98,17 +118,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         mClassYear = (EditText) findViewById(R.id.editClassYear);
 
 
+        mPreference = new ProfilePreferences(this);
 
 
-        //String value = editText.getText().toString();
 
-        //int selectedId = radioSexGroup.getCheckedRadioButtonId();
-
-        // find the radiobutton by returned id
-        //radioSexButton = (RadioButton) findViewById(selectedId);
-
-
-        //mRadioFemale
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
         }
@@ -126,10 +139,34 @@ public class RegisterProfileActivity extends AppCompatActivity {
         });
     }
 
+    /*
+
+    private void setUpActionBar(){
+
+        ActionBar actionBar = getSupportActionBar();
+
+        if (actionBar != null){
+
+            actionBar.setDisplayHomeAsUpEnabled(true);
+
+            switch (getIntent().getExtras().getString(INTENT_FROM)){
+
+                case SigninActivity.TAG:
+                    actionBar.setTitle("Sign Up");
+                    break;
+            }
+
+
+
+        }
+    }
+
+*/
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.register_menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -149,16 +186,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     getString(R.string.ui_profile_toast_save_text),
                     Toast.LENGTH_SHORT).show();
             // Close the activity
-            finish();
+            saveProfile();
+            //finish();
 
 
             return true;
-        } else{
+        } else if (id == android.R.id.home){
+            Toast.makeText(getApplicationContext(),"Hit BACK!!!!",
+                    Toast.LENGTH_SHORT).show();
+            finish();
+            return true;
 
+        }else{
             Toast.makeText(getApplicationContext(),
                     getString(R.string.ui_profile_registration_incomplete),
                     Toast.LENGTH_SHORT).show();
-
 
         }
 
@@ -374,6 +416,143 @@ public class RegisterProfileActivity extends AppCompatActivity {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void saveProfile(){
+
+
+        mEditName.setError(null);
+        mEditEmail.setError(null);
+        mEditPassword.setError(null);
+
+
+
+        String name = mEditName.getText().toString();
+        String email = mEditEmail.getText().toString();
+        String password = mEditPassword.getText().toString();
+
+        int gender_selected = -1;
+        boolean malechecked =  mMale.isChecked();
+        boolean femalechecked =  mFemale.isChecked();
+
+        if (malechecked){
+            gender_selected = 1;
+            
+        } else if (femalechecked){
+            gender_selected = 0;
+        }
+
+        String phone = mEditPhoneNumber.getText().toString();
+        String major = mMajor.getText().toString();
+        String class_year = mClassYear.getText().toString();
+
+        boolean canceled = false;
+
+        View focusView = null;
+
+       // if (m)
+
+        if (TextUtils.isEmpty(name)){
+            mEditName.setError("Need to add name");
+            focusView =  mEditName;
+            canceled = true;
+        }
+
+        if (TextUtils.isEmpty(password)){
+            mEditPassword.setError("Need a password for email");
+            focusView = mEditPassword;
+            canceled = true;
+
+        } else if(isPasswordValid(password) == false){
+            mEditPassword.setError("This email password is wrong");
+            focusView = mEditPassword;
+            canceled = true;
+
+        }
+
+        if(TextUtils.isEmpty(email)){
+            mEditEmail.setError("This field is required");
+            focusView = mEditEmail;
+            canceled = true;
+        } else if (isEmailValid(email) == false){
+            mEditEmail.setError("Email is not valid");
+            focusView = mEditEmail;
+            canceled = true;
+
+        }
+
+        if(gender_selected == -1){
+
+            focusView = mRadioGenderGroup;
+            canceled = true;
+        }
+
+        if (TextUtils.isEmpty(phone)){
+            mEditPhoneNumber.setError("This field is required");
+            focusView = mEditPhoneNumber;
+            canceled = true;
+        }
+        if (TextUtils.isEmpty(class_year)){
+        mClassYear.setError("This field is required");
+        focusView = mClassYear;
+        canceled = true;
+    }
+
+        if(TextUtils.isEmpty(major)){
+
+            mMajor.setError("This field is required");
+            focusView = mMajor;
+            canceled = true;
+        }
+
+        if (canceled){
+
+            if (focusView instanceof EditText) {
+                focusView.requestFocus();
+            } else if(focusView instanceof RadioGroup){
+
+                Toast.makeText(this, "Gender is required", Toast.LENGTH_SHORT).show();
+
+
+            }
+        }else{
+            // save profile in preferences
+            mPreference.clearProfilePreferences();
+            mPreference.setProfileName(name);
+            mPreference.setProfileEmail(email);
+            mPreference.setProfilePassword(password);
+            mPreference.setProfileGender(gender_selected);
+            mPreference.setProfilePhone(phone);
+            mPreference.setProfileMajor(major);
+            mPreference.setProfileClassYear(class_year);
+
+            /*
+            if (!mPicPath.equalsIgnoreCase("nan")){
+                mPreference.setProfilePicture(PicPath);
+            }
+
+             */
+
+
+            finish();
+
+        }
+
+    }
+
+private boolean isPasswordValid(String password){
+
+        if (password.length() < 6){
+            return false;
+        }
+
+        return true;
+}
+
+private boolean isEmailValid(String email){
+
+        return email.contains("@");
+
+}
 
 
 }
