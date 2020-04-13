@@ -430,9 +430,18 @@ public class RegisterProfileActivity extends AppCompatActivity {
         String email = mEditEmail.getText().toString();
         String password = mEditPassword.getText().toString();
 
+
+        String phone = mEditPhoneNumber.getText().toString();
+        String major = mMajor.getText().toString();
+        String class_year = mClassYear.getText().toString();
+
+        boolean canceled = false;
+
         int gender_selected = -1;
         boolean malechecked =  mMale.isChecked();
         boolean femalechecked =  mFemale.isChecked();
+
+
         if (malechecked){
             gender_selected = 1;
             
@@ -440,78 +449,79 @@ public class RegisterProfileActivity extends AppCompatActivity {
             gender_selected = 0;
         }
 
-        String phone = mEditPhoneNumber.getText().toString();
-        String major = mMajor.getText().toString();
-        String class_year = mClassYear.getText().toString();
-
-        boolean canceled = false;
-        View focusView = null;
 
         if (TextUtils.isEmpty(name)){
             mEditName.setError("Name is required to register.");
-            focusView =  mEditName;
+            mEditName.requestFocus();
             canceled = true;
         }
 
         if (TextUtils.isEmpty(password)){
             mEditPassword.setError("Password is required to register.");
-            focusView = mEditPassword;
+            mEditPassword.requestFocus();
             canceled = true;
 
         } else if(password.length() < 6){
             mEditPassword.setError("This password doesn't meet the minimum requirements. Must be" +
                     "longer than 5 characters.");
-            focusView = mEditPassword;
+            mEditPassword.requestFocus();
             canceled = true;
+
         }
 
         if(TextUtils.isEmpty(email)){
             mEditEmail.setError("This field is required");
-            focusView = mEditEmail;
+            mEditEmail.requestFocus();
             canceled = true;
+
         } else if (email.contains("@") == false){
             mEditEmail.setError("Email is not valid");
-            focusView = mEditEmail;
+            mEditEmail.requestFocus();
             canceled = true;
+
         }
 
         if(gender_selected == -1){
-            focusView = mRadioGenderGroup;
+            mRadioGenderGroup.requestFocus();
+            Toast.makeText(this, "Gender is required", Toast.LENGTH_SHORT).show();
             canceled = true;
+
+
         }
 
         if (TextUtils.isEmpty(phone)){
             mEditPhoneNumber.setError("Phone field is required");
-            focusView = mEditPhoneNumber;
+            mEditPhoneNumber.requestFocus();
             canceled = true;
+
+
         } else if(!TextUtils.isDigitsOnly(phone)){
             mEditPhoneNumber.setError("Phone number can only contain numbers.");
-            focusView = mEditPhoneNumber;
+            mEditPhoneNumber.requestFocus();
             canceled = true;
+
         }
 
         if (TextUtils.isEmpty(class_year)){
             mClassYear.setError("Class Year field is required");
-            focusView = mClassYear;
+            mClassYear.requestFocus();
             canceled = true;
+
         } else if(!TextUtils.isDigitsOnly(class_year)){
             mClassYear.setError("Class Year field must be digits");
-            focusView = mClassYear;
+            mClassYear.requestFocus();
             canceled = true;
+
         }
 
         if(TextUtils.isEmpty(major)){
             mMajor.setError("Major field is required");
-            focusView = mMajor;
+            mMajor.requestFocus();
             canceled = true;
+
         }
 
         if (canceled){
-            if (focusView instanceof EditText) {
-                focusView.requestFocus();
-            } else if(focusView instanceof RadioGroup){
-                Toast.makeText(this, "Gender is required", Toast.LENGTH_SHORT).show();
-            }
             return true;
         }else{
             //Here we take our profile and save it to the ProfilePreferences
