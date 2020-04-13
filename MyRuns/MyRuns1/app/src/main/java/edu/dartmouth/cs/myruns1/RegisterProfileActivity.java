@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
@@ -240,6 +241,22 @@ public class RegisterProfileActivity extends AppCompatActivity {
         // Save the image capture uri before the activity goes into background
         if(mImageCaptureUri != null){
             outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        }
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        if (savedInstanceState != null) {
+            mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
+            try {
+                if(mImageCaptureUri != null){
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
+                    mImageView.setImageBitmap(bitmap);
+                }
+            }  catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
