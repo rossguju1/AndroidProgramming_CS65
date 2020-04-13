@@ -344,6 +344,15 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 break;
             case MyRunsDialogFragment.DIALOG_ID_PHOTO_PICKER:
 
+
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    ex.printStackTrace();
+                }
+
+
                 Toast.makeText(this, "here1", Toast.LENGTH_SHORT).show();
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
@@ -409,7 +418,22 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     photoFile);
             Log.d("URI: ", destination.toString());
             Crop.of(source, destination).asSquare().start(this);
+        } else{
+
+            if (source != null){
+
+                Uri destination = FileProvider.getUriForFile(this,
+                        BuildConfig.APPLICATION_ID,
+                        photoFile);
+                Log.d("URI: ", destination.toString());
+                Crop.of(source, destination).asSquare().start(this);
+
+            }
+
+
+
         }
+
 
     }
 
@@ -546,7 +570,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfilePhone(phone);
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
-//            mPreference.setProfilePicture(mImageCaptureUri.toString());
+            mPreference.setProfilePicture(mImageCaptureUri.toString());
 
             /*
             if (!mPicPath.equalsIgnoreCase("nan")){
