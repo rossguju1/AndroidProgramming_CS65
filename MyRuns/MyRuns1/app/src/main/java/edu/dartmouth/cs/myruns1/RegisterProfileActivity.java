@@ -170,11 +170,13 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     getString(R.string.ui_profile_toast_save_text),
                     Toast.LENGTH_SHORT).show();
             // Close the activity
-            saveProfile();
+            
+            if (saveProfile() == false){
+                Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
+                startActivity(intent);
+                //finish();
 
-            Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
-            startActivity(intent);
-            finish();
+            }
 
 
             return true;
@@ -276,12 +278,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
         switch (requestCode) {
             case PICK_IMAGE:
                 Toast.makeText(this, "here2", Toast.LENGTH_SHORT).show();
-                Uri selectedImage = data.getData();
+                //Uri selectedImage = data.getData();
 
-                mImageCaptureUri = selectedImage;
+                mImageCaptureUri = data.getData();
 
 
-                beginCrop(selectedImage);
+                beginCrop(mImageCaptureUri);
                 break;
 
 
@@ -474,7 +476,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     }
 
 
-    private void saveProfile(){
+    private boolean saveProfile(){
 
 
         mEditName.setError(null);
@@ -581,6 +583,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
             }
+            return true;
         }else{
             // save profile in preferences
             mPreference.clearProfilePreferences();
@@ -602,8 +605,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             mPreference.ProfilePictureCommit();
 
-
-
+            return false;
 
 
         }
