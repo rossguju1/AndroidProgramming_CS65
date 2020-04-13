@@ -58,7 +58,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
     private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
 
-    private Uri mImageCaptureUri;
+    private Uri mImageCaptureUri = null;
     private ImageView mImageView;
     private boolean isTakenFromCamera;
 
@@ -123,8 +123,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
-                mImageView.setImageBitmap(bitmap);
+                if(mImageCaptureUri != null){
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
+                    mImageView.setImageBitmap(bitmap);
+                }
             }  catch (IOException e) {
                 e.printStackTrace();
             }
@@ -233,7 +235,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         // Save the image capture uri before the activity goes into background
-        outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        if(mImageCaptureUri != null){
+            outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        }
     }
 
     // ****************** button click callbacks ***************************//
@@ -457,18 +461,19 @@ public class RegisterProfileActivity extends AppCompatActivity {
        // if (m)
 
         if (TextUtils.isEmpty(name)){
-            mEditName.setError("Need to add name");
+            mEditName.setError("Name is required to register.");
             focusView =  mEditName;
             canceled = true;
         }
 
         if (TextUtils.isEmpty(password)){
-            mEditPassword.setError("Need a password for email");
+            mEditPassword.setError("Password is required to register.");
             focusView = mEditPassword;
             canceled = true;
 
         } else if(isPasswordValid(password) == false){
-            mEditPassword.setError("This email password is wrong");
+            mEditPassword.setError("This password doesn't meet the minimum requirements. Must be" +
+                    "longer than 5 characters.");
             focusView = mEditPassword;
             canceled = true;
 
@@ -495,12 +500,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mEditPhoneNumber.setError("This field is required");
             focusView = mEditPhoneNumber;
             canceled = true;
+        } else if(!TextUtils.isDigitsOnly(phone)){
+            mEditPhoneNumber.setError("Phone number can only contain numbers.");
+            focusView = mEditPhoneNumber;
+            canceled = true;
         }
+
         if (TextUtils.isEmpty(class_year)){
-        mClassYear.setError("This field is required");
-        focusView = mClassYear;
-        canceled = true;
-    }
+            mClassYear.setError("This field is required");
+            focusView = mClassYear;
+            canceled = true;
+        } else if(!TextUtils.isDigitsOnly(class_year)){
+            mClassYear.setError("This field is required");
+            focusView = mClassYear;
+            canceled = true;
+        }
 
         if(TextUtils.isEmpty(major)){
 
@@ -529,7 +543,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfilePhone(phone);
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
-            mPreference.setProfilePicture(mImageCaptureUri.toString());
+//            mPreference.setProfilePicture(mImageCaptureUri.toString());
 
             /*
             if (!mPicPath.equalsIgnoreCase("nan")){
