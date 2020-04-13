@@ -53,17 +53,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
-    public static final String INTENT_FROM = "from";
-    private Button mChangeButton;
-
-    public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
     private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
-
+    private Button mChangeButton;
     private Uri mImageCaptureUri = null;
     private ImageView mImageView;
-    private boolean isTakenFromCamera;
-
-
     private EditText mEditName;
     private RadioGroup mRadioGenderGroup;
     private RadioButton mMale;
@@ -73,26 +66,23 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private EditText mEditPhoneNumber;
     private EditText mMajor;
     private EditText mClassYear;
-
-    String PicturePath;
-
-
     private Bitmap rotatedBitmap;
-    File photoFile = null;
+    private boolean isTakenFromCamera;
 
+    public static final String INTENT_FROM = "from";
+    public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
     public ProfilePreferences mPreference;
 
+    String PicturePath;
+    File photoFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setUpActionBar();
 
         //Display back button
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
-        //setUpActionBar();
-
         setContentView(R.layout.activity_profile);
 
         mChangeButton = findViewById(R.id.btnChangePhoto);
@@ -119,8 +109,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         mPreference = new ProfilePreferences(this);
 
-
-
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
             try {
@@ -140,12 +128,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
             public void onClick(View v){
                 checkPermissions();
                 displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_PICKER);
-
             }
-
         });
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -155,32 +140,27 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+        //Menu bar clicks
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.btnSave) {
-
-            // Save picture
+        if (id == R.id.btnSave) {        //On save button click
+            //Save the pic we just took
             saveSnap();
-            // Making a "toast" informing the user the picture is saved.
+
+            //"Toast": tell user pic is saved
             Toast.makeText(getApplicationContext(),
                     getString(R.string.ui_profile_toast_save_text),
                     Toast.LENGTH_SHORT).show();
-            // Close the activity
 
+            // Exit/Close & save active only if fields have been filled appropriately
             if (saveProfile() == false){
                 Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
                 startActivity(intent);
-                //finish();
-
             }
 
-
             return true;
-        } else if (id == android.R.id.home){
+
+        } else if (id == android.R.id.home){         //On home button click
             Toast.makeText(getApplicationContext(),"Hit BACK!!!!",
                     Toast.LENGTH_SHORT).show();
             finish();
@@ -190,22 +170,18 @@ public class RegisterProfileActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.ui_profile_registration_incomplete),
                     Toast.LENGTH_SHORT).show();
-
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-
-    /**
-     * Code to check for runtime permissions.
-     */
+    //Here we check our runtime permissions for the camera/photos etc.
     private void checkPermissions() {
+        //Check for appropriate version
         if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             return;
-
         }
-
+        //Check if permission has been granted
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 0);
@@ -213,25 +189,35 @@ public class RegisterProfileActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1] == PackageManager.PERMISSION_DENIED){
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] ==
+                PackageManager.PERMISSION_GRANTED) {
+        }else if (grantResults[0] == PackageManager.PERMISSION_DENIED || grantResults[1] ==
+                PackageManager.PERMISSION_DENIED) {
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)||shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                    //Show an explanation to the user *asynchronously*
+
+                if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ||
+                        shouldShowRequestPermissionRationale(Manifest.permission.
+                                WRITE_EXTERNAL_STORAGE)) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setMessage("This permission is important for the app.")
                             .setTitle("Important permission required");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
                         public void onClick(DialogInterface dialog, int id) {
                             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     Manifest.permission.CAMERA}, 0);
 
                         }
+
                     });
+
                     builder.show();
                 }else{
-                    //Never ask again and handle your app without permission.
+                    //Permission is denied... sad :(
+                    //App must continue on without camera/photo access
                 }
             }
         }
@@ -240,8 +226,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        // Save the image capture uri before the activity goes into background
-        if(mImageCaptureUri != null){
+        //Stoppage in lifecycle, must save image uri
+        if(mImageCaptureUri != null) {
             outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
         }
     }
@@ -263,10 +249,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
     }
 
     // ****************** button click callbacks ***************************//
-
-
-
-
     // Handle data after activity returns.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -277,19 +259,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         switch (requestCode) {
             case PICK_IMAGE:
-                Toast.makeText(this, "here2", Toast.LENGTH_SHORT).show();
-                //Uri selectedImage = data.getData();
-
                 mImageCaptureUri = data.getData();
-
-
                 beginCrop(mImageCaptureUri);
                 break;
 
-
             case REQUEST_CODE_TAKE_FROM_CAMERA:
-                // Send image taken from camera for cropping
-
+                // Crop image taken by camera
                 Bitmap rotatedBitmap = imageOrientationValidator(photoFile);
                 try {
                     FileOutputStream fOut = new FileOutputStream(photoFile);
@@ -299,31 +274,24 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-                // Send image taken from camera for cropping
+               //Set mImageCaptureUri so we can save the state if stop in lifecycle
                 mImageCaptureUri = FileProvider.getUriForFile(this,
                         BuildConfig.APPLICATION_ID,
                         photoFile);
-
-
                 beginCrop(mImageCaptureUri);
                 break;
 
-            case Crop.REQUEST_CROP: //We changed the RequestCode to the one being used by the library.
-                // Update image view after image crop
+            case Crop.REQUEST_CROP:
+                //We changed the RequestCode to the one being used by the library.
                 handleCrop(resultCode, data);
-
-
                 break;
         }
     }
 
     // ******* Photo picker dialog related functions ************//
-
     public void displayDialog(int id) {
+        //Dialogue fragment for photo gallery photo selection
         DialogFragment fragment = MyRunsDialogFragment.newInstance(id);
-        //fragment.show(getSupportFragmentManager(), getString(R.string.dialog_fragment_tag_photo_picker));
-        // Alternatively I can create a transaction and drive the lifecycle -- same as show()
         getSupportFragmentManager().beginTransaction()
                 .add(fragment, getString(R.string.dialog_fragment_tag_photo_picker))
                 .commit();
@@ -331,55 +299,49 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     public void onPhotoPickerItemSelected(int item) {
         Intent intent;
-
         switch (item) {
-
             case MyRunsDialogFragment.ID_PHOTO_PICKER_FROM_CAMERA:
-                // Take photo from camera，
-                // Construct an intent with action
-                // MediaStore.ACTION_IMAGE_CAPTURE
+                // Explicit intent used to take photo
                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                // Construct temporary image path and name to save the taken
-                // photo
+
                 try {
+                    // File to store our image
                     photoFile = createImageFile();
                 } catch (IOException ex) {
-                    // Error occurred while creating the File
+                    // Failed to create file, error occured
                     ex.printStackTrace();
                 }
+
+                //Prevent error if failed to create file
                 if (photoFile != null) {
                     Uri photoURI = FileProvider.getUriForFile(this,
                             BuildConfig.APPLICATION_ID,
                             photoFile);
+                    //Handle extra output case (see Android documentation)
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
-                //intent.putExtra("return-data", true);
+
                 try {
-                    // Start a camera capturing activity
-                    // REQUEST_CODE_TAKE_FROM_CAMERA is an integer tag you
-                    // defined to identify the activity in onActivityResult()
-                    // when it returns
+                    // Take photo, use tag to ID action in onActivityResult() on return
                     startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
                 } catch (ActivityNotFoundException e) {
                     e.printStackTrace();
                 }
                 isTakenFromCamera = true;
                 break;
+
             case MyRunsDialogFragment.DIALOG_ID_PHOTO_PICKER:
-
-
                 try {
+                    //Create file to save photo
                     photoFile = createImageFile();
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                     ex.printStackTrace();
                 }
 
-
+                //Intent used when selecting from image gallery i.e picking image
                 Intent i = new Intent( Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                 startActivityForResult(i, PICK_IMAGE);
-
 
             default:
                 return;
@@ -388,30 +350,24 @@ public class RegisterProfileActivity extends AppCompatActivity {
     }
 
     // ****************** private helper functions ***************************//
-
     private void loadSnap() {
-
-
-        // Load profile photo from internal storage
         try {
+            //Access internal storage fileInput
             FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
             Bitmap bmap = BitmapFactory.decodeStream(fis);
+            //Bitamp of photo
             mImageView.setImageBitmap(bmap);
             fis.close();
         } catch (IOException e) {
-            // Default profile photo if no photo saved before.
             mImageView.setImageResource(R.drawable.ic_launcher_background);
         }
     }
 
     private void saveSnap() {
-
-        // Commit all the changes into preference file
-        // Save profile image into internal storage.
-
         mImageView.buildDrawingCache();
         Bitmap bmap = mImageView.getDrawingCache();
         try {
+            //attempt to save image to internal storage using bitmap
             FileOutputStream fos = openFileOutput(getString(R.string.profile_photo_file_name), MODE_PRIVATE);
             bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
@@ -421,31 +377,28 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
     }
 
-    /** Method to start Crop activity using the library
-     *	Earlier the code used to start a new intent to crop the image,
-     *	but here the library is handling the creation of an Intent, so you don't
-     * have to.
-     *  **/
-
-
-
-
+    //Function to begin cropping action
     private void beginCrop(Uri source) {
-        // Continue only if the File was successfully created
+        // If we have a file to store our image in, continue
         if (photoFile != null) {
+            //Load image destination
             Uri destination = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID,
                     photoFile);
+            //Log for debugging
             Log.d("URI: ", destination.toString());
+            //Crop our photo
             Crop.of(source, destination).asSquare().start(this);
         } else{
-
+            //If we loaded the file from the image gallery i.e photoFile = null
+            //but the source !=null, continue
             if (source != null){
-
                 Uri destination = FileProvider.getUriForFile(this,
                         BuildConfig.APPLICATION_ID,
                         photoFile);
+                //LOG URI for debugging
                 Log.d("URI: ", destination.toString());
+                //Crop our file
                 Crop.of(source, destination).asSquare().start(this);
 
             }
@@ -454,6 +407,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     }
 
+    //Do the actual cropping
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
             Uri uri = Crop.getOutput(result);
@@ -471,13 +425,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
     private boolean saveProfile(){
-
-
         mEditName.setError(null);
         mEditEmail.setError(null);
         mEditPassword.setError(null);
-
-
 
         String name = mEditName.getText().toString();
         String email = mEditEmail.getText().toString();
@@ -486,7 +436,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
         int gender_selected = -1;
         boolean malechecked =  mMale.isChecked();
         boolean femalechecked =  mFemale.isChecked();
-
         if (malechecked){
             gender_selected = 1;
             
@@ -499,10 +448,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         String class_year = mClassYear.getText().toString();
 
         boolean canceled = false;
-
         View focusView = null;
-
-       // if (m)
 
         if (TextUtils.isEmpty(name)){
             mEditName.setError("Name is required to register.");
@@ -515,33 +461,30 @@ public class RegisterProfileActivity extends AppCompatActivity {
             focusView = mEditPassword;
             canceled = true;
 
-        } else if(isPasswordValid(password) == false){
+        } else if(password.length() < 6){
             mEditPassword.setError("This password doesn't meet the minimum requirements. Must be" +
                     "longer than 5 characters.");
             focusView = mEditPassword;
             canceled = true;
-
         }
 
         if(TextUtils.isEmpty(email)){
             mEditEmail.setError("This field is required");
             focusView = mEditEmail;
             canceled = true;
-        } else if (isEmailValid(email) == false){
+        } else if (email.contains("@") == false){
             mEditEmail.setError("Email is not valid");
             focusView = mEditEmail;
             canceled = true;
-
         }
 
         if(gender_selected == -1){
-
             focusView = mRadioGenderGroup;
             canceled = true;
         }
 
         if (TextUtils.isEmpty(phone)){
-            mEditPhoneNumber.setError("This field is required");
+            mEditPhoneNumber.setError("Phone field is required");
             focusView = mEditPhoneNumber;
             canceled = true;
         } else if(!TextUtils.isDigitsOnly(phone)){
@@ -551,35 +494,30 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
 
         if (TextUtils.isEmpty(class_year)){
-            mClassYear.setError("This field is required");
+            mClassYear.setError("Class Year field is required");
             focusView = mClassYear;
             canceled = true;
         } else if(!TextUtils.isDigitsOnly(class_year)){
-            mClassYear.setError("This field is required");
+            mClassYear.setError("Class Year field must be digits");
             focusView = mClassYear;
             canceled = true;
         }
 
         if(TextUtils.isEmpty(major)){
-
-            mMajor.setError("This field is required");
+            mMajor.setError("Major field is required");
             focusView = mMajor;
             canceled = true;
         }
 
         if (canceled){
-
             if (focusView instanceof EditText) {
                 focusView.requestFocus();
             } else if(focusView instanceof RadioGroup){
-
                 Toast.makeText(this, "Gender is required", Toast.LENGTH_SHORT).show();
-
-
             }
             return true;
         }else{
-            // save profile in preferences
+            //Here we take our profile and save it to the ProfilePreferences
             mPreference.clearProfilePreferences();
             mPreference.setProfileName(name);
             mPreference.setProfileEmail(email);
@@ -589,47 +527,26 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
 
-
-
+            //If we haven't taken a photo or chosen one, we can't save it or else the app with crash
             if (mImageCaptureUri != null){
                 mPreference.setProfilePicture(mImageCaptureUri.toString());
             }
 
-
-
             mPreference.ProfilePictureCommit();
-
             return false;
-
-
         }
 
     }
 
-private boolean isPasswordValid(String password){
-
-        if (password.length() < 6){
-            return false;
-        }
-
-        return true;
-}
-
-private boolean isEmailValid(String email){
-
-        return email.contains("@");
-
-}
-
     private File createImageFile() throws IOException {
-        // Create an image file name
+        //Use a timestamp to create a unique image file name.
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,
+                ".jpg",
+                storageDir
         );
         return image;
     }
@@ -637,34 +554,32 @@ private boolean isEmailValid(String email){
     private Bitmap imageOrientationValidator(File photoFile) {
         ExifInterface ei;
         try {
+
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID,
                     photoFile));
+            
             ei = new ExifInterface(photoFile.getAbsolutePath());
+
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_UNDEFINED);
             rotatedBitmap = null;
             switch (orientation) {
-
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     rotatedBitmap = rotateImage(bitmap, 90);
-
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     rotatedBitmap = rotateImage(bitmap, 180);
-
                     break;
 
                 case ExifInterface.ORIENTATION_ROTATE_270:
                     rotatedBitmap = rotateImage(bitmap, 270);
-
                     break;
 
                 case ExifInterface.ORIENTATION_NORMAL:
                 default:
                     rotatedBitmap = bitmap;
-
                     break;
             }
 
