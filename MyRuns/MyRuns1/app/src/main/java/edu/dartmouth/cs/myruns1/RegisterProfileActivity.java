@@ -277,6 +277,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
             case PICK_IMAGE:
                 Toast.makeText(this, "here2", Toast.LENGTH_SHORT).show();
                 Uri selectedImage = data.getData();
+
+                mImageCaptureUri = selectedImage;
+
+
                 beginCrop(selectedImage);
                 break;
 
