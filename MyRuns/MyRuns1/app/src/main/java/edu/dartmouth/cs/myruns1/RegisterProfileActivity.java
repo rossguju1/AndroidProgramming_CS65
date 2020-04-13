@@ -58,7 +58,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
     private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
 
-    private Uri mImageCaptureUri;
+    private Uri mImageCaptureUri = null;
     private ImageView mImageView;
     private boolean isTakenFromCamera;
 
@@ -123,8 +123,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
-                mImageView.setImageBitmap(bitmap);
+                if(mImageCaptureUri != null){
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
+                    mImageView.setImageBitmap(bitmap);
+                }
             }  catch (IOException e) {
                 e.printStackTrace();
             }
@@ -233,7 +235,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         // Save the image capture uri before the activity goes into background
-        outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        if(mImageCaptureUri != null){
+            outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        }
     }
 
     // ****************** button click callbacks ***************************//
