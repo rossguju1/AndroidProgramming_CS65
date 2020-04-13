@@ -170,7 +170,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             // Close the activity
             saveProfile();
-            //finish();
+
+            Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
+            startActivity(intent);
+            finish();
 
 
             return true;
@@ -552,8 +555,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
              */
 
+            mPreference.ProfilePictureCommit();
 
-            finish();
+
+
+
 
         }
 
