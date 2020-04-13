@@ -25,7 +25,7 @@ public class SigninActivity extends AppCompatActivity {
 
     private EditText mPassword;
 
-    private ProfilePreferences mPreference;
+    private ProfilePreferences mPreference = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,7 @@ public class SigninActivity extends AppCompatActivity {
         mPassword = findViewById(R.id.password1);
 
 
-        ProfilePreferences mPreference = new ProfilePreferences(this);
+        mPreference = new ProfilePreferences(this);
 
 
 
@@ -88,6 +88,7 @@ public class SigninActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(SigninActivity.this, RegisterProfileActivity.class);
                 intent.putExtra(RegisterProfileActivity.INTENT_FROM, TAG);
+                //startActivityForResult(i, PICK_IMAGE);
                 startActivity(intent);
             }
         });
@@ -144,11 +145,25 @@ public class SigninActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(DEBUG_TAG, "onStart");
+        mPreference = new ProfilePreferences(this);
+        if (mPreference != null) {
+            if ((mPreference.getProfileEmail() != "nan") && (mPreference.getProfilePassword() != "nan")) {
+
+                mEmail = findViewById(R.id.email1);
+
+                mPassword = findViewById(R.id.password1);
+
+                mEmail.setText(mPreference.getProfileEmail());
+                mPassword.setText(mPreference.getProfilePassword());
+
+            }
+        }
     }
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
+
     }
     @Override
     protected void onPause() {

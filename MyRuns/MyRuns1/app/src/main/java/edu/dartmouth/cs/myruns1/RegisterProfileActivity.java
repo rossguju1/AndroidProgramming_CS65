@@ -53,6 +53,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
     private static final String URI_STATE_KEY = "saved_uri";
+    private static final String DEBUG_TAG = "debug_key";
     private Button mChangeButton;
     private Uri mImageUri = null;
     private ImageView mImageV;
@@ -153,8 +154,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             // Exit/Close & save active only if fields have been filled appropriately
             if (saveProfile() == false){
-                Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
-                startActivity(intent);
+                //mImageV.setImageResource(R.drawable.ic_launcher_background);
+              finish();
             }
 
             return true;
@@ -601,6 +602,40 @@ public class RegisterProfileActivity extends AppCompatActivity {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
+
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d(DEBUG_TAG,"Register onRestart()");
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(DEBUG_TAG, "Register onStart");
+
+    }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "Register onResume");
+
+
+
+    }
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "Register onPause");
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "Register onDestroy");
+    }
+
+
 
 
 }
