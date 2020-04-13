@@ -73,6 +73,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private EditText mMajor;
     private EditText mClassYear;
 
+    String PicturePath;
+
 
     private Bitmap rotatedBitmap;
     File photoFile = null;
@@ -141,29 +143,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
         });
     }
 
-/*
-
-    private void setUpActionBar(){
-
-        ActionBar actionBar = getSupportActionBar();
-
-        if (actionBar != null){
-
-            actionBar.setDisplayHomeAsUpEnabled(true);
-
-            switch (getIntent().getExtras().getString(INTENT_FROM)){
-
-                case SigninActivity.TAG:
-                    actionBar.setTitle("Sign Up");
-                    break;
-            }
-
-
-
-        }
-    }
-
-*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -550,6 +529,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfilePhone(phone);
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
+            mPreference.setProfilePicture(mImageCaptureUri.toString());
 
             /*
             if (!mPicPath.equalsIgnoreCase("nan")){
