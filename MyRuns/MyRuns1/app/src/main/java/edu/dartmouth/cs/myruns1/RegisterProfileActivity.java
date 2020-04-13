@@ -594,7 +594,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
 
-            if (mImageCaptureUri.toString() != null){
+            if (mImageCaptureUri != null){
                 mPreference.setProfilePicture(mImageCaptureUri.toString());
             }
 
