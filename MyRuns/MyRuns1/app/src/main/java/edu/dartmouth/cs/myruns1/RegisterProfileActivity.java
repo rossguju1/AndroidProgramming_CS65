@@ -1,6 +1,5 @@
 package edu.dartmouth.cs.myruns1;
 import android.app.AlertDialog;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
@@ -53,10 +52,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
-    private static final String URI_INSTANCE_STATE_KEY = "saved_uri";
+    private static final String URI_STATE_KEY = "saved_uri";
     private Button mChangeButton;
-    private Uri mImageCaptureUri = null;
-    private ImageView mImageView;
+    private Uri mImageUri = null;
+    private ImageView mImageV;
     private EditText mEditName;
     private RadioGroup mRadioGenderGroup;
     private RadioButton mMale;
@@ -70,11 +69,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private boolean isTakenFromCamera;
 
     public static final String INTENT_FROM = "from";
-    public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
-    public ProfilePreferences mPreference;
+    public static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
+    public ProfilePreferences mProfilePreference;
 
     String PicturePath;
-    File photoFile = null;
+    File mPhotoFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +86,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         mChangeButton = findViewById(R.id.btnChangePhoto);
 
-        mImageView = (ImageView) findViewById(R.id.imageProfile);
+        mImageV = (ImageView) findViewById(R.id.imageProfile);
 
         mEditName = (EditText) findViewById(R.id.editName);
 
@@ -107,14 +106,14 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         mClassYear = (EditText) findViewById(R.id.editClassYear);
 
-        mPreference = new ProfilePreferences(this);
+        mProfilePreference = new ProfilePreferences(this);
 
         if (savedInstanceState != null) {
-            mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
+            mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
             try {
-                if(mImageCaptureUri != null){
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
-                    mImageView.setImageBitmap(bitmap);
+                if(mImageUri != null){
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                    mImageV.setImageBitmap(bitmap);
                 }
             }  catch (IOException e) {
                 e.printStackTrace();
@@ -127,7 +126,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
                 checkPermissions();
-                displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_PICKER);
+                displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM);
             }
         });
     }
@@ -143,13 +142,13 @@ public class RegisterProfileActivity extends AppCompatActivity {
         //Menu bar clicks
         int id = item.getItemId();
 
-        if (id == R.id.btnSave) {        //On save button click
+        if (id == R.id.buttonSave) {        //On save button click
             //Save the pic we just took
             saveSnap();
 
             //"Toast": tell user pic is saved
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.ui_profile_toast_save_text),
+                    getString(R.string.profile_save_text),
                     Toast.LENGTH_SHORT).show();
 
             // Exit/Close & save active only if fields have been filled appropriately
@@ -168,7 +167,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         }else{
             Toast.makeText(getApplicationContext(),
-                    getString(R.string.ui_profile_registration_incomplete),
+                    getString(R.string.profile_registration_incomplete),
                     Toast.LENGTH_SHORT).show();
         }
 
@@ -227,8 +226,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Stoppage in lifecycle, must save image uri
-        if(mImageCaptureUri != null) {
-            outState.putParcelable(URI_INSTANCE_STATE_KEY, mImageCaptureUri);
+        if(mImageUri != null) {
+            outState.putParcelable(URI_STATE_KEY, mImageUri);
         }
     }
 
@@ -236,11 +235,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
-            mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
+            mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
             try {
-                if(mImageCaptureUri != null){
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
-                    mImageView.setImageBitmap(bitmap);
+                if(mImageUri != null){
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                    mImageV.setImageBitmap(bitmap);
                 }
             }  catch (IOException e) {
                 e.printStackTrace();
@@ -255,19 +254,19 @@ public class RegisterProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK)
             return;
-        mImageView.setImageDrawable(null);
+        mImageV.setImageDrawable(null);
 
         switch (requestCode) {
             case PICK_IMAGE:
-                mImageCaptureUri = data.getData();
-                beginCrop(mImageCaptureUri);
+                mImageUri = data.getData();
+                beginCrop(mImageUri);
                 break;
 
-            case REQUEST_CODE_TAKE_FROM_CAMERA:
+            case REQUEST_TAKE_PICTURE_FROM_CAMERA:
                 // Crop image taken by camera
-                Bitmap rotatedBitmap = imageOrientationValidator(photoFile);
+                Bitmap rotatedBitmap = imageOrientationValidator(mPhotoFile);
                 try {
-                    FileOutputStream fOut = new FileOutputStream(photoFile);
+                    FileOutputStream fOut = new FileOutputStream(mPhotoFile);
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
                     fOut.flush();
                     fOut.close();
@@ -275,10 +274,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                //Set mImageCaptureUri so we can save the state if stop in lifecycle
-                mImageCaptureUri = FileProvider.getUriForFile(this,
+                mImageUri = FileProvider.getUriForFile(this,
                         BuildConfig.APPLICATION_ID,
-                        photoFile);
-                beginCrop(mImageCaptureUri);
+                        mPhotoFile);
+                beginCrop(mImageUri);
                 break;
 
             case Crop.REQUEST_CROP:
@@ -288,7 +287,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
     }
 
-    // ******* Photo picker dialog related functions ************//
     public void displayDialog(int id) {
         //Dialogue fragment for photo gallery photo selection
         DialogFragment fragment = MyRunsDialogFragment.newInstance(id);
@@ -300,40 +298,40 @@ public class RegisterProfileActivity extends AppCompatActivity {
     public void onPhotoPickerItemSelected(int item) {
         Intent intent;
         switch (item) {
-            case MyRunsDialogFragment.ID_PHOTO_PICKER_FROM_CAMERA:
+            case MyRunsDialogFragment.ID_PHOTO_ITEM_FROM_CAMERA:
                 // Explicit intent used to take photo
                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
                 try {
                     // File to store our image
-                    photoFile = createImageFile();
+                    mPhotoFile = createImageFile();
                 } catch (IOException ex) {
                     // Failed to create file, error occured
                     ex.printStackTrace();
                 }
 
                 //Prevent error if failed to create file
-                if (photoFile != null) {
+                if (mPhotoFile != null) {
                     Uri photoURI = FileProvider.getUriForFile(this,
                             BuildConfig.APPLICATION_ID,
-                            photoFile);
+                            mPhotoFile);
                     //Handle extra output case (see Android documentation)
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 }
 
                 try {
                     // Take photo, use tag to ID action in onActivityResult() on return
-                    startActivityForResult(intent, REQUEST_CODE_TAKE_FROM_CAMERA);
+                    startActivityForResult(intent, REQUEST_TAKE_PICTURE_FROM_CAMERA);
                 } catch (ActivityNotFoundException e) {
                     e.printStackTrace();
                 }
                 isTakenFromCamera = true;
                 break;
 
-            case MyRunsDialogFragment.DIALOG_ID_PHOTO_PICKER:
+            case MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM:
                 try {
                     //Create file to save photo
-                    photoFile = createImageFile();
+                    mPhotoFile = createImageFile();
                 } catch (IOException ex) {
                     // Error occurred while creating the File
                     ex.printStackTrace();
@@ -349,23 +347,22 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     }
 
-    // ****************** private helper functions ***************************//
     private void loadSnap() {
         try {
             //Access internal storage fileInput
             FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
             Bitmap bmap = BitmapFactory.decodeStream(fis);
             //Bitamp of photo
-            mImageView.setImageBitmap(bmap);
+            mImageV.setImageBitmap(bmap);
             fis.close();
         } catch (IOException e) {
-            mImageView.setImageResource(R.drawable.ic_launcher_background);
+            mImageV.setImageResource(R.drawable.ic_launcher_background);
         }
     }
 
     private void saveSnap() {
-        mImageView.buildDrawingCache();
-        Bitmap bmap = mImageView.getDrawingCache();
+        mImageV.buildDrawingCache();
+        Bitmap bmap = mImageV.getDrawingCache();
         try {
             //attempt to save image to internal storage using bitmap
             FileOutputStream fos = openFileOutput(getString(R.string.profile_photo_file_name), MODE_PRIVATE);
@@ -380,11 +377,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
     //Function to begin cropping action
     private void beginCrop(Uri source) {
         // If we have a file to store our image in, continue
-        if (photoFile != null) {
+        if (mPhotoFile != null) {
             //Load image destination
             Uri destination = FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID,
-                    photoFile);
+                    mPhotoFile);
             //Log for debugging
             Log.d("URI: ", destination.toString());
             //Crop our photo
@@ -395,7 +392,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             if (source != null){
                 Uri destination = FileProvider.getUriForFile(this,
                         BuildConfig.APPLICATION_ID,
-                        photoFile);
+                        mPhotoFile);
                 //LOG URI for debugging
                 Log.d("URI: ", destination.toString());
                 //Crop our file
@@ -413,7 +410,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             Uri uri = Crop.getOutput(result);
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-                mImageView.setImageBitmap(bitmap);
+                mImageV.setImageBitmap(bitmap);
             } catch (Exception e) {
                 Log.d("Error", "error");
             }
@@ -518,21 +515,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
             return true;
         }else{
             //Here we take our profile and save it to the ProfilePreferences
-            mPreference.clearProfilePreferences();
-            mPreference.setProfileName(name);
-            mPreference.setProfileEmail(email);
-            mPreference.setProfilePassword(password);
-            mPreference.setProfileGender(gender_selected);
-            mPreference.setProfilePhone(phone);
-            mPreference.setProfileMajor(major);
-            mPreference.setProfileClassYear(class_year);
+            mProfilePreference.clearProfilePreferences();
+            mProfilePreference.setProfileName(name);
+            mProfilePreference.setProfileEmail(email);
+            mProfilePreference.setProfilePassword(password);
+            mProfilePreference.setProfileGender(gender_selected);
+            mProfilePreference.setProfilePhone(phone);
+            mProfilePreference.setProfileMajor(major);
+            mProfilePreference.setProfileClassYear(class_year);
 
             //If we haven't taken a photo or chosen one, we can't save it or else the app with crash
-            if (mImageCaptureUri != null){
-                mPreference.setProfilePicture(mImageCaptureUri.toString());
+            if (mImageUri != null){
+                mProfilePreference.setProfilePicture(mImageUri.toString());
             }
 
-            mPreference.ProfilePictureCommit();
+            mProfilePreference.ProfilePictureCommit();
             return false;
         }
 

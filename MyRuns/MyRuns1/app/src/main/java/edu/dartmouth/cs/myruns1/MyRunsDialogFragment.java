@@ -6,7 +6,6 @@ import android.app.Dialog;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.fragment.app.DialogFragment;
 
@@ -18,11 +17,11 @@ public class MyRunsDialogFragment extends DialogFragment {
     public static final int DIALOG_ID_ERROR = -1;
 
     // Key for dialog camera option
-    public static final int DIALOG_ID_PHOTO_PICKER = 1;
+    public static final int DIALOG_ID_PHOTO_ITEM = 1;
 
 
     // Key for dialog option to take a picture
-    public static final int ID_PHOTO_PICKER_FROM_CAMERA = 0;
+    public static final int ID_PHOTO_ITEM_FROM_CAMERA = 0;
 
 
 
@@ -48,7 +47,7 @@ public class MyRunsDialogFragment extends DialogFragment {
         // This sets up the dialog for choosing either to take a new picture
         // or selecting one from gallery
         switch (dialog_id) {
-            case DIALOG_ID_PHOTO_PICKER:
+            case DIALOG_ID_PHOTO_ITEM:
                 AlertDialog.Builder builder = new AlertDialog.Builder(parent);
                 builder.setTitle(R.string.picture_picker_fragment);
                 DialogInterface.OnClickListener dialoglistener = new DialogInterface.OnClickListener() {
