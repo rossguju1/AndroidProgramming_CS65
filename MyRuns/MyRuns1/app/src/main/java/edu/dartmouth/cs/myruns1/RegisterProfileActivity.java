@@ -376,10 +376,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 }
 
 
-                Toast.makeText(this, "here1", Toast.LENGTH_SHORT).show();
-                Intent i = new Intent(
-                        Intent.ACTION_PICK,
-                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent i = new Intent( Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
                 startActivityForResult(i, PICK_IMAGE);
 

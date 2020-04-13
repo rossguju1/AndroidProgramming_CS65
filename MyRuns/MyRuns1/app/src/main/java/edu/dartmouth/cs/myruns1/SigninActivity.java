@@ -73,14 +73,11 @@ public class SigninActivity extends AppCompatActivity {
             @Override
             public void onClick(View v){
 
-
-
                 if (log_in(auto_email, auto_pass)){
                     Intent intent = new Intent(SigninActivity.this, MainMyRunsActivity.class);
                     startActivity(intent);
 
                 }
-
 
             }
 
