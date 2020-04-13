@@ -75,7 +75,7 @@ public class SigninActivity extends AppCompatActivity {
 
 
 
-                if (!log_in(auto_email, auto_pass)){
+                if (log_in(auto_email, auto_pass)){
                     Intent intent = new Intent(SigninActivity.this, MainMyRunsActivity.class);
                     startActivity(intent);
 
@@ -131,9 +131,7 @@ public class SigninActivity extends AppCompatActivity {
     private boolean log_in(String preference_email, String preference_password){
 
 
-        boolean canceled = false;
 
-        View focusView = null;
 
         mEmail.setError(null);
         mPassword.setError(null);
@@ -147,22 +145,21 @@ public class SigninActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),
                     "Need to Register a Profile",
                     Toast.LENGTH_SHORT).show();
+            return false;
         } else {
             if (TextUtils.isEmpty(password)){
                 mPassword.setError("Password is required");
-                focusView = mPassword;
-                canceled = true;
+                mPassword.requestFocus();
+                return false;
             } else if (!email.contains("@")){
                 mEmail.setError("Email is required");
-                focusView = mEmail;
-                canceled = true;
+                mEmail.requestFocus();
+                return false;
             }
         }
 
-        if(canceled){
-            focusView.requestFocus();
-        }
-    return canceled;
+
+    return true;
 
     }
 

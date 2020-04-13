@@ -113,6 +113,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
+//            try {
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
+//                mImageView.setImageBitmap(bitmap);
+//            }  catch (IOException e) {
+//                e.printStackTrace();
+//            }
         }
 
         loadSnap();
@@ -201,8 +207,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
      * Code to check for runtime permissions.
      */
     private void checkPermissions() {
-        if(Build.VERSION.SDK_INT < 23)
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M){
             return;
+
+        }
 
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -222,13 +230,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
                             .setTitle("Important permission required");
                     builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 0);
-                            }
+                            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                                    Manifest.permission.CAMERA}, 0);
 
                         }
                     });
-                    requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, 0);
+                    builder.show();
                 }else{
                     //Never ask again and handle your app without permission.
                 }
