@@ -59,7 +59,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
-    private static final String INTENT_FROM = "from";
+    public static final String INTENT_FROM = "from";
     private Button mChangeButton;
 
     public static final int REQUEST_CODE_TAKE_FROM_CAMERA = 0;
@@ -90,6 +90,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         //setUpActionBar();
 
+        //Display back button
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 

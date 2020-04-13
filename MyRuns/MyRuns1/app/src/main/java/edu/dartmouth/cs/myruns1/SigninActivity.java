@@ -2,6 +2,7 @@ package edu.dartmouth.cs.myruns1;
 import edu.dartmouth.cs.myruns1.models.Profiles;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -23,7 +24,7 @@ import edu.dartmouth.cs.myruns1.RegisterProfileActivity;
 
 public class SigninActivity extends AppCompatActivity {
 
-    public static final String TAG = "tag";
+    public static final String TAG = "tag_log_in";
     private static final String DEBUG_TAG = "debugger";
     private Button mSignInButton;
     private Button mRegisterButton;
@@ -32,11 +33,15 @@ public class SigninActivity extends AppCompatActivity {
 
     private EditText mPassword;
 
+    private ProfilePreferences mPreference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_sign_in);
+
+        getSupportActionBar().setTitle("Sign In");
 
         Log.d(DEBUG_TAG, "onCreate()");
 
@@ -45,6 +50,32 @@ public class SigninActivity extends AppCompatActivity {
 
         mRegisterButton = findViewById(R.id.registerButton);
 
+        mEmail = findViewById(R.id.email1);
+
+        mPassword = findViewById(R.id.password1);
+
+
+        ProfilePreferences mPreference = new ProfilePreferences(this);
+
+        // check previous user made
+
+        //Fake delay progress bar
+
+
+        final String auto_email = mPreference.getProfileEmail();
+
+        final String auto_pass = mPreference.getProfilePassword();
+
+
+
+
+        if ((auto_email != "nan") && (auto_pass != "nan")){
+
+            mEmail.setText(auto_email);
+            mPassword.setText(auto_pass);
+
+        }
+
 
         mSignInButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -52,10 +83,12 @@ public class SigninActivity extends AppCompatActivity {
 
 
 
+                if (!log_in(auto_email, auto_pass)){
+                    Intent intent = new Intent(SigninActivity.this, MainMyRunsActivity.class);
+                    startActivity(intent);
 
+                }
 
-                Intent intent = new Intent(SigninActivity.this, MainMyRunsActivity.class);
-                startActivity(intent);
 
             }
 
@@ -66,6 +99,7 @@ public class SigninActivity extends AppCompatActivity {
             public void onClick(View v){
 
                 Intent intent = new Intent(SigninActivity.this, RegisterProfileActivity.class);
+                intent.putExtra(RegisterProfileActivity.INTENT_FROM, TAG);
                 startActivity(intent);
             }
         });
@@ -102,19 +136,43 @@ public class SigninActivity extends AppCompatActivity {
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
-    private void saveProfile(){
+    private boolean log_in(String preference_email, String preference_password){
 
 
+        boolean canceled = false;
+
+        View focusView = null;
+
+        mEmail.setError(null);
+        mPassword.setError(null);
+
+        String email = mEmail.getText().toString();
+        String password = mPassword.getText().toString();
+
+
+        if ((preference_email == "nan") && (preference_password == "nan")){
+
+            Toast.makeText(getApplicationContext(),
+                    "Need to Register a Profile",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            if (TextUtils.isEmpty(password)){
+                mPassword.setError("Password is required");
+                focusView = mPassword;
+                canceled = true;
+            } else if (!email.contains("@")){
+                mEmail.setError("Email is required");
+                focusView = mEmail;
+                canceled = true;
+            }
+        }
+
+        if(canceled){
+            focusView.requestFocus();
+        }
+    return canceled;
 
     }
-
-
-    private void loadProfile(){
-
-
-
-    }
-
 
 
 

@@ -90,7 +90,7 @@ public class ProfilePreferences {
 
     public String getProfileClassYear(){
 
-        return sharedPreferences.getString("major", "nan");
+        return sharedPreferences.getString("class_year", "nan");
     }
 
     public void setProfileClassYear(String year){
