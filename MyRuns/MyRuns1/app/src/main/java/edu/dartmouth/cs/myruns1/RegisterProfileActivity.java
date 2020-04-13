@@ -457,18 +457,19 @@ public class RegisterProfileActivity extends AppCompatActivity {
        // if (m)
 
         if (TextUtils.isEmpty(name)){
-            mEditName.setError("Need to add name");
+            mEditName.setError("Name is required to register.");
             focusView =  mEditName;
             canceled = true;
         }
 
         if (TextUtils.isEmpty(password)){
-            mEditPassword.setError("Need a password for email");
+            mEditPassword.setError("Password is required to register.");
             focusView = mEditPassword;
             canceled = true;
 
         } else if(isPasswordValid(password) == false){
-            mEditPassword.setError("This email password is wrong");
+            mEditPassword.setError("This password doesn't meet the minimum requirements. Must be" +
+                    "longer than 5 characters.");
             focusView = mEditPassword;
             canceled = true;
 
@@ -495,12 +496,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mEditPhoneNumber.setError("This field is required");
             focusView = mEditPhoneNumber;
             canceled = true;
+        } else if(!TextUtils.isDigitsOnly(phone)){
+            mEditPhoneNumber.setError("Phone number can only contain numbers.");
+            focusView = mEditPhoneNumber;
+            canceled = true;
         }
+
         if (TextUtils.isEmpty(class_year)){
-        mClassYear.setError("This field is required");
-        focusView = mClassYear;
-        canceled = true;
-    }
+            mClassYear.setError("This field is required");
+            focusView = mClassYear;
+            canceled = true;
+        } else if(!TextUtils.isDigitsOnly(class_year)){
+            mClassYear.setError("This field is required");
+            focusView = mClassYear;
+            canceled = true;
+        }
 
         if(TextUtils.isEmpty(major)){
 
@@ -529,7 +539,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfilePhone(phone);
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
-            mPreference.setProfilePicture(mImageCaptureUri.toString());
+//            mPreference.setProfilePicture(mImageCaptureUri.toString());
 
             /*
             if (!mPicPath.equalsIgnoreCase("nan")){
