@@ -2,8 +2,12 @@ package edu.dartmouth.cs.myruns1;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.DialogInterface;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Build;
+import android.os.Environment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.ActionBar;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 
 
@@ -28,6 +33,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.ActivityNotFoundException;
 import android.graphics.Bitmap;
@@ -67,8 +74,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private EditText mClassYear;
 
 
-
-
+    private Bitmap rotatedBitmap;
+    File photoFile = null;
 
     public ProfilePreferences mPreference;
 
@@ -113,12 +120,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mImageCaptureUri = savedInstanceState.getParcelable(URI_INSTANCE_STATE_KEY);
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
-//                mImageView.setImageBitmap(bitmap);
-//            }  catch (IOException e) {
-//                e.printStackTrace();
-//            }
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageCaptureUri);
+                mImageView.setImageBitmap(bitmap);
+            }  catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         loadSnap();
@@ -273,6 +280,23 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             case REQUEST_CODE_TAKE_FROM_CAMERA:
                 // Send image taken from camera for cropping
+
+                Bitmap rotatedBitmap = imageOrientationValidator(photoFile);
+                try {
+                    FileOutputStream fOut = new FileOutputStream(photoFile);
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                    fOut.flush();
+                    fOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                // Send image taken from camera for cropping
+                mImageCaptureUri = FileProvider.getUriForFile(this,
+                        BuildConfig.APPLICATION_ID,
+                        photoFile);
+
+
                 beginCrop(mImageCaptureUri);
                 break;
 
@@ -280,12 +304,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 // Update image view after image crop
                 handleCrop(resultCode, data);
 
-                // Delete temporary image taken by camera after crop.
-                if (isTakenFromCamera) {
-                    File f = new File(mImageCaptureUri.getPath());
-                    if (f.exists())
-                        f.delete();
-                }
 
                 break;
         }
@@ -314,26 +332,19 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 // Construct temporary image path and name to save the taken
                 // photo
-                ContentValues values = new ContentValues(1);
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpg");
-                mImageCaptureUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-
-                /**
-                 This was the previous code to generate a URI. This was throwing an exception -
-                 "android.os.StrictMode.onFileUriExposed" in Android N.
-                 This was because StrictMode prevents passing URIs with a file:// scheme. Once you
-                 set the target SDK to 24, then the file:// URI scheme is no longer supported because the
-                 security is exposed. You can change the  targetSDK version to be <24, to use the following code.
-                 The new code as written above works nevertheless.
-
-
-                 mImageCaptureUri = Uri.fromFile(new File(Environment
-                 .getExternalStorageDirectory(), "tmp_"
-                 + String.valueOf(System.currentTimeMillis()) + ".jpg"));
-                 **/
-
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, mImageCaptureUri);
-                intent.putExtra("return-data", true);
+                try {
+                    photoFile = createImageFile();
+                } catch (IOException ex) {
+                    // Error occurred while creating the File
+                    ex.printStackTrace();
+                }
+                if (photoFile != null) {
+                    Uri photoURI = FileProvider.getUriForFile(this,
+                            BuildConfig.APPLICATION_ID,
+                            photoFile);
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                }
+                //intent.putExtra("return-data", true);
                 try {
                     // Start a camera capturing activity
                     // REQUEST_CODE_TAKE_FROM_CAMERA is an integer tag you
@@ -400,18 +411,37 @@ public class RegisterProfileActivity extends AppCompatActivity {
      *	but here the library is handling the creation of an Intent, so you don't
      * have to.
      *  **/
+
+
+
+
     private void beginCrop(Uri source) {
-        Uri destination = Uri.fromFile(new File(getCacheDir(), "cropped"));
-        Crop.of(source, destination).asSquare().start(this);
+        // Continue only if the File was successfully created
+        if (photoFile != null) {
+            Uri destination = FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID,
+                    photoFile);
+            Log.d("URI: ", destination.toString());
+            Crop.of(source, destination).asSquare().start(this);
+        }
+
     }
 
     private void handleCrop(int resultCode, Intent result) {
         if (resultCode == RESULT_OK) {
-            mImageView.setImageURI(Crop.getOutput(result));
+            Uri uri = Crop.getOutput(result);
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                mImageView.setImageBitmap(bitmap);
+            } catch (Exception e) {
+                Log.d("Error", "error");
+            }
+
         } else if (resultCode == Crop.RESULT_ERROR) {
             Toast.makeText(this, Crop.getError(result).getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private void saveProfile(){
 
@@ -549,6 +579,66 @@ private boolean isEmailValid(String email){
         return email.contains("@");
 
 }
+
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        return image;
+    }
+
+    private Bitmap imageOrientationValidator(File photoFile) {
+        ExifInterface ei;
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), FileProvider.getUriForFile(this,
+                    BuildConfig.APPLICATION_ID,
+                    photoFile));
+            ei = new ExifInterface(photoFile.getAbsolutePath());
+            int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_UNDEFINED);
+            rotatedBitmap = null;
+            switch (orientation) {
+
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    rotatedBitmap = rotateImage(bitmap, 90);
+
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    rotatedBitmap = rotateImage(bitmap, 180);
+
+                    break;
+
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    rotatedBitmap = rotateImage(bitmap, 270);
+
+                    break;
+
+                case ExifInterface.ORIENTATION_NORMAL:
+                default:
+                    rotatedBitmap = bitmap;
+
+                    break;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rotatedBitmap;
+    }
+
+    private Bitmap rotateImage(Bitmap source, float angle) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(angle);
+        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
+                matrix, true);
+    }
 
 
 }
