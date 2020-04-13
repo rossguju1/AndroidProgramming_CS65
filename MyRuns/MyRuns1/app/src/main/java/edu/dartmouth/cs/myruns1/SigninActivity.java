@@ -49,9 +49,7 @@ public class SigninActivity extends AppCompatActivity {
 
         ProfilePreferences mPreference = new ProfilePreferences(this);
 
-        // check previous user made
 
-        //Fake delay progress bar
 
 
         final String auto_email = mPreference.getProfileEmail();
@@ -59,7 +57,7 @@ public class SigninActivity extends AppCompatActivity {
         final String auto_pass = mPreference.getProfilePassword();
 
 
-
+    // fill in the email and password if the user previously registered
         if ((auto_email != "nan") && (auto_pass != "nan")){
 
             mEmail.setText(auto_email);
@@ -67,8 +65,8 @@ public class SigninActivity extends AppCompatActivity {
 
 
         }
-
-
+        // if the user clicks on the sign in button we check login requirements and launch the
+        // main activity if successful sign in
         mSignInButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -83,6 +81,7 @@ public class SigninActivity extends AppCompatActivity {
 
         });
 
+        // if the user clicks register, we create and launch the Register profile Activity
         mRegisterButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -94,6 +93,43 @@ public class SigninActivity extends AppCompatActivity {
         });
 
 
+
+    }
+
+
+    //checks login requirements
+    // returns true if the log in requirements are valid
+    // otherwise false
+    private boolean log_in(String preference_email, String preference_password){
+
+        // set error messages for the views to nothing
+        mEmail.setError(null);
+        mPassword.setError(null);
+
+        String email = mEmail.getText().toString();
+        String password = mPassword.getText().toString();
+
+        //check if the edit text entries are empty
+        if ((preference_email == "nan") && (preference_password == "nan")){
+
+            Toast.makeText(getApplicationContext(),
+                    "Need to Register a Profile",
+                    Toast.LENGTH_SHORT).show();
+            return false;
+        } else {
+            if (TextUtils.isEmpty(password)){
+                mPassword.setError("Password is required");
+                mPassword.requestFocus();
+                return false;
+            } else if (!email.contains("@")){
+                mEmail.setError("Email is required");
+                mEmail.requestFocus();
+                return false;
+            }
+        }
+
+
+    return true;
 
     }
 
@@ -125,40 +161,6 @@ public class SigninActivity extends AppCompatActivity {
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
-    private boolean log_in(String preference_email, String preference_password){
-
-
-
-
-        mEmail.setError(null);
-        mPassword.setError(null);
-
-        String email = mEmail.getText().toString();
-        String password = mPassword.getText().toString();
-
-
-        if ((preference_email == "nan") && (preference_password == "nan")){
-
-            Toast.makeText(getApplicationContext(),
-                    "Need to Register a Profile",
-                    Toast.LENGTH_SHORT).show();
-            return false;
-        } else {
-            if (TextUtils.isEmpty(password)){
-                mPassword.setError("Password is required");
-                mPassword.requestFocus();
-                return false;
-            } else if (!email.contains("@")){
-                mEmail.setError("Email is required");
-                mEmail.requestFocus();
-                return false;
-            }
-        }
-
-
-    return true;
-
-    }
 
 
 

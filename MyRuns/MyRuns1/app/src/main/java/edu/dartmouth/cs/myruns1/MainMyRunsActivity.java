@@ -39,11 +39,10 @@ public class MainMyRunsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.main_settings_menu){
-            // do something
+
         }
 
         if(id == R.id.main_edit_profile_menu){
-
 
 
         }
