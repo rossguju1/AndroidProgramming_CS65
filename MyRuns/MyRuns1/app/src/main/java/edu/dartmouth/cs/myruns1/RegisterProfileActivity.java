@@ -170,7 +170,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     getString(R.string.ui_profile_toast_save_text),
                     Toast.LENGTH_SHORT).show();
             // Close the activity
-            
+
             if (saveProfile() == false){
                 Intent intent = new Intent(RegisterProfileActivity.this, SigninActivity.class);
                 startActivity(intent);
@@ -453,10 +453,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             }
 
-
-
         }
-
 
     }
 
@@ -594,14 +591,14 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mPreference.setProfilePhone(phone);
             mPreference.setProfileMajor(major);
             mPreference.setProfileClassYear(class_year);
-            mPreference.setProfilePicture(mImageCaptureUri.toString());
 
-            /*
-            if (!mPicPath.equalsIgnoreCase("nan")){
-                mPreference.setProfilePicture(PicPath);
+
+
+            if (mImageCaptureUri.toString() != null){
+                mPreference.setProfilePicture(mImageCaptureUri.toString());
             }
 
-             */
+
 
             mPreference.ProfilePictureCommit();
 
