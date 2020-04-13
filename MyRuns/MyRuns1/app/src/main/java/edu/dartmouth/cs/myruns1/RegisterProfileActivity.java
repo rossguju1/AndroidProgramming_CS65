@@ -68,6 +68,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
 
+
+
     public ProfilePreferences mPreference;
 
 
@@ -79,6 +81,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         //Display back button
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
+        //setUpActionBar();
 
         setContentView(R.layout.activity_profile);
 
@@ -104,7 +107,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         mClassYear = (EditText) findViewById(R.id.editClassYear);
 
-
         mPreference = new ProfilePreferences(this);
 
 
@@ -126,7 +128,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         });
     }
 
-    /*
+/*
 
     private void setUpActionBar(){
 
