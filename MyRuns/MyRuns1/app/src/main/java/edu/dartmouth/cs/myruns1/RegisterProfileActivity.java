@@ -160,8 +160,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             return true;
 
         } else if (id == android.R.id.home){         //On home button click
-            Toast.makeText(getApplicationContext(),"Hit BACK!!!!",
-                    Toast.LENGTH_SHORT).show();
+
             finish();
             return true;
 
