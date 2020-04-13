@@ -1,14 +1,10 @@
 package edu.dartmouth.cs.myruns1;
-import edu.dartmouth.cs.myruns1.models.Profiles;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.text.TextUtils;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.content.Intent;
 import android.util.Log;
@@ -16,10 +12,6 @@ import android.view.View;
 import android.widget.Button;
 
 import edu.dartmouth.cs.myruns1.models.ProfilePreferences;
-
-import edu.dartmouth.cs.myruns1.RegisterProfileActivity;
-
-
 
 
 public class SigninActivity extends AppCompatActivity {
@@ -68,11 +60,11 @@ public class SigninActivity extends AppCompatActivity {
 
 
 
-
         if ((auto_email != "nan") && (auto_pass != "nan")){
 
             mEmail.setText(auto_email);
             mPassword.setText(auto_pass);
+
 
         }
 

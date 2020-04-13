@@ -22,35 +22,21 @@ import androidx.fragment.app.DialogFragment;
 
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Objects;
-
-import android.app.Activity;
 
 import android.content.ActivityNotFoundException;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
-import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.soundcloud.android.crop.Crop;
-
-import org.w3c.dom.Text;
-
-import edu.dartmouth.cs.myruns1.models.Profiles;
 
 import edu.dartmouth.cs.myruns1.models.ProfilePreferences;
 
