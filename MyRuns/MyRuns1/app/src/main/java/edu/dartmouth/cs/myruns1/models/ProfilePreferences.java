@@ -112,6 +112,13 @@ public class ProfilePreferences {
     }
 
 
+    public void ProfilePictureCommit(){
+
+        sharedPreferences.edit().commit();
+
+    }
+
+
 
 
     public void clearProfilePreferences(){
