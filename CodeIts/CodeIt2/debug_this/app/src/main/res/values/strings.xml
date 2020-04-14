@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, StartActivity!</string>
+    <string name="app_name">ActionTab</string>
+    <string name="ui_cs_picture">Sudi picture</string>
+    <string name="ui_love_picture">Love picture</string>
+    <!-- Tab Strings -->
+    <string name="ui_tabname_find">find</string>
+    <string name="ui_tabname_chat">chat</string>
+    <string name="ui_tabname_meet">meet</string>
+    <string name="ui_tabname_party">party</string>
+
+    <!-- Menu Strings -->
+    <string name="ui_menu_search">search</string>
+    <string name="ui_menu_send">send</string>
+    <string name="ui_menu_add">add</string>
+    <string name="ui_menu_quit">quit</string>
+    <string name="ui_menu_feedback">feedback</string>
+    <string name="ui_menu_about">about</string>
+    <string name="ui_menu_share">share</string>
+
+    <string name="ui_button_goback_title">go back</string>
+    <string name="ui_profile_name_hint">Your name here</string>
+    <string name="ui_profile_name_title">Name</string>
+    <string name="ui_profile_email_hint">Your Email here</string>
+    <string name="ui_profile_email_title">Email:</string>
+    <string name="ui_profile_phone_hint">Your phone number here</string>
+    <string name="ui_profile_phone_title">Phone:</string>
+    <string name="ui_profile_gender_title">Gender:</string>
+    <string name="ui_profile_gender_male">Male</string>
+    <string name="ui_profile_gender_female">Female</string>
+    <string name="ui_profile_date_title">Date:</string>
+    <string name="ui_profile_date_hint">MM/DD/YYYY</string>
+    <string name="ui_mood_spinner_title">How are you feeling:</string>
+    <string name="ui_profile_department_title">Computer Science Department</string>
+    <string name="ui_profile_device_title">Cellphones</string>
+    <string name="ui_profile_demand_title">I want an A for else ;-)</string>
+    <string name="ui_button_save_title">Save</string>
+    <string name="ui_button_cancel_title">Cancel</string>
+    <string name="new_party_schedule">New Party Schedule</string>
+    <string name="party_title">Party Title</string>
+    <string name="party_venue">Party Venue</string>
+    <string name="party_date">Party Date</string>
+    <string name="party_time">Party Time</string>
+    <string name="required_field">Some required fields are blank!</string>
+
+    <string name="updated_profile">Profile Updated Successfully!</string>
+
+    <string-array name="ui_mood_spinner_entries">
+        <item>Happy</item>
+        <item>Sad</item>
+        <item>Tired</item>
+        <item>Rested</item>
+        <item>Stressed</item>
+        <item>Fair to middling</item>
+        <item>Great</item>
+    </string-array>
+</resources>
