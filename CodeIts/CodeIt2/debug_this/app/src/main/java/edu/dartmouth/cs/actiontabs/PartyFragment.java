@@ -15,20 +15,24 @@ import android.widget.Toast;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import android.content.SharedPreferences;
 
 public class PartyFragment extends Fragment {
 	EditText partyTitleView,partyVenueView,partyDateView,partyTimeView;
-	DatePickerDialog.OnDateSetListener partyDatePicke;
+    public Calendar cal;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View v= inflater.inflate(R.layout.chatfragment, container, false);
-         partyTitleView=v.findViewById(R.id.party_title);
-         partyDateView=v.findViewById(R.id.party_date);
-         partyTimeView =v.findViewById(R.id.party_time);
+        View v= inflater.inflate(R.layout.partyfragment, container, false);
+         partyTitleView = (EditText) v.findViewById(R.id.party_title);
+        partyVenueView = (EditText) v.findViewById(R.id.venue);
+         partyDateView= (EditText) v.findViewById(R.id.party_date);
+         partyTimeView = (EditText) v.findViewById(R.id.party_time);
          partyDateView.setKeyListener(null);
          partyTimeView.setKeyListener(null);
 
-        final Button partySaveBtn=v.findViewById(R.id.checkBox1);
+        cal = Calendar.getInstance();
+
+        final Button partySaveBtn=v.findViewById(R.id.save_party_btn);
         partySaveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -43,19 +47,31 @@ public class PartyFragment extends Fragment {
                    partyDateView.getText().clear();
                    partyTimeView.getText().clear();
                    Toast.makeText(getActivity(),"Party Schedule Added!",Toast.LENGTH_LONG).show();
+
+
                }else{
 
                    Toast.makeText(getActivity(),null,Toast.LENGTH_LONG).show();
                }
             }
         });
+        //final Calendar newCalendar = Calendar.getInstance();
         partyDateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //
-                new DatePickerDialog(getActivity(), partyDatePicke, cal
-                        .get(Calendar.YEAR), cal.get(Calendar.MONTH),
-                        cal.get(Calendar.DAY_OF_MONTH)).show();
+
+                DatePickerDialog  StartTime = new DatePickerDialog(getActivity(), new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+
+                        partyDateView.setText( monthOfYear + "/" + dayOfMonth + "/" + year);
+
+                    }
+
+                }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+
+                StartTime.setTitle("Select Party Date");
+                StartTime.show();
             }
         });
 
@@ -79,7 +95,7 @@ public class PartyFragment extends Fragment {
         return v;
     }
 
-
+/*
 
     DatePickerDialog.OnDateSetListener partyDatePicker = new DatePickerDialog.OnDateSetListener() {
         @Override
@@ -94,11 +110,12 @@ public class PartyFragment extends Fragment {
 
     };
 
-    public Calendar cal;
+
     private void updateDateView(){
         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
         partyDateView.setText(sdf.format(cal.getTime()));
     }
+    */
 
 }
 

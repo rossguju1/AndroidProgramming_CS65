@@ -4,6 +4,8 @@ import androidx.fragment.app.Fragment;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,11 +29,13 @@ public class FindFragment extends Fragment {
 
     @Override
     public void onViewCreated(View v, @Nullable Bundle savedInstanceState) {
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         final EditText emailView= v.findViewById(R.id.editEmail);
-        final EditText phoneView= (EditText) v.findViewById(R.id.checkBox1);
+        final EditText phoneView = (EditText) v.findViewById(R.id.editPhone);
         final EditText birthDateView= v.findViewById(R.id.editText1);
         final RadioGroup genderView=v.findViewById(R.id.radioGender);
-        final RatingBar ratingBar=(RatingBar) v.findViewById(R.id.editText1);
+        final RatingBar ratingBar=(RatingBar) v.findViewById(R.id.ratingBar1);
         final ToggleButton cellPhoneButton=v.findViewById(R.id.toggleButton1);
         final CheckBox checkBox=v.findViewById(R.id.checkBox1);
         Button saveButton =v.findViewById(R.id.saveButton);
@@ -42,8 +46,15 @@ public class FindFragment extends Fragment {
                 String phone=phoneView.getText().toString();
                 String birthDate=birthDateView.getText().toString();
                 int genderId= genderView.getCheckedRadioButtonId();
-                RadioButton radioButton = (RadioButton)genderView.findViewById(genderId);
-                String gender=((RadioButton)genderView.findViewById(genderId)).getText().toString();
+                String gender;
+                if (genderId < 0){
+                    gender="";
+                } else{
+                    RadioButton radioButton = (RadioButton)genderView.findViewById(genderId);
+                    gender=radioButton.getText().toString();
+
+                }
+
                 float rating= ratingBar.getRating();
                 boolean phoneOff= cellPhoneButton.isChecked();
                 boolean aForElse= checkBox.isChecked();
@@ -72,6 +83,7 @@ public class FindFragment extends Fragment {
 
 
     }
+
     
 }
 
