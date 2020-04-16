@@ -55,7 +55,6 @@ public class PartyFragment extends Fragment {
                }
             }
         });
-        //final Calendar newCalendar = Calendar.getInstance();
         partyDateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,27 +94,6 @@ public class PartyFragment extends Fragment {
         return v;
     }
 
-/*
-
-    DatePickerDialog.OnDateSetListener partyDatePicker = new DatePickerDialog.OnDateSetListener() {
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear,
-                              int dayOfMonth) {
-            cal.set(Calendar.YEAR, year);
-            cal.set(Calendar.MONTH, monthOfYear);
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            updateDateView();
-
-        }
-
-    };
-
-
-    private void updateDateView(){
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
-        partyDateView.setText(sdf.format(cal.getTime()));
-    }
-    */
 
 }
 
