@@ -3,7 +3,7 @@ Ross Guju
 
 # Overview
 
-I went through the clean apk which is given to us in the instructions
+I went through the clean apk which is given to us in the instructions and made it so that my ActionTab is the same functionally to the given clean apk.
 
 # My Bug Changes
 
@@ -16,7 +16,7 @@ To
 
 ``final EditText phoneView = (EditText) v.findViewById(R.id.editPhone);``
 
-## Bug2:
+## Bug 2:
 ``final RatingBar ratingBar=(RatingBar) v.findViewById(R.id.editText1);``
 
 To
@@ -38,12 +38,12 @@ To
 
 ``final Button partySaveBtn=v.findViewById(R.id.save_party_btn);``
 
-## Bug5: 
+## Bug 5: 
 *fixed party set date*
 
 *Note* I used my own implementation for selecting the date
 
-## Bug6:
+## Bug 6:
 *Added* ``String partyVenue=partyVenueView.getText().toString();``
 
 ## Bug 7

@@ -55,6 +55,7 @@ public class PartyFragment extends Fragment {
                }
             }
         });
+        // This is my own implementation for the party Date
         partyDateView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
