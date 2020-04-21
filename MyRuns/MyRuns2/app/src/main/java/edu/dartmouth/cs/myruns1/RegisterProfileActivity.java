@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.myruns1;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.database.Cursor;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.os.Build;
@@ -599,7 +600,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             //If we haven't taken a photo or chosen one, we can't save it or else the app with crash
             if (mImageUri != null){
-                mProfilePreference.setProfilePicture(mImageUri.toString());
+                mProfilePreference.setProfilePicture(getRealPathFromURI(mImageUri));
+                //Toast.makeText(getApplicationContext(), getRealPathFromURI(mImageUri),
+                        //Toast.LENGTH_SHORT).show();//getRealPathFromURI(mImageUri);
             }
 
             mProfilePreference.ProfilePictureCommit();
@@ -666,6 +669,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 matrix, true);
     }
 
+
+    private String getRealPathFromURI(Uri contentUri) {
+        String[] proj = new String[] { android.provider.MediaStore.Images.ImageColumns.DATA };
+
+        Cursor cursor = getContentResolver().query(contentUri, proj, null,
+                null, null);
+        int column_index = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+
+        String filename = cursor.getString(column_index);
+        cursor.close();
+
+        return filename;
+    }
 
 
     @Override
