@@ -54,6 +54,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private static final int PICK_IMAGE = 77;
     private static final String URI_STATE_KEY = "saved_uri";
     private static final String DEBUG_TAG = "debug_key";
+    private static final String FROM_SIGNIN = "sign_in_parent";
     private Button mChangeButton;
     private Uri mImageUri = null;
     private ImageView mImageV;
@@ -67,7 +68,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private EditText mMajor;
     private EditText mClassYear;
     private Bitmap rotatedBitmap;
-    private boolean isTakenFromCamera;
+    private boolean isFromLoginActivity;
 
     public static final String INTENT_FROM = "from";
     public static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
@@ -79,6 +80,33 @@ public class RegisterProfileActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        //String from = getIntent().getStringExtra(INTENT_FROM);
+
+
+
+/*
+        if( isFromLoginActivity){
+
+            Toast.makeText(getApplicationContext(),
+                    "not from login",
+                    Toast.LENGTH_SHORT).show();
+
+        } else{
+
+
+
+            Toast.makeText(getApplicationContext(),
+                    from,
+                    Toast.LENGTH_SHORT).show();
+
+
+        }
+
+ */
+
+    isFromLoginActivity = false;
+
 
         //Display back button
         ActionBar actionBar = getSupportActionBar();
@@ -111,14 +139,26 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
-            try {
-                if(mImageUri != null){
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
-                    mImageV.setImageBitmap(bitmap);
-                }
-            }  catch (IOException e) {
-                e.printStackTrace();
-            }
+
+           isFromLoginActivity = savedInstanceState.getBoolean(FROM_SIGNIN);
+            // this if statement is option all
+           if (isFromLoginActivity) {
+               try {
+                   if (mImageUri != null) {
+                       Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
+                       mImageV.setImageBitmap(bitmap);
+                   }
+               } catch (IOException e) {
+                   e.printStackTrace();
+               }
+           } else {
+
+               mImageV.setImageDrawable(null);
+
+               mImageV.setImageResource(R.drawable.ic_launcher_background);
+
+
+           }
         }
 
         loadSnap();
@@ -128,6 +168,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             public void onClick(View v){
                 checkPermissions();
                 displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM);
+                loadSnap();
             }
         });
     }
@@ -152,11 +193,17 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     getString(R.string.profile_save_text),
                     Toast.LENGTH_SHORT).show();
 
+
+
             // Exit/Close & save active only if fields have been filled appropriately
             if (saveProfile() == false){
                 //mImageV.setImageResource(R.drawable.ic_launcher_background);
+               // isFromLoginActivity = false;
+
+
               finish();
             }
+
 
             return true;
 
@@ -226,9 +273,13 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         //Stoppage in lifecycle, must save image uri
+        outState.putBoolean(FROM_SIGNIN, isFromLoginActivity);
         if(mImageUri != null) {
             outState.putParcelable(URI_STATE_KEY, mImageUri);
+
+
         }
+
     }
 
     @Override
@@ -238,11 +289,15 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
             try {
                 if(mImageUri != null){
+
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
                     mImageV.setImageBitmap(bitmap);
+
                 }
             }  catch (IOException e) {
                 e.printStackTrace();
+                    //mImageV.setImageResource(R.drawable.ic_launcher_background);
+
             }
         }
     }
@@ -325,7 +380,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 } catch (ActivityNotFoundException e) {
                     e.printStackTrace();
                 }
-                isTakenFromCamera = true;
+
                 break;
 
             case MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM:
@@ -348,14 +403,21 @@ public class RegisterProfileActivity extends AppCompatActivity {
     }
 
     private void loadSnap() {
-        try {
-            //Access internal storage fileInput
-            FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
-            Bitmap bmap = BitmapFactory.decodeStream(fis);
-            //Bitamp of photo
-            mImageV.setImageBitmap(bmap);
-            fis.close();
-        } catch (IOException e) {
+
+        if (isFromLoginActivity) {
+
+            try {
+                //Access internal storage fileInput
+                FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
+                Bitmap bmap = BitmapFactory.decodeStream(fis);
+                //Bitamp of photo
+                mImageV.setImageBitmap(bmap);
+                fis.close();
+            } catch (IOException e) {
+                mImageV.setImageResource(R.drawable.ic_launcher_background);
+            }
+        } else {
+            mImageV.setImageDrawable(null);
             mImageV.setImageResource(R.drawable.ic_launcher_background);
         }
     }
@@ -372,6 +434,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+        isFromLoginActivity = true;
     }
 
     //Function to begin cropping action
@@ -608,18 +671,19 @@ public class RegisterProfileActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        Log.d(DEBUG_TAG,"Register onRestart()");
+        Log.d(DEBUG_TAG,"Register Profile onRestart()");
     }
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(DEBUG_TAG, "Register onStart");
+        Log.d(DEBUG_TAG, "Register Profile onStart");
+
 
     }
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(DEBUG_TAG, "Register onResume");
+        Log.d(DEBUG_TAG, "Register Profile onResume");
 
 
 
@@ -633,6 +697,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "Register onDestroy");
+
+
     }
 
 
