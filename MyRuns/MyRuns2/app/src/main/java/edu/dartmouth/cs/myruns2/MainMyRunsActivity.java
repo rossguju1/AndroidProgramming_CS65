@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -96,19 +97,34 @@ public class MainMyRunsActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.main_settings_menu) {
+
+//
+//            //viewPager.setVisibility(View.INVISIBLE);
 //            FragmentManager mFragmentManager = getSupportFragmentManager();
 //            FragmentTransaction mFragmentTransaction = mFragmentManager.beginTransaction();
-//            SettingsFragment mPrefsFragment = new SettingsFragment();
-//            mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
-//            mFragmentTransaction.commit();
-
-//            actionBar = getSupportActionBar();
 //
-//            if (actionBar != null) {
-//                actionBar.setDisplayShowHomeEnabled(true);
-//                actionBar.setDisplayHomeAsUpEnabled(true);
-//                actionBar.setTitle("Settings");
-//            }
+//
+//            SettingsFragment mPrefsFragment = new SettingsFragment();
+//            //mFragmentTransaction.add(android.content., mPrefsFragment);
+//           mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
+//
+//            mFragmentTransaction.addToBackStack(null);
+//            mFragmentTransaction.commit();
+//
+//            ActionBar actionBar = getSupportActionBar();
+//
+//            //Setup the appropriate action bar with title and back button
+//            actionBar.setDisplayShowHomeEnabled(true);
+//            actionBar.setDisplayHomeAsUpEnabled(true);
+//            actionBar.setTitle("Settings");
+//
+////            actionBar = getSupportActionBar();
+////
+////            if (actionBar != null) {
+////                actionBar.setDisplayShowHomeEnabled(true);
+////                actionBar.setDisplayHomeAsUpEnabled(true);
+////                actionBar.setTitle("Settings");
+////            }
             // Launch our settings activity that serves as a wrapper for the settings fragment
             Intent intent = new Intent(MainMyRunsActivity.this, SettingsActivity.class);
             startActivity(intent);

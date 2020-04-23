@@ -38,8 +38,8 @@
             android:title="@string/settings_signout_title">
 
             <intent
-                android:targetPackage="edu.dartmouth.cs.myruns1"
-                android:targetClass="edu.dartmouth.cs.myruns1.SigninActivity"/>
+                android:targetPackage="edu.dartmouth.cs.myruns2"
+                android:targetClass="edu.dartmouth.cs.myruns2.SigninActivity"/>
 
         </androidx.preference.PreferenceScreen>
 

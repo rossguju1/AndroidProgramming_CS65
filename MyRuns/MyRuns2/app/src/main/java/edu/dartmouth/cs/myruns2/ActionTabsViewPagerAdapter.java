@@ -18,14 +18,12 @@ public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
     private static final String TAG = ActionTabsViewPagerAdapter.class.getSimpleName();;
     private ArrayList<Fragment> fragments;
 
-    public static final int CHAT = 0;
-    public static final int FIND = 1;
-    public static final int MEET = 2;
-    public static final int PARTY = 3;
-    public static final String UI_TAB_CHAT = "CHAT";
-    public static final String UI_TAB_FIND = "FIND";
-    public static final String UI_TAB_MEET = "MEET";
-    public static final String UI_TAB_PARTY = "PART";
+    public static final int START = 0;
+    public static final int HISTORY = 1;
+
+    public static final String UI_TAB_START = "CHAT";
+    public static final String UI_TAB_HISTORY = "FIND";
+
 
     public ActionTabsViewPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments){
         super(fm);
@@ -49,14 +47,10 @@ public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         Log.d(TAG, "getPageTitle " + "position " + position);
         switch (position) {
-            case CHAT:
-                return UI_TAB_CHAT;
-            case FIND:
-                return UI_TAB_FIND;
-            case MEET:
-                return UI_TAB_MEET;
-            case PARTY:
-                return UI_TAB_PARTY;
+            case START:
+                return UI_TAB_START;
+            case HISTORY:
+                return UI_TAB_HISTORY;
             default:
                 break;
         }

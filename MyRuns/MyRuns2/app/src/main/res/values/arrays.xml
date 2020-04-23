@@ -11,8 +11,8 @@
     </string-array>
 
     <string-array name="unit_preference_entries">
-        <item>Metric(Kilometers)</item>
-        <item>Imperial(Miles)</item>
+        <item>Metric (In Kilometers)</item>
+        <item>Imperial (In Miles)</item>
     </string-array>
     <string-array name="unit_preference_entry_values">
         <item>Kilometers</item>
