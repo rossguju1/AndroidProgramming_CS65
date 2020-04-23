@@ -1,0 +1,70 @@
+<resources>
+    <string name="app_name">MyRuns2</string>
+    <string name="my_run_lable">MyRun2</string>
+    <string name="main_activity_lable">Main Activity My runs</string>
+    <string name="sign_in_activity_label">Ross</string>
+    <string name="profile_activity_label">Register Profile</string>
+    <string name="ui_profile_name_title">Name</string>
+    <string name="ui_profile_name_hint">Name</string>
+    <string name="ui_profile_gender_female">FEMALE</string>
+    <string name="ui_profile_gender_male">MALE</string>
+    <string name="ui_profile_email_hint">Email</string>
+    <string name="email_password">Password</string>
+    <string name="phone_number_hint">Phone</string>
+    <string name="major_hint">Major</string>
+    <string name="class_year_hint">Dartmouth Class</string>
+    <string name="sign_in_button">SIGN IN</string>
+    <string name="register_button">REGISTER</string>
+    <string name="image">image</string>
+    <string name="change_picture">Change</string>
+    <string name="true_button">true</string>
+    <string name="false_button">false</string>
+    <string name="change_picture_button">CHANGE</string>p
+    <string name="main_settings_menu">Settings</string>
+    <string name="main_edit_profile_menu">Edit Profile</string>
+    <string name="picture_picker_fragment">Profile Picture Picker</string>
+    <string name="profile_save_text">Saved Image</string>
+    <string name="dialog_fragment_tag_photo_picker">dialog_fragment_photo_picker</string>
+    <string name="ui_profile_photo_content_description">Your profile photo:</string>
+    <string name="ui_button_change_title">CHANGE</string>
+    <string name="ui_button_save_title">REGISTER</string>
+    <string name="profile_photo_file_name">profile_photo.png</string>
+    <string name="profile_registration_incomplete">Profile Registration is Incomplete</string>
+    <string name="input_label">Input Type</string>
+    <string name="activity_label">Activity Type</string>
+    <string name="activity">Activity</string>
+    <string name="comment">Comment</string>
+    <string name="heartbeat">Heartbeat</string>
+    <string name="heartbeatUnits">bpm</string>
+    <string name="calorie">Calorie</string>
+    <string name="calorieUnits">cals</string>
+    <string name="distance">Distance</string>
+    <string name="distanceUnits">km</string>
+    <string name="duration">Duration</string>
+    <string name="durationUnits">hrs</string>
+    <string name="date">Date</string>
+    <string name="datePrompt">Click To Add Date</string>
+    <string name="time">Time</string>
+    <string name="timePrompt">Click To Add Time</string>
+    <string name="title_start">Start</string>
+    <string name="title_history">History</string>
+    <string name="example">Placeholder</string>
+    <string name="zero">0</string>
+    <string name="settings_title">Application Settings</string>
+    <string name="privacy_setting_title">Privacy Settings</string>
+    <string name="privacy_setting_summary">Changes Privacy</string>
+    <string name="unit_preference_title">Unit Prefernce</string>
+    <string name="unit_preference_summary">Select your Units</string>
+    <string name="settings_unit_preference">Unit Prefrence</string>
+    <string name="settings_class_homepage_title">Webpage</string>
+    <string name="settings_class_homepage_address">http://cs.dartmouth.edu/~campbell/cs65/cs65.html</string>
+    <string name="account_settings_title">Account Settings</string>
+    <string name="settings_signout_title">Sign Out</string>
+
+
+    <string-array name="ui_profile_photo_picker_items">
+        <item>Take picture from camera</item>
+        <item>Choose Picture From Gallery</item>
+    </string-array>
+
+</resources>
