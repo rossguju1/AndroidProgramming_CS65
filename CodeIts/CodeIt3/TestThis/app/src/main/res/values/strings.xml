@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">TestThis</string>
+    <string name="ui_profile_photo_title">Profile photo:</string>
+    <string name="ui_button_change_title">Change</string>
+    <string name="ui_profile_name_title">Name:</string>
+    <string name="ui_profile_name_hint">Your name</string>
+    <string name="ui_profile_email_title">Email:</string>
+    <string name="ui_profile_email_hint">Your email</string>
+    <string name="ui_profile_phone_title">Phone:</string>
+    <string name="ui_profile_phone_hint">Your phone</string>
+    <string name="ui_profile_gender_title">Gender:</string>
+    <string name="ui_profile_gender_female">Female</string>
+    <string name="ui_profile_gender_male">Male</string>
+    <string name="ui_profile_class_title">Class:</string>
+    <string name="ui_profile_class_hint">e.g., 2012</string>
+    <string name="ui_profile_major_title">Major:</string>
+    <string name="ui_profile_major_hint">Your major here</string>
+    <string name="ui_button_save_title">Save</string>
+    <string name="ui_button_cancel_title">Cancel</string>
+    <string name="ui_profile_toast_save_text">Saved!</string>
+    <string name="ui_profile_toast_cancel_text">Cancelled!</string>
+    <string name="preference_name">myruns_shared_preference</string>
+    <string name="preference_key_profile_name">profile_name</string>
+    <string name="preference_key_profile_email">profile_email</string>
+    <string name="preference_key_profile_phone">profile_phone</string>
+    <string name="preference_key_profile_gender">profile_gender</string>
+    <string name="preference_key_profile_class">profile_class</string>
+    <string name="preference_key_profile_major">profile_major</string>
+    <string name="profile_photo_file_name">profile_photo.png</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ui_profile_photo_content_description">Your profile photo:</string>
+</resources>
