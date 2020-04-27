@@ -5,6 +5,9 @@
 # SUMMARY
 I completed the following 7/8 testing Methods that we were told to implement. The method `` public void testMajorValuePersistedBetweenLaunches()`` was given to us.
 
+# NOTE 
+Whenever I download the app from gitlab and open it into Android Studio, the ProfileActivityTest configuration isn't there. Instead of creating a new configuration to run the *ProfileActivityTest.java* just right click the file and click *Run ProfileActivityTest*. This will execute the Unit Test script.
+
 # TEST Methods
 
 ## Test Method 1: ``public void testNameValuePersistedBetweenLaunches()``
