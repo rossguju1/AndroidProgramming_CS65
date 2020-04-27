@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
@@ -114,8 +115,49 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testNameValuePersistedBetweenLaunches(){
-        // implement your test based on the function header
+    public void testNameValuePersistedBetweenLaunches() throws InterruptedException {
+
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+
+        final String TEST_NAME = "Ross";
+
+
+        final EditText mEditName = activity.findViewById(R.id.editName);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                mEditName.requestFocus();
+                mEditName.setText(TEST_NAME);
+                mSaveButton.performClick();
+
+
+            }
+        });
+
+
+        activity.finish();
+
+        Thread.sleep(2000);
+
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        final EditText mEditName_2 = (EditText) activity.findViewById(R.id.editName);
+        String currentName = mEditName_2.getText().toString();
+        assertEquals(TEST_NAME, currentName);
+
+
+        Thread.sleep(2000);
+
+
     }
 
     /**
@@ -126,8 +168,49 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testEmailValuePersistedBetweenLaunches() {
-        // implement your test based on the function header
+    public void testEmailValuePersistedBetweenLaunches() throws InterruptedException {
+
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+
+        final String TEST_EMAIL = "ross.r.guju.TH@dartmouth.edu";
+
+
+        final EditText mEditEmail = activity.findViewById(R.id.editEmail);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                mEditEmail.requestFocus();
+                mEditEmail.setText(TEST_EMAIL);
+                mSaveButton.performClick();
+
+            }
+        });
+
+
+        activity.finish();
+
+        Thread.sleep(2000);
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        final EditText mEditEmail_2 = (EditText) activity.findViewById(R.id.editEmail);
+        String currentEmail = mEditEmail_2.getText().toString();
+        assertEquals(TEST_EMAIL, currentEmail);
+
+
+        Thread.sleep(2000);
+
+
+
+
     }
 
     /**
@@ -138,8 +221,47 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testPhoneValuePersistedBetweenLaunches() {
+    public void testPhoneValuePersistedBetweenLaunches() throws InterruptedException {
         // implement your test based on the function header
+
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+
+        final String TEST_PHONE = "7279891234";
+
+
+        final EditText mEditPhone = activity.findViewById(R.id.editPhone);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                mEditPhone.requestFocus();
+                mEditPhone.setText(TEST_PHONE);
+                mSaveButton.performClick();
+
+            }
+        });
+
+
+        activity.finish();
+
+        Thread.sleep(2000);
+
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        final EditText mEditPhone_2 = (EditText) activity.findViewById(R.id.editPhone);
+        String currentPhone = mEditPhone_2.getText().toString();
+        assertEquals(TEST_PHONE, currentPhone);
+
+        Thread.sleep(2000);
+
     }
 
     /**
@@ -150,8 +272,50 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testGenderValuePersistedBetweenLaunches() {
+    public void testGenderValuePersistedBetweenLaunches() throws InterruptedException {
         // implement your test based on the function header
+
+        Thread.sleep(2000);
+        ProfileActivity activity = mActivityRule.getActivity();
+
+        // 0 female
+        // 1 male
+        final int TEST_GENDER = 1;
+
+        final RadioGroup mRadioGroup  = (RadioGroup) activity.findViewById(R.id.radioGender);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mRadioGroup.requestFocus();
+
+                RadioButton radioBtn = (RadioButton) mRadioGroup.getChildAt(TEST_GENDER);
+                radioBtn.setChecked(true);
+
+                mSaveButton.performClick();
+
+            }
+        });
+
+
+        activity.finish();
+        Thread.sleep(2000);
+
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        RadioGroup radioGroup = activity.findViewById(R.id.radioGender);
+
+        int current_gender  = radioGroup.indexOfChild(activity.findViewById(radioGroup
+                .getCheckedRadioButtonId()));
+
+        assertEquals(TEST_GENDER, current_gender);
+
+
+        Thread.sleep(2000);
+
     }
 
     /**
@@ -162,8 +326,45 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testClassValuePersistedBetweenLaunches() {
+    public void testClassValuePersistedBetweenLaunches() throws InterruptedException {
         // implement your test based on the function header
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+
+        final String TEST_CLASS = "2020";
+
+
+        final EditText mEditCLass = activity.findViewById(R.id.editClass);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                mEditCLass.requestFocus();
+                mEditCLass.setText(TEST_CLASS);
+                mSaveButton.performClick();
+
+            }
+        });
+
+
+        activity.finish();
+
+        Thread.sleep(2000);
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        final EditText mEditClass_2 = (EditText) activity.findViewById(R.id.editClass);
+        String currentClass = mEditClass_2.getText().toString();
+        assertEquals(TEST_CLASS, currentClass);
+
+        Thread.sleep(2000);
+
     }
 
     /**
@@ -174,8 +375,47 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testMajorValuePersistedBetweenLaunches() {
+    public void testMajorValuePersistedBetweenLaunches() throws InterruptedException {
         // implement your test based on the function header
+
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+
+        final String TEST_MAJOR = "Computer Engineering";
+
+
+        final EditText mEditMajor = activity.findViewById(R.id.editMajor);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                mEditMajor.requestFocus();
+                mEditMajor.setText(TEST_MAJOR);
+                mSaveButton.performClick();
+
+            }
+        });
+
+        Thread.sleep(2000);
+
+        activity.finish();
+
+        mActivityRule.launchActivity(null);  // Required to force creation of a new activity
+
+        activity = mActivityRule.getActivity();
+
+        final EditText mEditMajor_2 = (EditText) activity.findViewById(R.id.editMajor);
+        String currentMajor = mEditMajor_2.getText().toString();
+        assertEquals(TEST_MAJOR, currentMajor);
+
+
+        Thread.sleep(2000);
+
     }
 
     /**
@@ -186,8 +426,48 @@ public class ProfileActivityTest {
      * set it to.
      */
     @Test
-    public void testImagePersistedBetweenLaunches() {
-        // implement your test based on the function header
+    public void testImagePersistedBetweenLaunches() throws InterruptedException {
+
+        Thread.sleep(2000);
+
+        ProfileActivity activity = mActivityRule.getActivity();
+
+        final Bitmap TEST_IMAGE = BitmapFactory.decodeResource(activity.getResources(),
+                R.drawable.blue_pushpin);
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        TEST_IMAGE.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        final byte[] TEST_IMAGE_VALUE = bos.toByteArray();
+
+        final ImageView mImageView = activity.findViewById(R.id.imageProfile);
+        final Button mSaveButton = (Button) activity.findViewById(R.id.btnSave);
+
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                mImageView.setImageBitmap(TEST_IMAGE);
+                mSaveButton.performClick();
+            }
+        });
+
+        Thread.sleep(2000);
+
+
+        final ImageView mImage2 = activity.findViewById(R.id.imageProfile);
+        Bitmap currentBitMap = ((BitmapDrawable) mImage2.getDrawable()).getBitmap();
+
+        bos = new ByteArrayOutputStream();
+        currentBitMap.compress(Bitmap.CompressFormat.PNG, 100, bos);
+        byte[] currentImageValue = bos.toByteArray();
+
+        assertArrayEquals(TEST_IMAGE_VALUE, currentImageValue);
+
+
+        Thread.sleep(2000);
+
+
+
     }
 
 
