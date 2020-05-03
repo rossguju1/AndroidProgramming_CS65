@@ -6,13 +6,25 @@ import java.util.*;
 
 public class MyGlobals {
 
+    public static int CURRENT_UNITS;
+
+
+    public static final String ACT = "ACTIVITY_TYPES";
+    public static final String IN = "INPUT_TYPES";
+    public static final String UNIT_TABLE = "UNITS";
+
     Hashtable<String, Integer> ACTIVITY_TYPES = new Hashtable<>();
-    //  Map<String, Integer> INPUT_TYPES = new Hashtable<>();
     Hashtable<String, Integer> INPUT_TYPES = new Hashtable<>();
+    Hashtable<String, Integer> UNITS = new Hashtable<>();
+
+
+
 
     Hashtable<Integer, String> _ACTIVITY_TYPES = new Hashtable<>();
-    //  Map<String, Integer> INPUT_TYPES = new Hashtable<>();
     Hashtable<Integer, String> _INPUT_TYPES = new Hashtable<>();
+    Hashtable<Integer, String> _UNITS = new Hashtable<>();
+
+
     public MyGlobals() {
         ACTIVITY_TYPES.put("Running",0);
         ACTIVITY_TYPES.put("Walking", 1);
@@ -53,26 +65,38 @@ public class MyGlobals {
         _INPUT_TYPES.put(1, "GPS");
         _INPUT_TYPES.put(2, "Automatic");
 
+
+        UNITS.put("Kilometers", 0);
+        UNITS.put("Miles", 1);
+
+        _UNITS.put(0, "Kilometers");
+        _UNITS.put(1, "Miles");
+
+
+
     }
 
     public int getValue_int(String table, String key){
 
-        if (table.equals("ACTIVITY_TYPES")) {
+        if (table.equals(ACT)) {
             return ACTIVITY_TYPES.get(key);
-        } else if(table.equals("INPUT_TYPES")){
+        } else if(table.equals(IN)){
             return INPUT_TYPES.get(key);
+        } else if(table.equals(UNIT_TABLE)){
+            return UNITS.get(key);
         }
         return -1;
     }
 
     public String getValue_str(String table, int key){
 
-        if (table.equals("ACTIVITY_TYPES")) {
+        if (table.equals(ACT)) {
             return _ACTIVITY_TYPES.get(key);
-        } else if(table.equals("INPUT_TYPES")){
+        } else if(table.equals(IN)){
             return _INPUT_TYPES.get(key);
+        } else if(table.equals(UNIT_TABLE)){
+            return _UNITS.get(key);
         }
-
     return "NaN";
     }
 

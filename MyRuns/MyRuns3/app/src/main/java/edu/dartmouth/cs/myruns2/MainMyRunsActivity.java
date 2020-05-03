@@ -1,7 +1,9 @@
 package edu.dartmouth.cs.myruns2;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Spinner;
@@ -11,6 +13,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -106,6 +109,8 @@ public class MainMyRunsActivity extends AppCompatActivity {
             // Launch our settings activity that serves as a wrapper for the settings fragment
             Intent intent = new Intent(MainMyRunsActivity.this, SettingsActivity.class);
             startActivity(intent);
+
+
         }
         //https://stackoverflow.com/questions/9664108/how-to-finish-parent-activity-from-child-activity
         else if (id == R.id.main_edit_profile_menu) {
@@ -124,12 +129,12 @@ public class MainMyRunsActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat {
-        @Override
-        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            addPreferencesFromResource(R.xml.root_preferences);
-        }
-    }
+//    public static class SettingsFragment extends PreferenceFragmentCompat {
+//        @Override
+//        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+//            addPreferencesFromResource(R.xml.root_preferences);
+//        }
+//    }
 
 //    @Override
 //    protected void onActivityResult(int requestCode, int resultCode, Intent data) {

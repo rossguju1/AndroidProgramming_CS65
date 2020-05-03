@@ -179,7 +179,7 @@ class ExerciseEntry {
 
                 mExercise.setId(cursor.getLong(0));
                 mExercise.setmInputType(cursor.getInt(1));
-                mExercise.setmInputType(cursor.getInt(2));
+                mExercise.setmActivityType(cursor.getInt(2));
                 mExercise.setmDateTime(cursor.getString(3));
                 mExercise.setmDuration(cursor.getInt(4));
                 mExercise.setmDistance(cursor.getDouble(5));
@@ -193,6 +193,52 @@ class ExerciseEntry {
                 mExercise.setmLocationList(cursor.getString(13));
 
                 return mExercise;
+        }
+
+       public void updateExercise(Exercise entry){
+
+               long _id = entry.getId();
+
+               ContentValues values = new ContentValues();
+
+               values.put( ExerciseEntryDbHelper.COLUMN_INPUT, entry.getmInputType());
+               values.put( ExerciseEntryDbHelper.COLUMN_ACTIVITY, entry.getmActivityType());
+               values.put( ExerciseEntryDbHelper.COLUMN_DATE, entry.getmDateTime());
+               values.put( ExerciseEntryDbHelper.COLUMN_DURATION, entry.getmDuration());
+               values.put( ExerciseEntryDbHelper.COLUMN_DISTANCE, entry.getmDistance());
+               values.put( ExerciseEntryDbHelper.COLUMN_PACE, entry.getmAvgPace());
+               values.put( ExerciseEntryDbHelper.COLUMN_SPEED, entry.getmAvgSpeed());
+               values.put( ExerciseEntryDbHelper.COLUMN_CALORIES, entry.getmCalories());
+               values.put( ExerciseEntryDbHelper.COLUMN_CLIMB, entry.getmClimb());
+               values.put( ExerciseEntryDbHelper.COLUMN_HEARTRATE, entry.getmHeartRate());
+               values.put( ExerciseEntryDbHelper.COLUMN_COMMENT, entry.getmComment());
+               values.put( ExerciseEntryDbHelper.COLUMN_PRIVACY, entry.getmPrivacy());
+               values.put( ExerciseEntryDbHelper.COLUMN_GPS, entry.getmLocationList());
+
+               database.update(ExerciseEntryDbHelper.TABLE_EXERCISES, values, "_id="+ _id, null);
+
+        }
+
+        public void printExercise(Exercise ex){
+
+                Log.d("EXERCISE", "ID: " + ex.getId()
+                        + "  Input: " + ex.getmInputType()
+                        + " Activity:    " + ex.getmActivityType()
+                        + " Date:   " + ex.getmDateTime()
+                        + "  mDuration:  " + ex.getmDuration()
+                        + "  mDistance  " + ex.getmDistance()
+                        + "  mAvgPace:  " + ex.getmAvgPace()
+                        + "  mAvgSpeed:  " + ex.getmAvgSpeed()
+                        + "  mCalorie:   " + ex.getmCalories()
+                        + "  mClimb   " + ex.getmClimb()
+                        + "  mHeartRate  " + ex.getmHeartRate()
+                        + "  mComment  " + ex.getmComment()
+                        + "  mPrivacy   " + ex.getmPrivacy()
+                        + "  mLocationList:  " + ex.getmLocationList()
+                );
+
+
+
         }
 
 

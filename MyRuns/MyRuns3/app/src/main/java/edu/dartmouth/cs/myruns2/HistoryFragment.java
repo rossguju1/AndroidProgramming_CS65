@@ -2,6 +2,7 @@ package edu.dartmouth.cs.myruns2;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +33,14 @@ public class HistoryFragment extends Fragment {
         ExerciseEntry ex = new ExerciseEntry(getContext());
         ex.open();
         ArrayList<Exercise> itemsData = ex.getAllExercises();
+
+        for (int position = 0; position < itemsData.size(); position++){
+            Exercise e = itemsData.get(position);
+            Log.d("h-Frag: ID:  ", "ID:  " + e.getId());
+            Log.d("h-Frag: INPUT:  ", "INPUT :  " + e.getmInputType());
+            Log.d("h-Frag: ACTIVITY:  ", "ACT :  " + e.getmActivityType());
+
+        }
         ex.close();
 
         HistoryAdapterRecycler mAdapter = new HistoryAdapterRecycler(getContext(), itemsData);
