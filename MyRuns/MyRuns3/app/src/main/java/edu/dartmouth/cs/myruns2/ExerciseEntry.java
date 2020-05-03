@@ -145,8 +145,8 @@ class ExerciseEntry {
 
 
 
-        public List<Exercise> getAllExercises() {
-                List<Exercise> mExercises = new ArrayList<>();
+        public ArrayList<Exercise> getAllExercises() {
+                ArrayList<Exercise> mExercises = new ArrayList<>();
 
                 Cursor cursor = database.query(ExerciseEntryDbHelper.TABLE_EXERCISES,
                         ALL_COLUMNS, null, null, null, null, null);

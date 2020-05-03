@@ -396,9 +396,9 @@ public class ManualInputActivity extends AppCompatActivity {
         String heartbeat = activityHeartbeat.getText().toString();
         String comment = activityCommentContent.getText().toString();
 
-        int input = globs.getValue("INPUT_TYPES", "Manual");
+        int input = globs.getValue_int("INPUT_TYPES", "Manual");
 
-        int activity = globs.getValue("ACTIVITY_TYPES", activity_name);
+        int activity = globs.getValue_int("ACTIVITY_TYPES", activity_name);
 
 
         mExercise.setmInputType(input);
