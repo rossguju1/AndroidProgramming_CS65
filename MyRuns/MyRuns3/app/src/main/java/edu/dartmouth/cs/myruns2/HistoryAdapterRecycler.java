@@ -2,6 +2,7 @@ package edu.dartmouth.cs.myruns2;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
     private LayoutInflater mLayoutInflater;
     private Context context;
 
+    private static final String FROM_HISTORY_TAB = "history_tab";
     public HistoryAdapterRecycler(Context context, ArrayList<Exercise> list) {
 
 
@@ -58,6 +60,9 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
 //                Intent intent = new Intent(context, OrderDetailActivity.class);
 //                intent.putExtra("order", order);
 //                context.startActivity(intent);
+                Intent intent = new Intent(context, ManualInputActivity.class);
+                intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
+                context.startActivity(intent);
             }
         });
     }
