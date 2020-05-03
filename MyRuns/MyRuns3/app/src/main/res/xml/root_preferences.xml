@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <androidx.preference.PreferenceCategory android:title="@string/settings_title">
+
+
+        <androidx.preference.CheckBoxPreference
+            android:key="checkbox_preference"
+            android:title="@string/privacy_setting_title"
+            android:summary="@string/privacy_setting_summary" />
+
+        <androidx.preference.ListPreference
+            android:key="list_preference"
+            android:title="@string/unit_preference_title"
+            android:summary="@string/unit_preference_summary"
+            android:entries="@array/unit_preference_entries"
+            android:entryValues="@array/unit_preference_entry_values"
+            android:dialogTitle="@string/settings_unit_preference" />
+
+        <androidx.preference.PreferenceScreen
+            android:title="@string/settings_class_homepage_title"
+            android:summary="@string/settings_class_homepage_address">
+
+            <intent android:action="android.intent.action.VIEW"
+                android:data="http://cs.dartmouth.edu/~campbell/cs65/cs65.html" />
+
+        </androidx.preference.PreferenceScreen>
+
+
+    </androidx.preference.PreferenceCategory>
+
+
+
+    <androidx.preference.PreferenceCategory
+        android:title="@string/account_settings_title">
+
+        <androidx.preference.PreferenceScreen
+            android:title="@string/settings_signout_title">
+
+            <intent
+                android:targetPackage="edu.dartmouth.cs.myruns2"
+                android:targetClass="edu.dartmouth.cs.myruns2.SigninActivity"/>
+
+        </androidx.preference.PreferenceScreen>
+
+    </androidx.preference.PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
