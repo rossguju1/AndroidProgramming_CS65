@@ -11,7 +11,9 @@ import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +28,7 @@ import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -34,7 +37,7 @@ import java.util.Locale;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
 import edu.dartmouth.cs.myruns2.ExerciseEntry;
-
+import edu.dartmouth.cs.myruns2.HistoryFragment;
 import static edu.dartmouth.cs.myruns2.RegisterProfileActivity.INTENT_FROM;
 
 public class ManualInputActivity extends AppCompatActivity {
@@ -70,7 +73,8 @@ public class ManualInputActivity extends AppCompatActivity {
     private int _year;
     public MyGlobals globs;
     SimpleDateFormat _sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-
+    private AsyncInsert task = null;
+    private AsyncDelete delete_task = null;
     String dynamic_date;
     String dynamic_time;
 
@@ -125,33 +129,32 @@ public class ManualInputActivity extends AppCompatActivity {
             mEntry = new ExerciseEntry(this);
 
             mEntry.open();
-
             Exercise e = mEntry.fetchEntryByIndex(id);
 
-            mName.setText(globs.getValue_str(globs.ACT, e.getmActivityType()));
+            if (e != null) {
 
-            String[] splited = e.getmDateTime().split("\\s+");
-            if (globs.CURRENT_UNITS == 1){
-                activityDistance.setText(String.valueOf(KilometersToMiles(e.getmDistance())));
-            }else {
-                activityDistance.setText(String.valueOf(e.getmDistance()));
+
+                mName.setText(globs.getValue_str(globs.ACT, e.getmActivityType()));
+
+                String[] splited = e.getmDateTime().split("\\s+");
+                if (globs.CURRENT_UNITS == 1) {
+                    activityDistance.setText(String.valueOf(KilometersToMiles(e.getmDistance())));
+                } else {
+                    activityDistance.setText(String.valueOf(e.getmDistance()));
+                }
+
+                activityDate.setText(splited[0]);
+                activityTime.setText(splited[1]);
+                activityDuration.setText(String.valueOf(e.getmDuration()));
+                activityCalorie.setText(String.valueOf(e.getmCalories()));
+                activityHeartbeat.setText(String.valueOf(e.getmHeartRate()));
+                //activityComment = (TextView) findViewById(R.id.activityComment);
+                activityCommentContent.setText(e.getmComment());
+
+                mEntry.close();
+            } else{
+                Log.d("DEBUG", "failed to fetch ID" );
             }
-
-            activityDate.setText(splited[0]);
-            activityTime.setText(splited[1]);
-            activityDuration.setText(String.valueOf(e.getmDuration()));
-            activityCalorie.setText(String.valueOf(e.getmCalories()));
-            activityHeartbeat.setText(String.valueOf(e.getmHeartRate()));
-            //activityComment = (TextView) findViewById(R.id.activityComment);
-            activityCommentContent.setText(e.getmComment());
-
-            mEntry.close();
-
-
-
-
-
-
 
 
         } else {
@@ -380,7 +383,9 @@ public class ManualInputActivity extends AppCompatActivity {
 
 
                     //mExercise.setmDateTime(dynamic_date + " " + dynamic_time);
-                    saveManualEntry();
+                    //saveManualEntry();
+                    task = new AsyncInsert();
+                    task.execute();
                     Toast.makeText(getApplicationContext(),
                             "Saved",
                             Toast.LENGTH_SHORT).show();
@@ -389,21 +394,23 @@ public class ManualInputActivity extends AppCompatActivity {
                     //database save entry
                 } else if(current_tab == 1){
                     //database delete entry
-                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
-                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
-                    //long __id = Long.valueOf(_id);
-                    mEntry = new ExerciseEntry(this);
-                    mEntry.open();
-                   int ret = mEntry.deleteExercise(Long.valueOf(_id));
-                    mEntry.close();
-
-                    if (ret>0){
-                        Log.d("DEBUG", "DeleteWorked and removed: " + _id);
-
-                    } else {
-
-                        Log.d("DEBUG", "Delete Failed to remove: " + _id);
-                    }
+//                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
+//                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+//                    //long __id = Long.valueOf(_id);
+//                    mEntry = new ExerciseEntry(this);
+//                    mEntry.open();
+//                   int ret = mEntry.deleteExercise(Long.valueOf(_id));
+//                    mEntry.close();
+//
+//                    if (ret>0){
+//                        Log.d("DEBUG", "DeleteWorked and removed: " + _id);
+//
+//                    } else {
+//
+//                        Log.d("DEBUG", "Delete Failed to remove: " + _id);
+//                    }
+                    delete_task = new AsyncDelete();
+                    delete_task.execute();
 
                     finish();
 
@@ -494,6 +501,14 @@ public class ManualInputActivity extends AppCompatActivity {
         mEntry.open();
         mEntry.insertEntry(mExercise);
         mEntry.close();
+//RecyclerView: No adapter attached; skipping layout
+        //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
+        HistoryFragment.itemsData.add(mExercise);
+        Thread broadcast = new ReceiverThread();
+        broadcast.run();
+        //HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
+       // HistoryFragment.mAdapter.notifyDataSetChanged();
+
 
         Log.d("<SAVE MANUAL ENTRY>",
                     "input type: " + input
@@ -551,11 +566,144 @@ public class ManualInputActivity extends AppCompatActivity {
     protected void onDestroy() {
 
         super.onDestroy();
+
+       // Log.d(DEBUG_TAG, this + ": onDestroy()");
+
+//        if (task != null || delete_task != null) {
+//            //task.cancel(false);
+//           // delete_task.cancel(false);
+//        }
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
 
 
+    class AsyncInsert extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected Void doInBackground(Void... unused) {
+
+            saveManualEntry();
+
+            //publishProgress();
+//            HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
+//            adapt.notifyDataSetChanged();
+
+//            for (String name : items) {
+//                if (isCancelled())
+//                    break;
+//                saveManualEntry();
+//               // publishProgress(name);
+//               // SystemClock.sleep(1000);
+//            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... name) {
+
+            if (!isCancelled()) {
+
+               // ((MainActivity) context).onResult(result);
+                //mAdapter.add(name[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+           Log.d(DEBUG_TAG, "INSERT THREAD DONE");
+            task = null;
+
+        }
+
+    }
+
+
+    class AsyncDelete extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected Void doInBackground(Void... unused) {
+
+
+                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
+                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+                    //long __id = Long.valueOf(_id);
+                    mEntry = new ExerciseEntry(getApplicationContext());
+                    mEntry.open();
+
+                   int ret = mEntry.deleteExercise(Long.valueOf(_id));
+                    mEntry.close();
+
+                     //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
+
+
+
+                    if (ret>0){
+                        Log.d("DEBUG", "DeleteWorked and removed: " + _id);
+                        //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
+
+                        HistoryFragment.itemsData.remove(Long.valueOf(_id) + 1);
+                        Thread broadcast = new ReceiverThread();
+                        broadcast.run();
+                        //HistoryFragment.mAdapter.notifyDataSetChanged();
+
+                        //tempy.remove(Long.valueOf(_id) + 1);
+                        //HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
+                       // adapt.notifyDataSetChanged();
+
+
+                    } else {
+
+                        Log.d("DEBUG", "Delete Failed to remove: " + _id);
+                    }
+//            mBusinessAdapter = new BusinessAdapter(mBusinesses);
+//            adapt.notifyDataSetChanged();
+
+//            mBusinessAdapter.notifyDataSetChanged();
+
+
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... name) {
+
+            if (!isCancelled()) {
+                //mAdapter.add(name[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            Log.d(DEBUG_TAG, "Delete Done");
+            task = null;
+        }
+
+    }
+
+
+    private class ReceiverThread extends Thread {
+        @Override
+        public void run() {
+            ManualInputActivity.this.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (HistoryFragment.mAdapter != null) {
+
+                        //https://stackoverflow.com/questions/51704973/recyclerview-last-item-visible-after-deleting-it-from-recylerview
+                        HistoryFragment.mAdapter.notifyDataSetChanged();
+
+                    } else{
+                        HistoryFragment.mAdapter = new HistoryAdapterRecycler(getApplicationContext(), HistoryFragment.itemsData);
+                        HistoryFragment.recyclerView.setAdapter(HistoryFragment.mAdapter);
+                    }
+                }
+            });
+        }
+    }
 
 
 }

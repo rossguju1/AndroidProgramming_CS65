@@ -1,13 +1,17 @@
 package edu.dartmouth.cs.myruns2;
 
-import android.content.Intent;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,12 +20,18 @@ import java.util.ArrayList;
 
 import edu.dartmouth.cs.myruns2.models.Exercise;
 
-public class HistoryFragment extends Fragment {
+public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Exercise>> {
     private static final String DEBUG_TAG = "HistoryFragment";
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager layoutManager;
+    private static final int ALL_COMMENTS_LOADER_ID = 1;
+    public static ArrayList<Exercise> itemsData = new  ArrayList<Exercise>();
+    //public static AlertDialog.Builder recyclerView;
 
+    public static RecyclerView recyclerView;
+    //private RecyclerView.Adapter mAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+    //ArrayList<Exercise> itemsData;
+    public static HistoryAdapterRecycler mAdapter;
+    ExerciseEntry ex;
     private static final String FROM_HISTORY_TAB = "history_tab";
 
     @Override
@@ -33,24 +43,27 @@ public class HistoryFragment extends Fragment {
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ExerciseEntry ex = new ExerciseEntry(getContext());
-        ex.open();
-        ArrayList<Exercise> itemsData = ex.getAllExercises();
+       // ExerciseEntry ex = new ExerciseEntry(getContext());
+//        ex.open();
+//        //itemsData = ex.getAllExercises();
+//
+//        for (int position = 0; position < itemsData.size(); position++) {
+//            Exercise e = itemsData.get(position);
+//            Log.d("h-Frag: ID:  ", "ID:  " + e.getId());
+//            Log.d("h-Frag: INPUT:  ", "INPUT :  " + e.getmInputType());
+//            Log.d("h-Frag: ACTIVITY:  ", "ACT :  " + e.getmActivityType());
+//
+//        }
+//        ex.close();
 
-        for (int position = 0; position < itemsData.size(); position++) {
-            Exercise e = itemsData.get(position);
-            Log.d("h-Frag: ID:  ", "ID:  " + e.getId());
-            Log.d("h-Frag: INPUT:  ", "INPUT :  " + e.getmInputType());
-            Log.d("h-Frag: ACTIVITY:  ", "ACT :  " + e.getmActivityType());
-
-        }
-        ex.close();
-
-        HistoryAdapterRecycler mAdapter = new HistoryAdapterRecycler(getContext(), itemsData);
+       //
 
         recyclerView.setAdapter(mAdapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
+
+        // maybe call this onActivityResult to see if something user deleted an exercise
+        //mAdapter.notifyDataSetChanged();
         return v;
     }
 
@@ -64,6 +77,10 @@ public class HistoryFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        //ex = new ExerciseEntry(getContext());
+      //  ex.open();
+        LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
+
         Log.d(DEBUG_TAG, "onResume");
     }
 
@@ -77,6 +94,40 @@ public class HistoryFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
+    }
+
+
+    @NonNull
+    @Override
+    public Loader<ArrayList<Exercise>> onCreateLoader(int id, @Nullable Bundle args) {
+        Log.d(DEBUG_TAG, "onCreateLoader: Thread ID: " + Thread.currentThread().getId());
+        if (id == ALL_COMMENTS_LOADER_ID){
+
+            return new AsyncHistoryLoad(getContext());
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public void onLoadFinished(@NonNull Loader<ArrayList<Exercise>> loader, ArrayList<Exercise> data) {
+        Log.d(DEBUG_TAG, "onLoadFinished: Thread ID: " + Thread.currentThread().getId());
+        if (loader.getId() == ALL_COMMENTS_LOADER_ID) {
+            if (data.size() > 0) {
+                mAdapter = new HistoryAdapterRecycler(getContext(), data);
+                ExerciseEntry exerc = new ExerciseEntry(getActivity());
+                exerc.close();
+                recyclerView.setAdapter(mAdapter);
+
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(@NonNull Loader<ArrayList<Exercise>> loader) {
+        Log.d(DEBUG_TAG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
+
     }
 
 }
