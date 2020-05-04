@@ -31,7 +31,7 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     private RecyclerView.LayoutManager layoutManager;
     //ArrayList<Exercise> itemsData;
     public static HistoryAdapterRecycler mAdapter;
-    ExerciseEntry ex;
+    public ExerciseEntry ex;
     private static final String FROM_HISTORY_TAB = "history_tab";
 
     @Override
@@ -43,6 +43,13 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mAdapter = new HistoryAdapterRecycler(getContext(), itemsData);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setAdapter(mAdapter);
+
+       // mAdapter = new HistoryAdapterRecycler(getContext(), itemsData);
+
+
        // ExerciseEntry ex = new ExerciseEntry(getContext());
 //        ex.open();
 //        //itemsData = ex.getAllExercises();
@@ -56,14 +63,33 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 //        }
 //        ex.close();
 
-       //
-
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
+//       //
+//        try{
+//        if (mAdapter.getItemCount() == 0){
+//            Log.d(DEBUG_TAG, "HERE !" );
+//
+//            mAdapter = new HistoryAdapterRecycler(getContext(), new ArrayList<Exercise>());
+//
+//        }
+//
+//
+//
+//
+//        } catch (Exception exc){
+//            Log.d(DEBUG_TAG, "HERE 2" );
+//
+//            mAdapter = new HistoryAdapterRecycler(getContext(), new ArrayList<Exercise>());
+//            recyclerView.setItemAnimator(new DefaultItemAnimator());
+//            recyclerView.setAdapter(mAdapter);
+//
+//
+//        }
+//
+//        Log.d(DEBUG_TAG, "HERE 3" );
 
 
         // maybe call this onActivityResult to see if something user deleted an exercise
-        //mAdapter.notifyDataSetChanged();
+
         return v;
     }
 
@@ -77,8 +103,9 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onResume() {
         super.onResume();
-        //ex = new ExerciseEntry(getContext());
-      //  ex.open();
+
+        ex = new ExerciseEntry(getContext());
+        ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
 
         Log.d(DEBUG_TAG, "onResume");
@@ -114,13 +141,14 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     public void onLoadFinished(@NonNull Loader<ArrayList<Exercise>> loader, ArrayList<Exercise> data) {
         Log.d(DEBUG_TAG, "onLoadFinished: Thread ID: " + Thread.currentThread().getId());
         if (loader.getId() == ALL_COMMENTS_LOADER_ID) {
-            if (data.size() > 0) {
+
+            Log.d(DEBUG_TAG, "onLoadFinished: dataSize: " + data.size());
+                Log.d(DEBUG_TAG, "onLoadFinished: data size = 0");
                 mAdapter = new HistoryAdapterRecycler(getContext(), data);
                 ExerciseEntry exerc = new ExerciseEntry(getActivity());
                 exerc.close();
                 recyclerView.setAdapter(mAdapter);
 
-            }
         }
     }
 

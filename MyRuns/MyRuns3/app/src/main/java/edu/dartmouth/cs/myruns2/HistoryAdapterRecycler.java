@@ -24,6 +24,7 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
     private LayoutInflater mLayoutInflater;
     private Context context;
 
+
     private static final String FROM_HISTORY_TAB = "history_tab";
     public HistoryAdapterRecycler(Context context, ArrayList<Exercise> list) {
 
@@ -40,8 +41,9 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
     }
 
     @Override
-    public void onBindViewHolder(final HistoryAdapterRecycler.ViewHolder holder, int position) {
+    public void onBindViewHolder(final HistoryAdapterRecycler.ViewHolder holder, final int position) {
         final Exercise order = orderList.get(position);
+        Log.d("Histo", "POSITION IN ADAPTER:  " + position);
 
 
 
@@ -52,14 +54,14 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
 
 
             int _input = order.getmInputType();
-            Log.d("Histo", "INTEGER INPUT type  INT : " + _input);
+           // Log.d("Histo", "INTEGER INPUT type  INT : " + _input);
             String __input = globs.getValue_str(globs.IN, _input);
-            Log.d("Histo", "STRINGGGG INPUT type STR : " + __input);
+            //Log.d("Histo", "STRINGGGG INPUT type STR : " + __input);
 
             int _act = order.getmActivityType();
-            Log.d("Histo", "INTEGER ACT type  STR _act : " + _act);
+            //Log.d("Histo", "INTEGER ACT type  STR _act : " + _act);
             String __act = globs.getValue_str(globs.ACT, order.getmActivityType());
-            Log.d("Histo", "STRING ACT type  STR _act : " + __act);
+            //Log.d("Histo", "STRING ACT type  STR _act : " + __act);
 
 
             String showActivity = globs.getValue_str(globs.IN, order.getmInputType()) + ": "
@@ -97,13 +99,18 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
             @Override
             public void onClick(View v) {
 
-                Log.d("HISTORYFRAGMENT", "YOU CLICKED ON ID: " + order.getId());
-                Intent intent = new Intent(context, ManualInputActivity.class);
-                intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
-                intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
 
-                context.startActivity(intent);
+
+
+                    Log.d("HISTORYFRAGMENT", "YOU CLICKED ON ID: " + order.getId());
+                    Intent intent = new Intent(context, ManualInputActivity.class);
+                    intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
+                    intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+
+                    context.startActivity(intent);
+
             }
+
         });
     }
 
