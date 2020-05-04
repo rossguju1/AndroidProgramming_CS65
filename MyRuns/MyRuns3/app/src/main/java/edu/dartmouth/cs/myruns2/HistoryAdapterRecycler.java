@@ -80,7 +80,7 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
 
             String temp_dur = String.valueOf(order.getmDuration());
 
-            String showDuration = "Duration: " + temp_dur;
+            String showDuration = "Duration: " + temp_dur + " hours";
 
             holder.hist_activity.setText(showActivity);
             holder.hist_date.setText(showDate);

@@ -56,4 +56,5 @@ public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
         }
         return null;
     }
+
 }

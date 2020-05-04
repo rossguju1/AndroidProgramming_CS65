@@ -40,12 +40,14 @@ import static edu.dartmouth.cs.myruns2.RegisterProfileActivity.INTENT_FROM;
 public class ManualInputActivity extends AppCompatActivity {
     public static final String MANUAL_INTENT_FROM = "manual_from";
     public static final String DELETE_EXERCISE = "history_from";
+    private static final String DEBUG_TAG = "ManualInputActivity";
     private int current_tab = -1;
-    TextView mName, activityDate, activityTime, activityDuration, activityDistance, activityCalorie, activityHeartbeat, activityComment, activityCommentContent;
+    TextView mName, activityDate, activityTime, activityDuration, activityDistance, activityCalorie,
+            activityHeartbeat, activityComment, activityCommentContent, distanceLabel;
     LinearLayout activityDurationLayout, activityCalorieLayout, activityDistanceLayout, activityHeartbeatLayout;
-
-
-    private Long id;
+    public ExerciseEntry mEntry;
+    public String _id;
+    public long id;
     private int mInputType;        // Manual, GPS or automatic
     private int mActivityType;     // Running, cycling etc.
     //private Calendar mDateTime;    // When does this entry happen
@@ -66,6 +68,7 @@ public class ManualInputActivity extends AppCompatActivity {
     private int _day;
     private int _month;
     private int _year;
+    public MyGlobals globs;
     SimpleDateFormat _sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
 
     String dynamic_date;
@@ -99,35 +102,48 @@ public class ManualInputActivity extends AppCompatActivity {
         activityCalorieLayout = (LinearLayout) findViewById(R.id.activityCalorieLayout);
         activityHeartbeatLayout = (LinearLayout) findViewById(R.id.activityHeartbeatLayout);
 
+        distanceLabel = (TextView) findViewById((R.id.distanceLabel));
+        globs = new MyGlobals();
+
+
+        distanceLabel.setText(globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS));
+
+
         if (getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("history_tab")){
+            current_tab = 1;
 
 
+           _id = getIntent().getStringExtra(DELETE_EXERCISE);
 
-           String _id = getIntent().getStringExtra(DELETE_EXERCISE);
+           id = Long.parseLong(_id);
 
-           long id = Long.valueOf(_id);
+
 
             Log.d("DEBUG", "INSIDE MANUAL FROM *HISTORY* Tab and clicked on ID: " + id );
 
-            MyGlobals globs = new MyGlobals();
-            ExerciseEntry mEntry = new ExerciseEntry(this);
+
+            mEntry = new ExerciseEntry(this);
 
             mEntry.open();
 
             Exercise e = mEntry.fetchEntryByIndex(id);
 
             mName.setText(globs.getValue_str(globs.ACT, e.getmActivityType()));
-            //activityDate.setText(e.getmDateTime());
-            //activityTime
+
+            String[] splited = e.getmDateTime().split("\\s+");
+            if (globs.CURRENT_UNITS == 1){
+                activityDistance.setText(String.valueOf(KilometersToMiles(e.getmDistance())));
+            }else {
+                activityDistance.setText(String.valueOf(e.getmDistance()));
+            }
+
+            activityDate.setText(splited[0]);
+            activityTime.setText(splited[1]);
             activityDuration.setText(String.valueOf(e.getmDuration()));
-            activityDistance.setText(String.valueOf(e.getmDistance()));
             activityCalorie.setText(String.valueOf(e.getmCalories()));
             activityHeartbeat.setText(String.valueOf(e.getmHeartRate()));
             //activityComment = (TextView) findViewById(R.id.activityComment);
             activityCommentContent.setText(e.getmComment());
-
-
-
 
             mEntry.close();
 
@@ -141,7 +157,7 @@ public class ManualInputActivity extends AppCompatActivity {
         } else {
             Log.d("DEBUG", "INSIDE MANUAL FROM *START* TAB");
 
-
+            current_tab = 0;
 
             //Here we check if mName exists and then set appropriate activity name
             if (mName != null) {
@@ -373,6 +389,25 @@ public class ManualInputActivity extends AppCompatActivity {
                     //database save entry
                 } else if(current_tab == 1){
                     //database delete entry
+                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
+                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+                    //long __id = Long.valueOf(_id);
+                    mEntry = new ExerciseEntry(this);
+                    mEntry.open();
+                   int ret = mEntry.deleteExercise(Long.valueOf(_id));
+                    mEntry.close();
+
+                    if (ret>0){
+                        Log.d("DEBUG", "DeleteWorked and removed: " + _id);
+
+                    } else {
+
+                        Log.d("DEBUG", "Delete Failed to remove: " + _id);
+                    }
+
+                    finish();
+
+
                 }
                 return true;
 
@@ -403,7 +438,7 @@ public class ManualInputActivity extends AppCompatActivity {
 
 
 
-        MyGlobals globs = new MyGlobals();
+
         mExercise = new Exercise();
 
         String time = _hour + ":" + _minute;
@@ -414,6 +449,11 @@ public class ManualInputActivity extends AppCompatActivity {
 
         String activity_name = mName.getText().toString();
         String duration = activityDuration.getText().toString();
+
+
+
+
+
         String distance = activityDistance.getText().toString();
 
         String calories = activityCalorie.getText().toString();
@@ -425,18 +465,24 @@ public class ManualInputActivity extends AppCompatActivity {
 
         int activity = globs.getValue_int(globs.ACT, activity_name);
 
-        Log.d("DEBUG", "IN MANUAL  inputtype   " + input);
-        Log.d("DEBUG", "IN MANUAL Activity Name   " + activity_name);
-        Log.d("DEBUG", "IN MANUAL Activity Number   " + activity);
 
-        Log.d("DEBUG", "IN MANUAL INPUT INT TO STRING    " +  globs.getValue_str(globs.IN, input));
-        Log.d("DEBUG", "IN MANUAL ACTIVITY INT TO STRING    " +  globs.getValue_str(globs.ACT, activity));
+
+
 
         mExercise.setmInputType(input);
         mExercise.setmActivityType(activity);
         mExercise.setmDateTime(date_time);
+        if (globs.CURRENT_UNITS == 1 ){
+            double miles = Double.parseDouble(MilesToKilometers(Double.parseDouble(distance)));
+            Log.d("DEBUG", "IN MANUAL MILES  " + miles);
+            mExercise.setmDistance(miles);
+        } else {
+            double kilo = Double.parseDouble(distance);
+            mExercise.setmDistance(kilo);
+            Log.d("DEBUG", "IN MANUAL KILOS   " + kilo);
+        }
+
         mExercise.setmDuration(Integer.parseInt(duration));
-        mExercise.setmDistance(Double.parseDouble(distance));
         mExercise.setmCalories(Integer.parseInt(calories));
         mExercise.setmHeartRate(Integer.parseInt(heartbeat));
         mExercise.setmComment(comment);
@@ -460,13 +506,55 @@ public class ManualInputActivity extends AppCompatActivity {
                     + " Comments: " + comment
             );
 
-
-
-
-
-
-
     }
+
+
+    public String MilesToKilometers(double miles){
+
+
+            double kilometer = 1.60934 * miles;
+
+
+        String formatted = String.format("%.2f", kilometer);
+
+        return formatted;
+    }
+
+    public String KilometersToMiles(double kilo){
+
+        double miles = kilo * 0.621371;
+
+        String formatted = String.format("%.2f", miles);
+        return formatted;
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(DEBUG_TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "onDestroy");
+    }
+
+
 
 
 

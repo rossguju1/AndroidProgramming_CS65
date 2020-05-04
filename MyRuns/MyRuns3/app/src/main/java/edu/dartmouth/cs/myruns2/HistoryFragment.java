@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 
 public class HistoryFragment extends Fragment {
+    private static final String DEBUG_TAG = "HistoryFragment";
     private RecyclerView recyclerView;
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
@@ -25,6 +26,8 @@ public class HistoryFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(DEBUG_TAG, "onCreateView()");
+
         View v = inflater.inflate(R.layout.history_fragment, container, false);
         //setContentView(R.layout.history_fragment);
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
@@ -34,7 +37,7 @@ public class HistoryFragment extends Fragment {
         ex.open();
         ArrayList<Exercise> itemsData = ex.getAllExercises();
 
-        for (int position = 0; position < itemsData.size(); position++){
+        for (int position = 0; position < itemsData.size(); position++) {
             Exercise e = itemsData.get(position);
             Log.d("h-Frag: ID:  ", "ID:  " + e.getId());
             Log.d("h-Frag: INPUT:  ", "INPUT :  " + e.getmInputType());
@@ -51,5 +54,29 @@ public class HistoryFragment extends Fragment {
         return v;
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(DEBUG_TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "onPause");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "onDestroy");
+    }
 
 }

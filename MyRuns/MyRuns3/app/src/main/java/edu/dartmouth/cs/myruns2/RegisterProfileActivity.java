@@ -50,7 +50,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
     private static final String URI_STATE_KEY = "saved_uri";
-    private static final String DEBUG_TAG = "debug_key";
+    private static final String DEBUG_TAG = "RegisterProfileActivity";
     private static final String FROM_SIGNIN = "sign_in_parent";
     private Button mChangeButton;
     private Uri mImageUri = null;

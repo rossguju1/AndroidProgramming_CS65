@@ -19,6 +19,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 public class SettingsActivity extends AppCompatActivity {
+    private static final String DEBUG_TAG = "SettingsActivity";
 
 //Look at this link
 //https://developer.android.com/guide/topics/ui/settings/use-saved-values
@@ -50,5 +51,32 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(DEBUG_TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "onDestroy");
+    }
+
+
 
 }

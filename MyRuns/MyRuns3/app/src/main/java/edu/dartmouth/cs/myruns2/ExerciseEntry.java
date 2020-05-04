@@ -241,6 +241,17 @@ class ExerciseEntry {
 
         }
 
+        public int deleteExercise(long id){
+                if (database.delete(ExerciseEntryDbHelper.TABLE_EXERCISES,ExerciseEntryDbHelper.COLUMN_ID
+                        + " = " + id, null) > 0){
+
+                        return 1;
+                } else{
+                        return -1;
+                }
+
+        }
+
 
 
 

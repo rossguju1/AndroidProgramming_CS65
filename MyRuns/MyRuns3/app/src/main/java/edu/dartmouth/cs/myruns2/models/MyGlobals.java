@@ -6,7 +6,7 @@ import java.util.*;
 
 public class MyGlobals {
 
-    public static int CURRENT_UNITS;
+    public static int CURRENT_UNITS = 0;
 
 
     public static final String ACT = "ACTIVITY_TYPES";

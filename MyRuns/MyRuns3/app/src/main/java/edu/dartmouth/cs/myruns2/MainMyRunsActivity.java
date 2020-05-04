@@ -34,7 +34,7 @@ public class MainMyRunsActivity extends AppCompatActivity {
     private String input = "";
     private String activity = "";
 
-    private static final String DEBUG_TAG = "<<<debugger>>>";
+    private static final String DEBUG_TAG = "MainMyRunsActivity";
     private ActionBar actionBar;
 
     private static final String TAG = "from_main_activity";
@@ -91,11 +91,6 @@ public class MainMyRunsActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_activity_menu, menu);
         return true;
@@ -128,6 +123,35 @@ public class MainMyRunsActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(DEBUG_TAG, "onStart");
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG_TAG, "onResume");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG_TAG, "onPause");
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+        Log.d(DEBUG_TAG, "onDestroy");
+    }
+
+
 
 //    public static class SettingsFragment extends PreferenceFragmentCompat {
 //        @Override
