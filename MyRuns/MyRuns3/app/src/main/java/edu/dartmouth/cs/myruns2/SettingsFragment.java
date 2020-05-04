@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
+
 
 import edu.dartmouth.cs.myruns2.models.Exercise;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
@@ -30,41 +32,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         context = getActivity();
         globs = new MyGlobals();
-
-//            final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-//
-//            String  check_box = prefs.getString("checkbox_preference", null);
-//            String  units = prefs.getString("list_preference", null);
-
-
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-
-
-        boolean mPriv = prefs.getBoolean("checkbox_preference", false);
-
-
-        String readUnit = prefs.getString("list_preference", "");
-        Log.d("DEBUG", "READING UNITS: " + readUnit);
-
-       if (readUnit.equals("")){
-           globs.CURRENT_UNITS = 0;
-           Log.d(DEBUG_TAG, "SETTINGS PREFS ARE EMPTY");
-           prefs.edit().putString("list_preference", globs.getValue_str(globs.UNIT_TABLE, 0));
-           prefs.edit().putBoolean("checkbox_preference", true);
-           prefs.edit().commit();
-
-
-
-       }
-        if (mPriv) {
-            Log.d("DEBUG", "**>>>> Privacy CHECKED :(");
-        } else {
-
-            Log.d("DEBUG", "**>>>> Privacy NOTTTT CHECKED :(");
-
-        }
-
 
 
 
@@ -105,100 +72,46 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     }
 
 
-
-
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
-        // Asyc task goes here
-        //goes through and updates units and privacy
-        // does unit conversion
-//       task = new UpdatePrivacyTask();
-//        task.execute();
-       // final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
+
+       Thread t= new UpdateUnitThread();
+       t.run();
         boolean mPriv = sharedPreferences.getBoolean("checkbox_preference", false);
-        String mPrivList = sharedPreferences.getString("list_preference", "");
+        String priv = String.valueOf(mPriv);
+        Log.d(DEBUG_TAG, "SETTINGS FRAGMENT THREAD ID: " + priv);
 
+        AsyncTask<String, Void, Void> task =  new UpdatePrivacyTask();
+        task.execute(priv);
 
-        if (mPrivList.equals("")) {
-            globs.CURRENT_UNITS = 0;
+        }
 
-            sharedPreferences.edit().putString("list_preference", globs.getValue_str(globs.UNIT_TABLE, 0));
+    public class UpdateUnitThread extends Thread {
+        @Override
+        public void run() {
+            Log.d(DEBUG_TAG, "SETTINGS FRAGMENT THREAD ID: " + Thread.currentThread().getId());
 
+            final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-            sharedPreferences.edit().putBoolean("checkbox_preference", true);
-            sharedPreferences.edit().commit();
-
-
-        } else {
-
-            ExerciseEntry mEntry = new ExerciseEntry(context);
-
-            Log.d("EXERCISE", "Current UNITS  " + globs.CURRENT_UNITS);
-
+            String mPrivList = sharedPreferences.getString("list_preference", "");
             globs.CURRENT_UNITS = globs.getValue_int(globs.UNIT_TABLE, mPrivList);
 
-            Log.d("EXERCISE", "Changed UNITS " + globs.CURRENT_UNITS);
 
-            mEntry.open();
-
-            ex = mEntry.getAllExercises();
-
-            for (int i = 0; i < ex.size(); i++) {
-
-                Exercise e = ex.get(i);
-                if (mPriv) {
-                    Log.d("EXERCISE", "Current Privacy: " + e.getmPrivacy());
-                    e.setmPrivacy(1);
-                    mEntry.updateExercise(e);
-
-                    mEntry.printExercise(e);
-
-
-                } else {
-                    Log.d("EXERCISE", "Current Privacy: " + e.getmPrivacy());
-                    e.setmPrivacy(0);
-                    mEntry.updateExercise(e);
-                    mEntry.printExercise(e);
-
-                }
-            }
-
-
-            mEntry.close();
+        }
         }
 
 
-    }
 
-    class UpdatePrivacyTask extends AsyncTask<Void, Void, Void> {
+
+    class UpdatePrivacyTask extends AsyncTask<String, Void, Void> {
 
         @Override
-        protected Void doInBackground(Void... unused) {
+        protected Void doInBackground(String... priv) {
             final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+            Log.d(DEBUG_TAG, "SETTINGS FRAGMENT  UpdatePrivacyTask THREAD ID: " + Thread.currentThread().getId());
 
-            boolean mPriv = sharedPreferences.getBoolean("checkbox_preference", false);
-            String mPrivList = sharedPreferences.getString("list_preference", "");
-
-
-            if (mPrivList.equals("")) {
-                globs.CURRENT_UNITS = 0;
-
-                sharedPreferences.edit().putString("list_preference", globs.getValue_str(globs.UNIT_TABLE, 0));
-
-
-                sharedPreferences.edit().putBoolean("checkbox_preference", true);
-                sharedPreferences.edit().commit();
-
-
-            } else {
-
+            boolean p = Boolean.parseBoolean(priv[0]);
                 ExerciseEntry mEntry = new ExerciseEntry(context);
-
-                Log.d("EXERCISE", "Current UNITS  " + globs.CURRENT_UNITS);
-
-                globs.CURRENT_UNITS = globs.getValue_int(globs.UNIT_TABLE, mPrivList);
-
-                Log.d("EXERCISE", "Changed UNITS " + globs.CURRENT_UNITS);
 
                 mEntry.open();
 
@@ -207,26 +120,21 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 for (int i = 0; i < ex.size(); i++) {
 
                     Exercise e = ex.get(i);
-                    if (mPriv) {
-                        Log.d("EXERCISE", "Current Privacy: " + e.getmPrivacy());
+                    if (p) {
                         e.setmPrivacy(1);
                         mEntry.updateExercise(e);
 
-                        mEntry.printExercise(e);
-
 
                     } else {
-                        Log.d("EXERCISE", "Current Privacy: " + e.getmPrivacy());
                         e.setmPrivacy(0);
                         mEntry.updateExercise(e);
-                        mEntry.printExercise(e);
 
                     }
                 }
 
 
                 mEntry.close();
-            }
+
 
             return null;
         }
@@ -241,9 +149,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         @Override
         protected void onPostExecute(Void unused) {
-            //Toast.makeText(getActivity(), R.string.done, Toast.LENGTH_SHORT).show();
             task = null;
         }
 
     }
-}
+
+    }
+
+
+
+
