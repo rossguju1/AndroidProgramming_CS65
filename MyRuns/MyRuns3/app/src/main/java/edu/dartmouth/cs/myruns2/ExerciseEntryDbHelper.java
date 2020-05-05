@@ -53,7 +53,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
 
     // Constructor
     public ExerciseEntryDbHelper(Context context) {
-        // DATABASE_NAME is, of course the name of the database, which is defined as a tring constant
+        // DATABASE_NAME is, of course the name of the database, which is defined as a string constant
         // DATABASE_VERSION is the version of database, which is defined as an integer constant
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
