@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.myruns2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
@@ -65,6 +67,21 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         }
 
+        Preference signOut = findPreference("sign_out_preference");
+        signOut.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener(){
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                try{
+                    Intent intent = new Intent(getActivity(), SigninActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    return true;
+                } catch(Exception e){
+                    //Return false if our sign out intent fails
+                    return false;
+                }
+            }
+        });
 
 
 

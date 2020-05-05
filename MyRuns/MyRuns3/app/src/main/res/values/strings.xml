@@ -28,6 +28,7 @@
     <string name="ui_profile_photo_content_description">Your profile photo:</string>
     <string name="ui_button_change_title">CHANGE</string>
     <string name="ui_button_save_title">REGISTER</string>
+    <string name="temp_profile_photo_file_name">temp_profile_photo.png</string>
     <string name="profile_photo_file_name">profile_photo.png</string>
     <string name="profile_registration_incomplete">Profile Registration is Incomplete</string>
     <string name="input_label">Input Type</string>

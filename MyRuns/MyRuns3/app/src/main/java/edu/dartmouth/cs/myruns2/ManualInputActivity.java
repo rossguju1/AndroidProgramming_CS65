@@ -49,6 +49,16 @@ public class ManualInputActivity extends AppCompatActivity {
     TextView mName, activityDate, activityTime, activityDuration, activityDistance, activityCalorie,
             activityHeartbeat, activityComment, activityCommentContent, distanceLabel;
     LinearLayout activityDurationLayout, activityCalorieLayout, activityDistanceLayout, activityHeartbeatLayout;
+
+    //Keys to retrieve temp saved data
+    private static final String DATE_STATE_KEY = "saved_date";
+    private static final String TIME_STATE_KEY = "saved_time";
+    private static final String DURATION_STATE_KEY = "saved_duration";
+    private static final String DISTANCE_STATE_KEY = "saved_distance";
+    private static final String CALORIES_STATE_KEY = "saved_calories";
+    private static final String HEART_STATE_KEY = "saved_heart";
+    private static final String COMMENT_STATE_KEY = "saved_comment";
+
     public ExerciseEntry mEntry;
     public String _id;
     public long id;
@@ -170,6 +180,28 @@ public class ManualInputActivity extends AppCompatActivity {
             if (mName != null) {
                 mName.setText(activity_name);
             }
+
+            // Populate with preserved data if lifeCycle was interrupted
+            if (savedInstanceState != null) {
+                // Get saved values
+                String mDate = savedInstanceState.getString(DATE_STATE_KEY);
+                String mTime = savedInstanceState.getString(TIME_STATE_KEY);
+                String mDistance = savedInstanceState.getString(DISTANCE_STATE_KEY);
+                String mDuration = savedInstanceState.getString(DURATION_STATE_KEY);
+                String mCalories = savedInstanceState.getString(CALORIES_STATE_KEY);
+                String mHeartRate= savedInstanceState.getString(HEART_STATE_KEY);
+                String mComment = savedInstanceState.getString(COMMENT_STATE_KEY);
+
+                // Set saved values
+                activityDate.setText(mDate);
+                activityTime.setText(mTime);
+                activityDuration.setText(mDuration);
+                activityDistance.setText(mDistance);
+                activityCalorie.setText(mCalories);
+                activityHeartbeat.setText(mHeartRate);
+                activityCommentContent.setText(mComment);
+            }
+
 
             //Add our date selector
             activityDate.setOnClickListener(new View.OnClickListener() {
@@ -343,11 +375,67 @@ public class ManualInputActivity extends AppCompatActivity {
                 }
             });
 
+            //You should be able to click either the comment or comment content to edit the comment
+            activityCommentContent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder commentDialog = new AlertDialog.Builder(ManualInputActivity.this);
+                    commentDialog.setTitle("Comment");
+
+                    // Set up the input
+                    final EditText input = new EditText(ManualInputActivity.this);
+                    // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
+                    input.setInputType(InputType.TYPE_CLASS_TEXT);
+                    commentDialog.setView(input);
+
+                    // Set up the buttons
+                    commentDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            activityCommentContent.setText(input.getText().toString());
+                        }
+                    });
+                    commentDialog.show();
+                }
+            });
 
         }
-
-
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Stoppage in lifecycle, must save temp data
+        String date = activityDate.getText().toString();
+        String time = activityTime.getText().toString();
+        String duration = activityDuration.getText().toString();
+        String distance = activityDistance.getText().toString();
+        String calories = activityCalorie.getText().toString();
+        String heartbeat = activityHeartbeat.getText().toString();
+        String comment = activityCommentContent.getText().toString();
+        if(date != "" && date != null) {
+            outState.putString(DATE_STATE_KEY, date);
+        }
+        if(time != "" && time != null) {
+            outState.putString(TIME_STATE_KEY, time);
+        }
+        if(duration != "" && duration != null) {
+            outState.putString(DURATION_STATE_KEY, duration);
+        }
+        if(distance != "" && distance != null) {
+            outState.putString(DISTANCE_STATE_KEY, distance);
+        }
+        if(calories != "" && calories != null) {
+            outState.putString(CALORIES_STATE_KEY, calories);
+        }
+        if(heartbeat != "" && heartbeat != null) {
+            outState.putString(HEART_STATE_KEY, heartbeat);
+        }
+        if(comment != "" && comment != null) {
+            outState.putString(COMMENT_STATE_KEY, comment);
+        }
+    }
+
 
     DatePickerDialog.OnDateSetListener datePicker = new DatePickerDialog.OnDateSetListener() {
         @Override

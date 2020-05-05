@@ -50,10 +50,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private static final int ERROR_CAMERA_KEY = 225;
     private static final int PICK_IMAGE = 77;
     private static final String URI_STATE_KEY = "saved_uri";
+    private static final String BITMAP_STATE_KEY = "saved_bitmap";
     private static final String DEBUG_TAG = "RegisterProfileActivity";
     private static final String FROM_SIGNIN = "sign_in_parent";
     private Button mChangeButton;
     private Uri mImageUri = null;
+
     private ImageView mImageV;
     private EditText mEditName;
     private RadioGroup mRadioGenderGroup;
@@ -65,17 +67,22 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private EditText mMajor;
     private EditText mClassYear;
     private Bitmap rotatedBitmap;
-    private boolean isTakenFromCamera;
+    private boolean passwordChanged = false;
+    private String initialPassword;
 
     public static final String INTENT_FROM = "from";
     public static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
     public ProfilePreferences mProfilePreference;
 
     String PicturePath;
+    //Used for storage & compression from camera
     File mPhotoFile = null;
+    //Used for compression within saveInstanceState() to prevent parcel overflow
+//    File mPhotoFileSave = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("onCreate()","*** on create fired");
         super.onCreate(savedInstanceState);
 
 
@@ -88,13 +95,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         mImageV = (ImageView) findViewById(R.id.imageProfile);
 
-        if (savedInstanceState != null) {
-            mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
-
-        }
-
         loadSnap();
 
+        if (savedInstanceState != null) {
+            mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
+            loadSnapTemp();
+        }
 
         mChangeButton = findViewById(R.id.btnChangePhoto);
 
@@ -118,6 +124,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
         if (getIntent().getStringExtra(INTENT_FROM).equals("from_main_activity")) {
             loadProfile();
+            //If we are coming from the main activity, they shouldn't be able to edit email
+            mEditEmail.setKeyListener(null);
+            //Need to check if password changes after we have loaded the profile
+            initialPassword = mEditPassword.getText().toString();
+
         }
 
 
@@ -129,6 +140,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
             }
         });
+
+        Log.d("onCreate()","*** end of onCreate()");
     }
 
     @Override
@@ -158,11 +171,18 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT).show();
             // Exit/Close & save active only if fields have been filled appropriately
             if (saveProfile() == false){
-                finish();
+                //If we are coming from the main activity, i.e editing our profile && password was changed
+                if (getIntent().getStringExtra(INTENT_FROM).equals("from_main_activity") && passwordChanged) {
+                    //return to sign in screen
+                    Intent intent = new Intent(this, SigninActivity.class);
+                    // Add flags to clear stack preventing 'back' action to main activity
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                } else {
+                    finish();
+                }
             }
-
             return true;
-
         } else if (id == android.R.id.home){         //On home button click
 
             finish();
@@ -229,15 +249,13 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.d("onSaveInstanceState()","*** attempting to save");
         super.onSaveInstanceState(outState);
+        saveSnapTemp();
         //Stoppage in lifecycle, must save image uri
-        //outState.putBoolean(FROM_SIGNIN, isFromLoginActivity);
         if(mImageUri != null) {
             outState.putParcelable(URI_STATE_KEY, mImageUri);
-
-
         }
-
     }
 
     @Override
@@ -245,25 +263,16 @@ public class RegisterProfileActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         if (savedInstanceState != null) {
             mImageUri = savedInstanceState.getParcelable(URI_STATE_KEY);
-            try {
-                if(mImageUri != null){
-
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), mImageUri);
-                    mImageV.setImageBitmap(bitmap);
-
-                }
-            }  catch (IOException e) {
-                e.printStackTrace();
-                //mImageV.setImageResource(R.drawable.ic_launcher_background);
-
-            }
         }
+        //We want to attempt to reload our temp profile pic if a pause occurred in the lifecycle
+        loadSnapTemp();
     }
 
     // ****************** button click callbacks ***************************//
     // Handle data after activity returns.
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d("onActivityResult()","attempt to launch on activity result");
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode != RESULT_OK)
             return;
@@ -282,10 +291,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 // Crop image taken by camera
                 Bitmap rotatedBitmap = imageOrientationValidator(mPhotoFile);
                 try {
+                    mPhotoFile = createImageFile();
                     FileOutputStream fOut = new FileOutputStream(mPhotoFile);
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
                     fOut.flush();
                     fOut.close();
+                    //mImageStored = rotatedBitmap;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -295,8 +306,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                         mPhotoFile);
                 beginCrop(mImageUri);
                 break;
-
-
         }
     }
 
@@ -330,7 +339,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 } catch (ActivityNotFoundException e) {
                     e.printStackTrace();
                 }
-                isTakenFromCamera = true;
+
                 break;
 
             case MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM:
@@ -341,11 +350,9 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     // Error occurred while creating the File
                     ex.printStackTrace();
                 }
-
                 //Intent used when selecting from image gallery i.e picking image
                 Intent i = new Intent( Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(i, PICK_IMAGE);
-
             default:
                 return;
         }
@@ -363,20 +370,15 @@ public class RegisterProfileActivity extends AppCompatActivity {
 
 
     private void loadSnap() {
-
         if (getIntent().getStringExtra(INTENT_FROM).equals("tag_log_in")){
-
-            Log.d(DEBUG_TAG, "inside register login");
-
             mImageV.setImageDrawable(null);
             mImageV.setImageResource(R.drawable.ic_launcher_background);
         } else {
-
             try {
                 //Access internal storage fileInput
                 FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
                 Bitmap bmap = BitmapFactory.decodeStream(fis);
-                //Bitamp of photo
+                //Bitmap of photo
                 mImageV.setImageBitmap(bmap);
                 fis.close();
             } catch (IOException e) {
@@ -386,12 +388,45 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
     }
 
+    //Here we are loading an unsaved bitmap for when the activity is paused/stopped but the user
+    //hasn't clicked save yet
+    private void loadSnapTemp() {
+        try {
+            //Access internal storage fileInput
+            FileInputStream fis = openFileInput(getString(R.string.temp_profile_photo_file_name));
+            Bitmap bmap = BitmapFactory.decodeStream(fis);
+            //Bitmap of photo
+            mImageV.setImageBitmap(bmap);
+            fis.close();
+        } catch (IOException e) {
+            //If failed to set bitmap of temp profile pic, use default
+            mImageV.setImageDrawable(null);
+            mImageV.setImageResource(R.drawable.ic_launcher_background);
+        }
+    }
+
     private void saveSnap() {
         mImageV.buildDrawingCache();
         Bitmap bmap = mImageV.getDrawingCache();
         try {
             //attempt to save image to internal storage using bitmap
             FileOutputStream fos = openFileOutput(getString(R.string.profile_photo_file_name), MODE_PRIVATE);
+            bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+    }
+
+    //Save a temporary version of our profile photo in memory for when orientation changes
+    //NOTE: Cannot use saveInstanceState's outState.putParcelable because bitmaps will cause overflow of small buffer
+    private void saveSnapTemp() {
+        mImageV.buildDrawingCache();
+        Bitmap bmap = mImageV.getDrawingCache();
+        try {
+            //attempt to save image to internal storage using bitmap
+            FileOutputStream fos = openFileOutput(getString(R.string.temp_profile_photo_file_name), MODE_PRIVATE);
             bmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             fos.flush();
             fos.close();
@@ -423,7 +458,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 Log.d("URI: ", destination.toString());
                 //Crop our file
                 Crop.of(source, destination).asSquare().start(this);
-
             }
 
         }
@@ -437,6 +471,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
                 mImageV.setImageBitmap(bitmap);
+                saveSnapTemp();
             } catch (Exception e) {
                 Log.d("Error", "error");
             }
@@ -458,6 +493,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         String email = mEditEmail.getText().toString();
         String password = mEditPassword.getText().toString();
 
+        //Need to check if password has been changed to launch appropriate intent after save
+        if(!password.equals(initialPassword)){
+            passwordChanged = true;
+        }
 
         String phone = mEditPhoneNumber.getText().toString();
         String major = mMajor.getText().toString();
@@ -624,40 +663,29 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 matrix, true);
     }
 
-
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = new String[] { android.provider.MediaStore.Images.ImageColumns.DATA };
-
-        Cursor cursor = getContentResolver().query(contentUri, proj, null,
-                null, null);
-        int column_index = cursor
-                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-
-        String filename = cursor.getString(column_index);
-        cursor.close();
-
-        return filename;
-    }
+//    private String getRealPathFromURI(Uri contentUri) {
+//        String[] proj = new String[] { android.provider.MediaStore.Images.ImageColumns.DATA };
+//
+//        Cursor cursor = getContentResolver().query(contentUri, proj, null,
+//                null, null);
+//        int column_index = cursor
+//                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+//        cursor.moveToFirst();
+//
+//        String filename = cursor.getString(column_index);
+//        cursor.close();
+//
+//        return filename;
+//    }
 
     private void loadProfile(){
-
-        //loadSnap();
-        //load current data
-
-
         try{
-
-            Log.d(DEBUG_TAG, "in load prof() mprof is not empty");
-
-
             mEditName.setText(mProfilePreference.getProfileName());
             mEditEmail.setText(mProfilePreference.getProfileEmail());
             if (mProfilePreference.getProfileGender() == 0) {
                 mRadioGenderGroup.check(R.id.radioGenderF);
             } else if (mProfilePreference.getProfileGender() == 1) {
                 mRadioGenderGroup.check(R.id.radioGenderM);
-
             }
 
             mEditPassword.setText(mProfilePreference.getProfilePassword());
@@ -666,9 +694,8 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mClassYear.setText(mProfilePreference.getProfileClassYear());
 
         } catch (Exception e){
-            // mProfilePreference = new ProfilePreferences(getApplicationContext());
+            e.printStackTrace();
         }
-
     }
 
     @Override
