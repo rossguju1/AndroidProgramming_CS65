@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
     <!-- Our Actual View Inside Of A Scroll Container-->
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ManualInputActivity">
@@ -30,6 +30,7 @@
             android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
+            android:backgroundTint="#FF4081"
             android:text="@string/example"
             android:textSize="18sp"
             app:layout_constraintBottom_toTopOf="@+id/divider2"
@@ -391,11 +392,15 @@
 
         <TextView
             android:id="@+id/activityCommentContent"
-            android:layout_width="387dp"
+            android:layout_width="match_parent"
             android:layout_height="23dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="10dp"
             android:text=""
             android:textSize="18sp"
-            app:layout_constraintTop_toBottomOf="@+id/activityComment"
-            tools:layout_editor_absoluteX="10dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/activityComment" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
