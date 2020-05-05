@@ -7,8 +7,6 @@ import java.util.*;
 public class MyGlobals {
 
     public static int CURRENT_UNITS = 0;
-
-
     public static final String ACT = "ACTIVITY_TYPES";
     public static final String IN = "INPUT_TYPES";
     public static final String UNIT_TABLE = "UNITS";
@@ -17,13 +15,9 @@ public class MyGlobals {
     Hashtable<String, Integer> INPUT_TYPES = new Hashtable<>();
     Hashtable<String, Integer> UNITS = new Hashtable<>();
 
-
-
-
     Hashtable<Integer, String> _ACTIVITY_TYPES = new Hashtable<>();
     Hashtable<Integer, String> _INPUT_TYPES = new Hashtable<>();
     Hashtable<Integer, String> _UNITS = new Hashtable<>();
-
 
     public MyGlobals() {
         ACTIVITY_TYPES.put("Running",0);
@@ -45,7 +39,6 @@ public class MyGlobals {
         INPUT_TYPES.put("GPS", 1);
         INPUT_TYPES.put("Automatic", 2);
 
-
         _ACTIVITY_TYPES.put(0, "Running");
         _ACTIVITY_TYPES.put(1, "Walking");
         _ACTIVITY_TYPES.put(2, "Standing");
@@ -65,15 +58,11 @@ public class MyGlobals {
         _INPUT_TYPES.put(1, "GPS");
         _INPUT_TYPES.put(2, "Automatic");
 
+        UNITS.put("kms", 0);
+        UNITS.put("mi", 1);
 
-        UNITS.put("Kilometers", 0);
-        UNITS.put("Miles", 1);
-
-        _UNITS.put(0, "Kilometers");
-        _UNITS.put(1, "Miles");
-
-
-
+        _UNITS.put(0, "kms");
+        _UNITS.put(1, "mi");
     }
 
     public int getValue_int(String table, String key){
@@ -99,6 +88,4 @@ public class MyGlobals {
         }
     return "NaN";
     }
-
-
 }

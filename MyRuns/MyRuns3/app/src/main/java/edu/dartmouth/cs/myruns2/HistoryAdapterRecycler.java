@@ -19,16 +19,14 @@ import edu.dartmouth.cs.myruns2.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
 
 public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterRecycler.ViewHolder> {
+
     ExerciseEntry mEntry;
     private ArrayList<Exercise> orderList;
     private LayoutInflater mLayoutInflater;
     private Context context;
-
-
     private static final String FROM_HISTORY_TAB = "history_tab";
+
     public HistoryAdapterRecycler(Context context, ArrayList<Exercise> list) {
-
-
         this.orderList = list;
         this.mLayoutInflater = LayoutInflater.from(context);
         this.context = context;
@@ -43,78 +41,48 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
     @Override
     public void onBindViewHolder(final HistoryAdapterRecycler.ViewHolder holder, final int position) {
         final Exercise order = orderList.get(position);
-        Log.d("Histo", "POSITION IN ADAPTER:  " + position);
-
-
-
 
         MyGlobals globs = new MyGlobals();
 
+        int _input = order.getmInputType();
+        String __input = globs.getValue_str(globs.IN, _input);
 
+        int _act = order.getmActivityType();
+        String __act = globs.getValue_str(globs.ACT, order.getmActivityType());
 
-
-            int _input = order.getmInputType();
-           // Log.d("Histo", "INTEGER INPUT type  INT : " + _input);
-            String __input = globs.getValue_str(globs.IN, _input);
-            //Log.d("Histo", "STRINGGGG INPUT type STR : " + __input);
-
-            int _act = order.getmActivityType();
-            //Log.d("Histo", "INTEGER ACT type  STR _act : " + _act);
-            String __act = globs.getValue_str(globs.ACT, order.getmActivityType());
-            //Log.d("Histo", "STRING ACT type  STR _act : " + __act);
-
-
-            String showActivity = globs.getValue_str(globs.IN, order.getmInputType()) + ": "
+        String showActivity = globs.getValue_str(globs.IN, order.getmInputType()) + ": "
                     + globs.getValue_str(globs.ACT, order.getmActivityType()) + "  ";
 
-            String showDate = "Date: " + order.getmDateTime();
+        String showDate = "" + order.getmDateTime();
         String showDistance;
 
         if (globs.CURRENT_UNITS == 1 ){
-            showDistance = "Distance: " + KilometersToMiles(order.getmDistance()) + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + " ";
-
-
+            showDistance = "" + KilometersToMiles(order.getmDistance()) + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + ", ";
         } else {
             String temp_dist = String.valueOf(order.getmDistance());
-            showDistance = "Distance: " + temp_dist + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + " ";
+            showDistance = "" + temp_dist + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + ", ";
         }
 
+        String temp_dur = String.valueOf(order.getmDuration());
+        String showDuration = "" + temp_dur + " mins";
 
-            String temp_dur = String.valueOf(order.getmDuration());
-
-            String showDuration = "Duration: " + temp_dur + " hours";
-
-            holder.hist_activity.setText(showActivity);
-            holder.hist_date.setText(showDate);
-            holder.hist_distance.setText(showDistance);
-            holder.hist_duration.setText(showDuration);
-
-
-
-        Log.d("here1: -> ",  order.getmDateTime() + order.getmComment() + order.getmDuration());
-       // holder.orderNumber.setText(String.valueOf(order.getId()));
+        holder.hist_activity.setText(showActivity);
+        holder.hist_date.setText(showDate);
+        holder.hist_distance.setText(showDistance);
+        holder.hist_duration.setText(showDuration);
 
         //Here, calling itemView (equivalent of listAdapter.getView()) and setting a onClickListener as an example. You can do whatever you want.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
-
-
-                    Log.d("HISTORYFRAGMENT", "YOU CLICKED ON ID: " + order.getId());
-                    Intent intent = new Intent(context, ManualInputActivity.class);
-                    intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
-                    intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
-
-                    context.startActivity(intent);
-
+                Intent intent = new Intent(context, ManualInputActivity.class);
+                intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
+                intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+                context.startActivity(intent);
             }
 
         });
     }
-
-
 
     @Override
     public int getItemCount() {
@@ -132,15 +100,14 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
             hist_date = (TextView) itemView.findViewById(R.id.hist_date);
             hist_distance = (TextView) itemView.findViewById(R.id.hist_distance);
             hist_duration = (TextView) itemView.findViewById(R.id.hist_duration);
-
         }
+
     }
 
-    public String KilometersToMiles(double kilo){
-
+    public String KilometersToMiles(double kilo) {
         double miles = kilo * 0.621371;
-
         String formatted = String.format("%.2f", miles);
-    return formatted;
+        return formatted;
     }
+
 }

@@ -31,7 +31,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         addPreferencesFromResource(R.xml.root_preferences);
 
-
         context = getActivity();
         globs = new MyGlobals();
 
@@ -56,7 +55,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
-
         getPreferenceScreen().getSharedPreferences()
                 .registerOnSharedPreferenceChangeListener(this);
     }
@@ -65,8 +63,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onResume");
-
-
         getPreferenceScreen().getSharedPreferences()
                 .unregisterOnSharedPreferenceChangeListener(this);
     }
@@ -81,15 +77,11 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
     @Override
     public void onDestroy() {
-
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
-
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
-
-
        Thread t= new UpdateUnitThread();
        t.run();
         boolean mPriv = sharedPreferences.getBoolean("checkbox_preference", false);
@@ -98,8 +90,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         AsyncTask<String, Void, Void> task =  new UpdatePrivacyTask();
         task.execute(priv);
-
-        }
+    }
 
     public class UpdateUnitThread extends Thread {
         @Override
@@ -107,50 +98,32 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
             Log.d(DEBUG_TAG, "SETTINGS FRAGMENT THREAD ID: " + Thread.currentThread().getId());
 
             final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-
             String mPrivList = sharedPreferences.getString("list_preference", "");
             globs.CURRENT_UNITS = globs.getValue_int(globs.UNIT_TABLE, mPrivList);
-
-
         }
-        }
-
-
-
+    }
 
     class UpdatePrivacyTask extends AsyncTask<String, Void, Void> {
-
         @Override
         protected Void doInBackground(String... priv) {
             final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
             Log.d(DEBUG_TAG, "SETTINGS FRAGMENT  UpdatePrivacyTask THREAD ID: " + Thread.currentThread().getId());
-
             boolean p = Boolean.parseBoolean(priv[0]);
                 ExerciseEntry mEntry = new ExerciseEntry(context);
-
                 mEntry.open();
-
                 ex = mEntry.getAllExercises();
 
                 for (int i = 0; i < ex.size(); i++) {
-
                     Exercise e = ex.get(i);
                     if (p) {
                         e.setmPrivacy(1);
                         mEntry.updateExercise(e);
-
-
                     } else {
                         e.setmPrivacy(0);
                         mEntry.updateExercise(e);
-
                     }
                 }
-
-
                 mEntry.close();
-
-
             return null;
         }
 
@@ -160,8 +133,7 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         }
 
     }
-
-    }
+}
 
 
 

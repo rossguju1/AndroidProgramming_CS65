@@ -129,11 +129,8 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     public Loader<ArrayList<Exercise>> onCreateLoader(int id, @Nullable Bundle args) {
         Log.d(DEBUG_TAG, "onCreateLoader: Thread ID: " + Thread.currentThread().getId());
         if (id == ALL_COMMENTS_LOADER_ID){
-
             return new AsyncHistoryLoad(getContext());
-
         }
-
         return null;
     }
 

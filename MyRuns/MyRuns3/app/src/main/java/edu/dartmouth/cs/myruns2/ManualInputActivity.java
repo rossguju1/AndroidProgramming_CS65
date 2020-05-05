@@ -83,7 +83,8 @@ public class ManualInputActivity extends AppCompatActivity {
     private int _month;
     private int _year;
     public MyGlobals globs;
-    SimpleDateFormat _sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+//    SimpleDateFormat _sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+    SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     private AsyncInsert task = null;
     private AsyncDelete delete_task = null;
     String dynamic_date;
@@ -453,7 +454,7 @@ public class ManualInputActivity extends AppCompatActivity {
     };
 
         private void updateDateView(){
-            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yy", Locale.US);
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
             Log.d("SETTING TEXT HERE: ",sdf.format(cal.getTime()));
             activityDate.setText(sdf.format(cal.getTime()));
         }
@@ -504,7 +505,6 @@ public class ManualInputActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manual_entry_menu, menu);
@@ -519,42 +519,21 @@ public class ManualInputActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    public void saveManualEntry(){
-
-
-
-
-
-
+    public void saveManualEntry() {
         mExercise = new Exercise();
 
         String time = _hour + ":" + _minute;
-        String date = _month + "/" + _day + "/" + _year;
-
-
+        String date = _year + "-" + _month + "-" + _day;
         String date_time = date + " " + time;
-
         String activity_name = mName.getText().toString();
         String duration = activityDuration.getText().toString();
-
-
-
-
-
         String distance = activityDistance.getText().toString();
-
         String calories = activityCalorie.getText().toString();
-
         String heartbeat = activityHeartbeat.getText().toString();
         String comment = activityCommentContent.getText().toString();
 
         int input = globs.getValue_int(globs.IN, "Manual");
-
         int activity = globs.getValue_int(globs.ACT, activity_name);
-
-
-
-
 
         mExercise.setmInputType(input);
         mExercise.setmActivityType(activity);
@@ -574,14 +553,10 @@ public class ManualInputActivity extends AppCompatActivity {
         mExercise.setmHeartRate(Integer.parseInt(heartbeat));
         mExercise.setmComment(comment);
 
-
-
-
         ExerciseEntry mEntry =  new ExerciseEntry(this);
         mEntry.open();
         mEntry.insertEntry(mExercise);
         mEntry.close();
-
 
         Log.d("<SAVE MANUAL ENTRY>",
                     "input type: " + input
@@ -593,25 +568,16 @@ public class ManualInputActivity extends AppCompatActivity {
                     + " Heartrate: " + heartbeat
                     + " Comments: " + comment
             );
-
     }
 
-
     public String MilesToKilometers(double miles){
-
-
-            double kilometer = 1.60934 * miles;
-
-
+        double kilometer = 1.60934 * miles;
         String formatted = String.format("%.2f", kilometer);
-
         return formatted;
     }
 
     public String KilometersToMiles(double kilo){
-
         double miles = kilo * 0.621371;
-
         String formatted = String.format("%.2f", miles);
         return formatted;
     }
@@ -637,31 +603,22 @@ public class ManualInputActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-
         super.onDestroy();
-        //SystemClock.sleep(350);
-
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
 
 
     class AsyncInsert extends AsyncTask<Void, String, Void> {
-
         @Override
         protected Void doInBackground(Void... unused) {
-
             saveManualEntry();
-
-
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... name) {
-
             if (!isCancelled()) {
-
                // ((MainActivity) context).onResult(result);
                 //mAdapter.add(name[0]);
             }
@@ -670,63 +627,45 @@ public class ManualInputActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void unused) {
            Log.d(DEBUG_TAG, "INSERT THREAD DONE");
-
             task = null;
-
         }
-
     }
 
-
     class AsyncDelete extends AsyncTask<Void, String, Void> {
-
         @Override
         protected Void doInBackground(Void... unused) {
+            Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
+            Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+            mEntry = new ExerciseEntry(getApplicationContext());
+            mEntry.open();
 
+            int ret = mEntry.deleteExercise(Long.valueOf(_id));
+            mEntry.close();
+            //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
 
-                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
-                    Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
-                    mEntry = new ExerciseEntry(getApplicationContext());
-                    mEntry.open();
+            if (ret>0){
+                Log.d("DEBUG", "DeleteWorked and removed: " + _id);
+                //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
+                //HistoryFragment.itemsData.remove(Long.valueOf(_id) + 1);
+                // Thread broadcast = new ItemRemovedThread();
+                //broadcast.run();
+                //HistoryFragment.mAdapter.notifyDataSetChanged();
 
-                   int ret = mEntry.deleteExercise(Long.valueOf(_id));
-                    mEntry.close();
+                //tempy.remove(Long.valueOf(_id) + 1);
+                //HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
+                // adapt.notifyDataSetChanged();
+            } else {
+                Log.d("DEBUG", "Delete Failed to remove: " + _id);
+            }
+            //mBusinessAdapter = new BusinessAdapter(mBusinesses);
+            //adapt.notifyDataSetChanged();
 
-
-
-                     //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
-
-
-
-                    if (ret>0){
-                        Log.d("DEBUG", "DeleteWorked and removed: " + _id);
-                        //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
-
-                        //HistoryFragment.itemsData.remove(Long.valueOf(_id) + 1);
-//                        Thread broadcast = new ItemRemovedThread();
-//                        broadcast.run();
-                        //HistoryFragment.mAdapter.notifyDataSetChanged();
-
-                        //tempy.remove(Long.valueOf(_id) + 1);
-                        //HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
-                       // adapt.notifyDataSetChanged();
-
-
-                    } else {
-
-                        Log.d("DEBUG", "Delete Failed to remove: " + _id);
-                    }
-//            mBusinessAdapter = new BusinessAdapter(mBusinesses);
-//            adapt.notifyDataSetChanged();
-
-//            mBusinessAdapter.notifyDataSetChanged();
-
+            //mBusinessAdapter.notifyDataSetChanged();
             return null;
         }
 
         @Override
         protected void onProgressUpdate(String... name) {
-
             if (!isCancelled()) {
                 //mAdapter.add(name[0]);
             }
@@ -735,19 +674,14 @@ public class ManualInputActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG_TAG, "Delete Done");
-
             task = null;
         }
-
     }
-
-
 
     private class ItemInsertedThread extends Thread {
         @Override
         public void run() {
             ManualInputActivity.this.runOnUiThread(new Runnable() {
-
                 @Override
                 public void run() {
 
@@ -755,6 +689,5 @@ public class ManualInputActivity extends AppCompatActivity {
             });
         }
     }
-
 
 }

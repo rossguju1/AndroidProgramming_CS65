@@ -7,11 +7,9 @@ import java.util.Calendar;
 
 public class Exercise {
 
-
     private Long id;
     private int mInputType;        // Manual, GPS or automatic
     private int mActivityType;     // Running, cycling etc.
-    //private Calendar mDateTime;    // When does this entry happen
     private String mDateTime;
     private int mDuration;         // Exercise duration in seconds
     private double mDistance;      // Distance traveled. Either in meters or feet.

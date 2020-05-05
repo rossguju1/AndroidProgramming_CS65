@@ -18,10 +18,7 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
     // SQL: CREATE TABLE EXERCISES(....)
     public static final String TABLE_EXERCISES = "EXERCISES";
 
-
-
     // SQL Columns
-
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_INPUT = "input_type";
     public static final String COLUMN_ACTIVITY = "activity_type";
@@ -75,6 +72,4 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXERCISES);
         onCreate(db);
     }
-
-
 }
