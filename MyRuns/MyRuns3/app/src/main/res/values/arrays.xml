@@ -15,8 +15,8 @@
         <item>Imperial (In Miles)</item>
     </string-array>
     <string-array name="unit_preference_entry_values">
-        <item>Kilometers</item>
-        <item>Miles</item>
+        <item>kms</item>
+        <item>mi</item>
     </string-array>
 
 </resources>
