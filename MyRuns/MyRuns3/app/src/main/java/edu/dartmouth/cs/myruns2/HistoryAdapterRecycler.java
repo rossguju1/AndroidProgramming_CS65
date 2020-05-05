@@ -21,10 +21,12 @@ import edu.dartmouth.cs.myruns2.models.MyGlobals;
 public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterRecycler.ViewHolder> {
 
     ExerciseEntry mEntry;
+    public int dele_pos;
     private ArrayList<Exercise> orderList;
     private LayoutInflater mLayoutInflater;
     private Context context;
     private static final String FROM_HISTORY_TAB = "history_tab";
+    public static final String ITEM_TO_DELETE = "item";
 
     public HistoryAdapterRecycler(Context context, ArrayList<Exercise> list) {
         this.orderList = list;
@@ -75,16 +77,36 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(context, ManualInputActivity.class);
+                Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
                 intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
                 intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
-                context.startActivity(intent);
+                intent.putExtra(ManualInputActivity.DELETE_ITEM, String.valueOf(position));
+                ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
+                dele_pos = position;
             }
 
         });
     }
 
-    @Override
+    public void onActivityResult(int res) {
+
+        if (res == 1) {
+            //String _pos= data.getStringExtra(MAIN_ITEM_TO_DELETE);
+            //int pos = Integer.parseInt(_pos);
+            Log.d("Adapter", "onactivity result: " + dele_pos);
+            orderList.remove(dele_pos);
+            HistoryFragment.onActivityResult();
+
+
+
+        } else {
+
+            Log.d("Adapter", "User did not delete");
+
+        }
+    }
+
+        @Override
     public int getItemCount() {
         return orderList.size();
     }

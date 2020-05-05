@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Spinner;
-
+import edu.dartmouth.cs.myruns2.HistoryFragment;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +28,7 @@ import java.util.Map;
 public class MainMyRunsActivity extends AppCompatActivity {
 
 
+    public static final String MAIN_ITEM_TO_DELETE = "item";
     private FloatingActionButton mStartButton;
     private Spinner mInput;
     private Spinner mActivity;
@@ -125,7 +126,6 @@ public class MainMyRunsActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -151,6 +151,18 @@ public class MainMyRunsActivity extends AppCompatActivity {
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(DEBUG_TAG, "onACTIVITY RESUKT IN FRAG");
+
+        if (requestCode == 1) {
+            HistoryFragment.mAdapter.onActivityResult(1);
+        } else {
+
+            HistoryFragment.mAdapter.onActivityResult(0);
+        }
+    }
 
 
 //    public static class SettingsFragment extends PreferenceFragmentCompat {

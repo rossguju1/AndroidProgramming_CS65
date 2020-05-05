@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.myruns2;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -148,11 +149,23 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
 
         }
     }
+    public static void onActivityResult(){
+
+        mAdapter.notifyDataSetChanged();
+    }
 
     @Override
     public void onLoaderReset(@NonNull Loader<ArrayList<Exercise>> loader) {
         Log.d(DEBUG_TAG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
 
     }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        Log.d(DEBUG_TAG, "onACTIVITY RESUKT IN FRAG");
+//
+//        if(requestCode == 1)
+//            mAdapter.onActivityResult(requestCode,1, data,);
+//
+//    }
 
 }

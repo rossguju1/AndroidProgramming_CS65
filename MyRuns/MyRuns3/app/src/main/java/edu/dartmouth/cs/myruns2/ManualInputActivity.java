@@ -44,6 +44,7 @@ import static edu.dartmouth.cs.myruns2.RegisterProfileActivity.INTENT_FROM;
 public class ManualInputActivity extends AppCompatActivity {
     public static final String MANUAL_INTENT_FROM = "manual_from";
     public static final String DELETE_EXERCISE = "history_from";
+    public static final String DELETE_ITEM = "selected";
     private static final String DEBUG_TAG = "ManualInputActivity";
     private int current_tab = -1;
     TextView mName, activityDate, activityTime, activityDuration, activityDistance, activityCalorie,
@@ -482,7 +483,7 @@ public class ManualInputActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),
                             "Saved",
                             Toast.LENGTH_SHORT).show();
-                    SystemClock.sleep(200);
+                   // SystemClock.sleep(200);
                     finish();
 
                     //database save entry
@@ -490,7 +491,7 @@ public class ManualInputActivity extends AppCompatActivity {
 
                     delete_task = new AsyncDelete();
                     delete_task.execute();
-                    SystemClock.sleep(200);
+                    //SystemClock.sleep(200);
                     finish();
 
 
@@ -632,10 +633,14 @@ public class ManualInputActivity extends AppCompatActivity {
     }
 
     class AsyncDelete extends AsyncTask<Void, String, Void> {
+        int pos;
         @Override
         protected Void doInBackground(Void... unused) {
             Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
             Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+
+            String _pos = getIntent().getStringExtra(DELETE_ITEM);
+            pos = Integer.parseInt(_pos);
             mEntry = new ExerciseEntry(getApplicationContext());
             mEntry.open();
 
@@ -673,21 +678,16 @@ public class ManualInputActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Void unused) {
-            Log.d(DEBUG_TAG, "Delete Done");
+            Log.d(DEBUG_TAG, "Delete Done:   " + pos);
             task = null;
+            Intent intent=new Intent();
+            intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
+            setResult(1,intent);
+            finish();//finishing activity
+
         }
     }
 
-    private class ItemInsertedThread extends Thread {
-        @Override
-        public void run() {
-            ManualInputActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
 
-                }
-            });
-        }
-    }
 
 }
