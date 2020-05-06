@@ -3,6 +3,7 @@ package edu.dartmouth.cs.myruns2;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -88,12 +89,13 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         });
     }
 
-    public void onActivityResult(int res) {
+    public void onActivityResult(long res) {
+        Log.d("Adapter", "onactivity request 1=>delete & 0=> insert" + res);
 
-        if (res == 1) {
+        if (res == -10) {
             //String _pos= data.getStringExtra(MAIN_ITEM_TO_DELETE);
             //int pos = Integer.parseInt(_pos);
-            Log.d("Adapter", "onactivity result: " + dele_pos);
+            Log.d("Adapter", "onactivity result DELETE: " + dele_pos);
             orderList.remove(dele_pos);
             HistoryFragment.onActivityResult();
 
@@ -101,7 +103,19 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
 
         } else {
 
-            Log.d("Adapter", "User did not delete");
+            Log.d("Adapter", "User did not delete" + res);
+
+            ExerciseEntry mEntry = new ExerciseEntry(context);
+
+            mEntry.open();
+
+           Exercise ee = mEntry.fetchEntryByIndex(res);
+            mEntry.close();
+
+            orderList.add(ee);
+
+            HistoryFragment.onActivityResult();
+
 
         }
     }

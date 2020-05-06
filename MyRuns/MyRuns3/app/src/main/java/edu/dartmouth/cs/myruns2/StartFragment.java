@@ -22,6 +22,7 @@ public class StartFragment extends Fragment {
     private String input = "";
     private String activity = "";
     private static final String FROM_START_TAB = "start_tab";
+    public static final String START_INSERT_ITEM = "start_insert_item";
 
 //    EditText partyTitleView,partyVenueView,partyDateView,partyTimeView;
     //DatePickerDialog.OnDateSetListener partyDatePicker;
@@ -55,7 +56,8 @@ public class StartFragment extends Fragment {
                     if(intent != null){
                         //Here we pass in the name of the currently selected activity
                         intent.putExtra("activity_name", activity);
-                        startActivity(intent);
+                        //startActivity(intent);
+                        startActivityForResult(intent, 2);
                     }
                 }
             }
@@ -87,6 +89,21 @@ public class StartFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(DEBUG_TAG, "IN START FRAGMENT  " + requestCode);
+
+        if (requestCode == 2){
+
+            String _id = data.getStringExtra(START_INSERT_ITEM);
+
+           long id = Long.parseLong(_id);
+
+            Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + Long.parseLong(_id));
+            HistoryFragment.mAdapter.onActivityResult(id);
+        }
     }
 
 

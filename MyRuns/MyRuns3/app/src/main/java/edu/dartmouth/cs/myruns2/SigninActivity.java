@@ -35,6 +35,7 @@ public class SigninActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Sign In");
 
         mSignInButton = findViewById(R.id.signinButton);
+
         mRegisterButton = findViewById(R.id.registerButton);
         mEmail = findViewById(R.id.email1);
         mPassword = findViewById(R.id.password1);

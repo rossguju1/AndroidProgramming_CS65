@@ -29,6 +29,7 @@ public class MainMyRunsActivity extends AppCompatActivity {
 
 
     public static final String MAIN_ITEM_TO_DELETE = "item";
+    public static final String MAIN_ITEM_TO_INSERT = "INSERTINGITEM";
     private FloatingActionButton mStartButton;
     private Spinner mInput;
     private Spinner mActivity;
@@ -154,29 +155,22 @@ public class MainMyRunsActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(DEBUG_TAG, "onACTIVITY RESUKT IN FRAG");
+        Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:   " +requestCode);
 
         if (requestCode == 1) {
-            HistoryFragment.mAdapter.onActivityResult(1);
-        } else {
-
-            HistoryFragment.mAdapter.onActivityResult(0);
+            HistoryFragment.mAdapter.onActivityResult(-10);
+//        } else if (requestCode == 2){
+//
+//            //Intent i =getIntent();
+//            //String ii = i.getStringExtra(MAIN_ITEM_TO_INSERT);
+//            //Bundle bund =  data.getExtras();
+//            String _id = data.getDataString();
+//            //String _id = bund.getString(MAIN_ITEM_TO_INSERT);
+//            long id = Long.parseLong(_id);
+//            Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + id);
+//
+//            HistoryFragment.mAdapter.onActivityResult(0);
         }
     }
 
-
-//    public static class SettingsFragment extends PreferenceFragmentCompat {
-//        @Override
-//        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-//            addPreferencesFromResource(R.xml.root_preferences);
-//        }
-//    }
-
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//        if (resultCode != RESULT_OK)
-//            return;
-//
-//    }
 }

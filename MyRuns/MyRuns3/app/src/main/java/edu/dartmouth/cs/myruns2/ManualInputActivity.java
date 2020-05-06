@@ -44,7 +44,9 @@ import static edu.dartmouth.cs.myruns2.RegisterProfileActivity.INTENT_FROM;
 public class ManualInputActivity extends AppCompatActivity {
     public static final String MANUAL_INTENT_FROM = "manual_from";
     public static final String DELETE_EXERCISE = "history_from";
-    public static final String DELETE_ITEM = "selected";
+    public static final String DELETE_ITEM = "delete_selected";
+    public static final String INSERT_EXERCISE = "start_from";
+    public static final String INSERT_ITEM = "insert_selected";
     private static final String DEBUG_TAG = "ManualInputActivity";
     private int current_tab = -1;
     TextView mName, activityDate, activityTime, activityDuration, activityDistance, activityCalorie,
@@ -483,15 +485,13 @@ public class ManualInputActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),
                             "Saved",
                             Toast.LENGTH_SHORT).show();
-                   // SystemClock.sleep(200);
-                    finish();
+
 
                     //database save entry
                 } else if(current_tab == 1){
 
                     delete_task = new AsyncDelete();
                     delete_task.execute();
-                    //SystemClock.sleep(200);
                     finish();
 
 
@@ -556,19 +556,9 @@ public class ManualInputActivity extends AppCompatActivity {
 
         ExerciseEntry mEntry =  new ExerciseEntry(this);
         mEntry.open();
-        mEntry.insertEntry(mExercise);
+        id = mEntry.insertEntry(mExercise);
         mEntry.close();
 
-        Log.d("<SAVE MANUAL ENTRY>",
-                    "input type: " + input
-                    + " Activity type: " + activity
-                    + " Date and time: " + date_time
-                    + " Duration: " + duration
-                    + " Distance: " + distance
-                    + " Calories: " + calories
-                    + " Heartrate: " + heartbeat
-                    + " Comments: " + comment
-            );
     }
 
     public String MilesToKilometers(double miles){
@@ -629,6 +619,13 @@ public class ManualInputActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused) {
            Log.d(DEBUG_TAG, "INSERT THREAD DONE");
             task = null;
+            Intent intent=new Intent();
+            Log.d(DEBUG_TAG, "INSERT THREAD  passing ID  " + id );
+            intent.putExtra(StartFragment.START_INSERT_ITEM, String.valueOf(id));
+
+            setResult(2, intent);
+
+            finish();
         }
     }
 
@@ -646,26 +643,14 @@ public class ManualInputActivity extends AppCompatActivity {
 
             int ret = mEntry.deleteExercise(Long.valueOf(_id));
             mEntry.close();
-            //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
 
             if (ret>0){
                 Log.d("DEBUG", "DeleteWorked and removed: " + _id);
-                //ArrayList<Exercise> tempy = HistoryFragment.itemsData;
-                //HistoryFragment.itemsData.remove(Long.valueOf(_id) + 1);
-                // Thread broadcast = new ItemRemovedThread();
-                //broadcast.run();
-                //HistoryFragment.mAdapter.notifyDataSetChanged();
 
-                //tempy.remove(Long.valueOf(_id) + 1);
-                //HistoryAdapterRecycler adapt = HistoryFragment.mAdapter;
-                // adapt.notifyDataSetChanged();
             } else {
                 Log.d("DEBUG", "Delete Failed to remove: " + _id);
             }
-            //mBusinessAdapter = new BusinessAdapter(mBusinesses);
-            //adapt.notifyDataSetChanged();
 
-            //mBusinessAdapter.notifyDataSetChanged();
             return null;
         }
 
@@ -683,7 +668,7 @@ public class ManualInputActivity extends AppCompatActivity {
             Intent intent=new Intent();
             intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
             setResult(1,intent);
-            finish();//finishing activity
+
 
         }
     }

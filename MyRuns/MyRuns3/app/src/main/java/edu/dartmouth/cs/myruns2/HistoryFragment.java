@@ -159,13 +159,5 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         Log.d(DEBUG_TAG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
 
     }
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        Log.d(DEBUG_TAG, "onACTIVITY RESUKT IN FRAG");
-//
-//        if(requestCode == 1)
-//            mAdapter.onActivityResult(requestCode,1, data,);
-//
-//    }
 
 }
