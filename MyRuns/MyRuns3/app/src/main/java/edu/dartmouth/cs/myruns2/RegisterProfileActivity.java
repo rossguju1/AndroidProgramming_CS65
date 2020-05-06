@@ -8,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
+import android.graphics.Path;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -137,7 +139,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
             public void onClick(View v){
                 checkPermissions();
                 displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM);
-
             }
         });
 
@@ -296,7 +297,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
                     fOut.flush();
                     fOut.close();
-                    //mImageStored = rotatedBitmap;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -378,7 +378,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 //Access internal storage fileInput
                 FileInputStream fis = openFileInput(getString(R.string.profile_photo_file_name));
                 Bitmap bmap = BitmapFactory.decodeStream(fis);
-                //Bitmap of photo
+                bmap = bitmapToCircle(bmap);
                 mImageV.setImageBitmap(bmap);
                 fis.close();
             } catch (IOException e) {
@@ -395,6 +395,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             //Access internal storage fileInput
             FileInputStream fis = openFileInput(getString(R.string.temp_profile_photo_file_name));
             Bitmap bmap = BitmapFactory.decodeStream(fis);
+            bmap = bitmapToCircle(bmap);
             //Bitmap of photo
             mImageV.setImageBitmap(bmap);
             fis.close();
@@ -470,6 +471,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             Uri uri = Crop.getOutput(result);
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
+                bitmap = bitmapToCircle(bitmap);
                 mImageV.setImageBitmap(bitmap);
                 saveSnapTemp();
             } catch (Exception e) {
@@ -663,20 +665,27 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 matrix, true);
     }
 
-//    private String getRealPathFromURI(Uri contentUri) {
-//        String[] proj = new String[] { android.provider.MediaStore.Images.ImageColumns.DATA };
-//
-//        Cursor cursor = getContentResolver().query(contentUri, proj, null,
-//                null, null);
-//        int column_index = cursor
-//                .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-//        cursor.moveToFirst();
-//
-//        String filename = cursor.getString(column_index);
-//        cursor.close();
-//
-//        return filename;
-//    }
+    public static Bitmap bitmapToCircle(Bitmap bMap) {
+        //Get our dimensions
+        int h = bMap.getHeight();
+        int w = bMap.getWidth();
+
+        //Create a new bitmap with each pixel stored on 4 bytes
+        //For documentation see: https://developer.android.com/reference/android/graphics/Bitmap.Config
+        Bitmap outputBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.	ARGB_8888);
+
+        Path p = new Path();
+        //Add our circle and orient it counter clockwise for closed shape
+        //For documentation see: https://developer.android.com/reference/android/graphics/Path.Direction
+        p.addCircle((float)(w / 2), (float)(h / 2), (float)Math.min(w, (h / 2)), Path.Direction.CCW);
+
+        //Create new canvas to perform clipped with our circular path
+        Canvas canvas = new Canvas(outputBitmap);
+        canvas.clipPath(p);
+        //Draw our original bitmap onto our clipped canvas
+        canvas.drawBitmap(bMap, 0, 0, null);
+        return outputBitmap;
+    }
 
     private void loadProfile(){
         try{

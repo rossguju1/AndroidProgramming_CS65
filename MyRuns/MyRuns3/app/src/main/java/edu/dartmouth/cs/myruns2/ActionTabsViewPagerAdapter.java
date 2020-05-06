@@ -20,10 +20,8 @@ public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
 
     public static final int START = 0;
     public static final int HISTORY = 1;
-
     public static final String UI_TAB_START = "CHAT";
     public static final String UI_TAB_HISTORY = "FIND";
-
 
     public ActionTabsViewPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments){
         super(fm);

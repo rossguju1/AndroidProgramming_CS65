@@ -55,19 +55,12 @@ class ExerciseEntry {
         }
 
         public void close() {
-
                 dbHelper.close();
         }
 
-
         public long insertEntry(Exercise entry) {
-
-
-
                 Log.w(ExerciseEntryDbHelper.class.getName(),
                         "INSERTED");
-
-
                 ContentValues values = new ContentValues();
                 // insert values
                 //values.put( ExerciseEntryDbHelper.COLUMN_ID, entry.getId());
@@ -96,16 +89,10 @@ class ExerciseEntry {
                         null,
                         null);
                 cursor.moveToFirst();
-                //Exercise newExercise = cursorToExercise(cursor);
-
                 // Log the comment stored
                 Log.d(TAG, "Exercise Inserted = " + " insert ID = " + insertId);
 
                 cursor.close();
-               // return newExercise;
-
-
-
                 return insertId;
         }
 
@@ -216,7 +203,6 @@ class ExerciseEntry {
                values.put( ExerciseEntryDbHelper.COLUMN_GPS, entry.getmLocationList());
 
                database.update(ExerciseEntryDbHelper.TABLE_EXERCISES, values, "_id="+ _id, null);
-
         }
 
         public void printExercise(Exercise ex){
@@ -236,26 +222,16 @@ class ExerciseEntry {
                         + "  mPrivacy   " + ex.getmPrivacy()
                         + "  mLocationList:  " + ex.getmLocationList()
                 );
-
-
-
         }
 
         public int deleteExercise(long id){
                 if (database.delete(ExerciseEntryDbHelper.TABLE_EXERCISES,ExerciseEntryDbHelper.COLUMN_ID
                         + " = " + id, null) > 0){
-
                         return 1;
                 } else{
                         return -1;
                 }
-
         }
-
-
-
-
-
 }
 
 
