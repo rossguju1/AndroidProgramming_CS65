@@ -86,8 +86,10 @@ public class ManualInputActivity extends AppCompatActivity {
     private int _month;
     private int _year;
     public MyGlobals globs;
-//    SimpleDateFormat _sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-    SimpleDateFormat _sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    SimpleDateFormat _sdf_date = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat _sdf_time = new SimpleDateFormat(" HH:mm");
+
     private AsyncInsert task = null;
     private AsyncDelete delete_task = null;
     String dynamic_date;
@@ -233,22 +235,24 @@ public class ManualInputActivity extends AppCompatActivity {
                 public void onClick(View view) {
 
 
-                    TimePickerDialog partyTimePicker = new TimePickerDialog(
+                    TimePickerDialog timePicker = new TimePickerDialog(
                             ManualInputActivity.this,
                             R.style.DateTheme,
                             new TimePickerDialog.OnTimeSetListener() {
                                 @Override
-                                public void onTimeSet(TimePicker timePicker, int partyHour, int partyMinute) {
-                                    activityTime.setText(partyHour + ":" + partyMinute);
-                                    _hour = partyHour;
-                                    _minute = partyMinute;
+                                public void onTimeSet(TimePicker timePicker, int hour, int minute) {
+                                    cal.set(Calendar.HOUR_OF_DAY,hour);
+                                    cal.set(Calendar.MINUTE,minute);
+                                    activityTime.setText(_sdf_time.format(cal.getTime()));
+                                    _hour = hour;
+                                    _minute = minute;
                                 }
                             },
                             cal.get(Calendar.HOUR_OF_DAY),
                             cal.get(Calendar.MINUTE),
                             true);
 
-                    partyTimePicker.show();
+                    timePicker.show();
 
                 }
             });
@@ -443,8 +447,7 @@ public class ManualInputActivity extends AppCompatActivity {
 
     DatePickerDialog.OnDateSetListener datePicker = new DatePickerDialog.OnDateSetListener() {
         @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear,
-                              int dayOfMonth) {
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
             _year = year;
             _month = monthOfYear;
             _day = dayOfMonth;
@@ -523,8 +526,8 @@ public class ManualInputActivity extends AppCompatActivity {
     public void saveManualEntry() {
         mExercise = new Exercise();
 
-        String time = _hour + ":" + _minute;
-        String date = _year + "-" + _month + "-" + _day;
+        String time = _sdf_time.format(cal.getTime());
+        String date = _sdf_date.format(cal.getTime());
         String date_time = date + " " + time;
         String activity_name = mName.getText().toString();
         String duration = activityDuration.getText().toString();
