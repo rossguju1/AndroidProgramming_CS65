@@ -107,18 +107,11 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d(DEBUG_TAG, "IN START FRAGMENT  " + requestCode);
-
-        if (requestCode == 2){
-
+        if (requestCode == 2) {
             String _id = data.getStringExtra(START_INSERT_ITEM);
-
-           long id = Long.parseLong(_id);
-
-            Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + Long.parseLong(_id));
+            long id = Long.parseLong(_id);
             HistoryFragment.mAdapter.onActivityResult(id);
         }
     }
-
-
 }
 

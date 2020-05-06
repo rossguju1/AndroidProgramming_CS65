@@ -97,8 +97,6 @@ class ExerciseEntry {
         }
 
         public void removeEntry(long id) {
-               // long id = comment.getId();
-
                 database.delete(ExerciseEntryDbHelper.TABLE_EXERCISES, ExerciseEntryDbHelper.COLUMN_ID
                         + " = " + id, null);
                 Log.d(TAG, "delete comment = " + id);
@@ -106,11 +104,9 @@ class ExerciseEntry {
 
         public void deleteAllExercises() {
                 System.out.println("Comment deleted all");
-
                 database.delete(ExerciseEntryDbHelper.TABLE_EXERCISES, null, null);
                 Log.d(TAG, "delete all ");
         }
-
 
         // Query a specific entry by its index.
         public Exercise fetchEntryByIndex(long rowId) {
@@ -129,8 +125,6 @@ class ExerciseEntry {
                 return newExercise;
 
         }
-
-
 
         public ArrayList<Exercise> getAllExercises() {
                 ArrayList<Exercise> mExercises = new ArrayList<>();
@@ -152,16 +146,6 @@ class ExerciseEntry {
         }
 
         private Exercise cursorToExercise(Cursor cursor) {
-//
-//                String s = cursor.getString(3);
-//                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-//                Calendar cal = Calendar.getInstance();
-//                try {
-//                        cal.setTime(dateFormat.parse(s));
-//                } catch (ParseException e) {
-//                        // TODO Auto-generated catch block
-//                        e.printStackTrace();
-//                }
                 Exercise mExercise = new Exercise();
 
                 mExercise.setId(cursor.getLong(0));

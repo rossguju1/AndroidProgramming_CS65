@@ -84,12 +84,12 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,String key) {
        Thread t= new UpdateUnitThread();
        t.run();
-        boolean mPriv = sharedPreferences.getBoolean("checkbox_preference", false);
-        String priv = String.valueOf(mPriv);
-        Log.d(DEBUG_TAG, "SETTINGS FRAGMENT THREAD ID: " + priv);
+       boolean mPriv = sharedPreferences.getBoolean("checkbox_preference", false);
+       String priv = String.valueOf(mPriv);
+       Log.d(DEBUG_TAG, "SETTINGS FRAGMENT THREAD ID: " + priv);
 
-        AsyncTask<String, Void, Void> task =  new UpdatePrivacyTask();
-        task.execute(priv);
+       AsyncTask<String, Void, Void> task =  new UpdatePrivacyTask();
+       task.execute(priv);
     }
 
     public class UpdateUnitThread extends Thread {
@@ -112,7 +112,6 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
                 ExerciseEntry mEntry = new ExerciseEntry(context);
                 mEntry.open();
                 ex = mEntry.getAllExercises();
-
                 for (int i = 0; i < ex.size(); i++) {
                     Exercise e = ex.get(i);
                     if (p) {

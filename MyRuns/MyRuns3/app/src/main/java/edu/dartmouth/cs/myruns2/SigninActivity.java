@@ -19,11 +19,8 @@ public class SigninActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "debugger";
     private Button mSignInButton;
     private Button mRegisterButton;
-
     private EditText mEmail;
-
     private EditText mPassword;
-
     private ProfilePreferences mPreference = null;
 
     @Override
@@ -35,7 +32,6 @@ public class SigninActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Sign In");
 
         mSignInButton = findViewById(R.id.signinButton);
-
         mRegisterButton = findViewById(R.id.registerButton);
         mEmail = findViewById(R.id.email1);
         mPassword = findViewById(R.id.password1);
@@ -65,7 +61,6 @@ public class SigninActivity extends AppCompatActivity {
             public void onClick(View v){
                 Intent intent = new Intent(SigninActivity.this, RegisterProfileActivity.class);
                 intent.putExtra(RegisterProfileActivity.INTENT_FROM, TAG);
-                //startActivityForResult(i, PICK_IMAGE);
                 startActivity(intent);
             }
         });
@@ -112,6 +107,7 @@ public class SigninActivity extends AppCompatActivity {
         super.onRestart();
         Log.d(DEBUG_TAG,"onRestart()");
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -121,29 +117,30 @@ public class SigninActivity extends AppCompatActivity {
             if ((mPreference.getProfileEmail() != "nan") && (mPreference.getProfilePassword() != "nan")) {
 
                 mEmail = findViewById(R.id.email1);
-
                 mPassword = findViewById(R.id.password1);
 
                 mEmail.setText(mPreference.getProfileEmail());
                 mPassword.setText(mPreference.getProfilePassword());
-
             }
         }
     }
+
     @Override
     protected void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
-
     }
+
     @Override
     protected void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
+
 }

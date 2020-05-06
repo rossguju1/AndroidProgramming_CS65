@@ -19,15 +19,10 @@ public class MyRunsDialogFragment extends DialogFragment {
     // Key for dialog camera option
     public static final int DIALOG_ID_PHOTO_ITEM = 1;
 
-
     // Key for dialog option to take a picture
     public static final int ID_PHOTO_ITEM_FROM_CAMERA = 0;
 
-
-
     private static final String DIALOG_ID_KEY = "dialog_id";
-
-
 
     // Creates a new instance of the dialog
     public static MyRunsDialogFragment newInstance(int dialog_id) {
@@ -41,21 +36,22 @@ public class MyRunsDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         int dialog_id = getArguments().getInt(DIALOG_ID_KEY);
-
         final Activity parent = getActivity();
 
         // This sets up the dialog for choosing either to take a new picture
         // or selecting one from gallery
         switch (dialog_id) {
+
             case DIALOG_ID_PHOTO_ITEM:
                 AlertDialog.Builder builder = new AlertDialog.Builder(parent);
                 builder.setTitle(R.string.picture_picker_fragment);
+
                 DialogInterface.OnClickListener dialoglistener = new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
-
                         ((RegisterProfileActivity) parent).onPhotoPickerItemSelected(item);
                     }
                 };
+
                 builder.setItems(R.array.ui_profile_photo_picker_items, dialoglistener);
                 return builder.create();
 

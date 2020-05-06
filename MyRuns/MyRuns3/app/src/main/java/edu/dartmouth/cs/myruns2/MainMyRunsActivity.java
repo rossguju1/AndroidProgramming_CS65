@@ -159,17 +159,6 @@ public class MainMyRunsActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             HistoryFragment.mAdapter.onActivityResult(-10);
-//        } else if (requestCode == 2){
-//
-//            //Intent i =getIntent();
-//            //String ii = i.getStringExtra(MAIN_ITEM_TO_INSERT);
-//            //Bundle bund =  data.getExtras();
-//            String _id = data.getDataString();
-//            //String _id = bund.getString(MAIN_ITEM_TO_INSERT);
-//            long id = Long.parseLong(_id);
-//            Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + id);
-//
-//            HistoryFragment.mAdapter.onActivityResult(0);
         }
     }
 

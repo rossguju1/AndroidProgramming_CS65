@@ -45,6 +45,4 @@ public class MapInputActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
-
-
 }

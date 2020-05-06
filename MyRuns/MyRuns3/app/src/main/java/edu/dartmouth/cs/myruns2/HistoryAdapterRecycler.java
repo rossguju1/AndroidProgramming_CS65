@@ -93,24 +93,14 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
 
     public void onActivityResult(long res) {
         Log.d("Adapter", "onactivity request 1=>delete & 0=> insert" + res);
-
         if (res == -10) {
-
             Log.d("Adapter", "onactivity result DELETE: " + dele_pos);
             orderList.remove(dele_pos);
             HistoryFragment.onActivityResult();
-
-
-
         } else {
-
             Log.d("Adapter", "User did not delete" + res);
                 String[] mytasks = {String.valueOf(res)};
             task = new AsyncExerciseLoad().execute(mytasks);
-
-          //  task.execute(mytasks);
-
-
         }
     }
 
@@ -147,32 +137,18 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         protected Void doInBackground(String... _id) {
 
             long id = Long.parseLong(_id[0]);
-
             Log.d("History Adapter", "Updating history frag UI Exercise ID:  " + id);
-
             ExerciseEntry mEntry = new ExerciseEntry(context);
-
             mEntry.open();
-
             Exercise ee = mEntry.fetchEntryByIndex(id);
             mEntry.close();
-
             orderList.add(ee);
-
-        //    HistoryFragment.onActivityResult();
-
             return null;
         }
-
 
         @Override
         protected void onPostExecute(Void unused) {
             task = null;
-
-
         }
     }
-
-
-
 }

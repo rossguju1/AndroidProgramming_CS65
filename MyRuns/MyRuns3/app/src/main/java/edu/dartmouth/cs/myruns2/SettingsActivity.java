@@ -1,22 +1,11 @@
 package edu.dartmouth.cs.myruns2;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "SettingsActivity";
@@ -32,8 +21,6 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ActionBar actionBar = getSupportActionBar();
 
-        //SharedPreferences.OnSharedPreferenceChangeListener
-
         //Setup the appropriate action bar with title and back button
         actionBar.setDisplayShowHomeEnabled(true);
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -46,10 +33,6 @@ public class SettingsActivity extends AppCompatActivity {
         SettingsFragment mPrefsFragment = new SettingsFragment();
         mFragmentTransaction.replace(android.R.id.content, mPrefsFragment);
         mFragmentTransaction.commit();
-
-
-
-
     }
 
     @Override
@@ -72,11 +55,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
-
-
-
 }

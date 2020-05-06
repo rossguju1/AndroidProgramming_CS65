@@ -146,36 +146,28 @@ public class ManualInputActivity extends AppCompatActivity {
             mEntry = new ExerciseEntry(this);
 
             mEntry.open();
-           // try {
-                Exercise e = mEntry.fetchEntryByIndex(id);
 
-                mName.setText(globs.getValue_str(globs.ACT, e.getmActivityType()));
+            Exercise e = mEntry.fetchEntryByIndex(id);
 
-                String[] splited = e.getmDateTime().split("\\s+");
-                if (globs.CURRENT_UNITS == 1) {
-                    activityDistance.setText(String.valueOf(KilometersToMiles(e.getmDistance())));
-                } else {
-                    activityDistance.setText(String.valueOf(e.getmDistance()));
-                }
+            mName.setText(globs.getValue_str(globs.ACT, e.getmActivityType()));
 
-                activityDate.setText(splited[0]);
-                activityTime.setText(splited[1]);
-                activityDuration.setText(String.valueOf(e.getmDuration()));
-                activityCalorie.setText(String.valueOf(e.getmCalories()));
-                activityHeartbeat.setText(String.valueOf(e.getmHeartRate()));
-                //activityComment = (TextView) findViewById(R.id.activityComment);
-                activityCommentContent.setText(e.getmComment());
+            String[] splited = e.getmDateTime().split("\\s+");
+            if (globs.CURRENT_UNITS == 1) {
+                activityDistance.setText(String.valueOf(KilometersToMiles(e.getmDistance())));
+            } else {
+                activityDistance.setText(String.valueOf(e.getmDistance()));
+            }
 
+            activityDate.setText(splited[0]);
+            activityTime.setText(splited[1]);
+            activityDuration.setText(String.valueOf(e.getmDuration()));
+            activityCalorie.setText(String.valueOf(e.getmCalories()));
+            activityHeartbeat.setText(String.valueOf(e.getmHeartRate()));
+            activityCommentContent.setText(e.getmComment());
 
-           // } catch (Exception ee){
-                Log.d("DEBUG", "ERROR IN FETCH");
-
-
-         //   }
-
+            Log.d("DEBUG", "ERROR IN FETCH");
 
             mEntry.close();
-
 
         } else {
             Log.d("DEBUG", "INSIDE MANUAL FROM *START* TAB");
@@ -208,33 +200,23 @@ public class ManualInputActivity extends AppCompatActivity {
                 activityCommentContent.setText(mComment);
             }
 
-
             //Add our date selector
             activityDate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-
-                    //dynamic_date = month + "/" + day + "/" + year;
                     new DatePickerDialog(ManualInputActivity.this,
                             R.style.DateTheme,
                             datePicker,
                             cal.get(Calendar.YEAR),
                             cal.get(Calendar.MONTH),
                             cal.get(Calendar.DAY_OF_MONTH)).show();
-
-                    //  Log.d("tetsing date: ", dynamic_date);
-
                 }
-
             });
 
             //Add our time selector
             activityTime.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-
                     TimePickerDialog timePicker = new TimePickerDialog(
                             ManualInputActivity.this,
                             R.style.DateTheme,
@@ -251,9 +233,7 @@ public class ManualInputActivity extends AppCompatActivity {
                             cal.get(Calendar.HOUR_OF_DAY),
                             cal.get(Calendar.MINUTE),
                             true);
-
                     timePicker.show();
-
                 }
             });
 
@@ -275,8 +255,6 @@ public class ManualInputActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String duration = (input.getText().toString().equals("")) ? "0" : input.getText().toString();
-                            //mExercise.setmDuration(Integer.valueOf(duration);
-
                             activityDuration.setText(duration);
                         }
                     });
@@ -479,31 +457,18 @@ public class ManualInputActivity extends AppCompatActivity {
                 return true;
             case R.id.ManualEntryBttn:
                 if (current_tab == 0){
-
-
-                    //mExercise.setmDateTime(dynamic_date + " " + dynamic_time);
-                    //saveManualEntry();
                     task = new AsyncInsert();
                     task.execute();
                     Toast.makeText(getApplicationContext(),
                             "Saved",
                             Toast.LENGTH_SHORT).show();
-
-
                     //database save entry
                 } else if(current_tab == 1){
-
                     delete_task = new AsyncDelete();
                     delete_task.execute();
                     finish();
-
-
-
-
                 }
                 return true;
-
-
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -576,7 +541,6 @@ public class ManualInputActivity extends AppCompatActivity {
         return formatted;
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -600,8 +564,6 @@ public class ManualInputActivity extends AppCompatActivity {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
-
-
 
     class AsyncInsert extends AsyncTask<Void, String, Void> {
         @Override
@@ -634,10 +596,11 @@ public class ManualInputActivity extends AppCompatActivity {
 
     class AsyncDelete extends AsyncTask<Void, String, Void> {
         int pos;
+
         @Override
         protected Void doInBackground(Void... unused) {
             Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + id);
-            Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: "+ _id);
+            Log.d("DEBUG", "USER HIT DELETE! and wants to Delete: " + _id);
 
             String _pos = getIntent().getStringExtra(DELETE_ITEM);
             pos = Integer.parseInt(_pos);
@@ -647,7 +610,7 @@ public class ManualInputActivity extends AppCompatActivity {
             int ret = mEntry.deleteExercise(Long.valueOf(_id));
             mEntry.close();
 
-            if (ret>0){
+            if (ret > 0) {
                 Log.d("DEBUG", "DeleteWorked and removed: " + _id);
 
             } else {
@@ -668,14 +631,9 @@ public class ManualInputActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG_TAG, "Delete Done:   " + pos);
             task = null;
-            Intent intent=new Intent();
+            Intent intent = new Intent();
             intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
-            setResult(1,intent);
-
-
+            setResult(1, intent);
         }
     }
-
-
-
 }

@@ -79,14 +79,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
     String PicturePath;
     //Used for storage & compression from camera
     File mPhotoFile = null;
-    //Used for compression within saveInstanceState() to prevent parcel overflow
-//    File mPhotoFileSave = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("onCreate()","*** on create fired");
         super.onCreate(savedInstanceState);
-
 
         //Display back button
         ActionBar actionBar = getSupportActionBar();
@@ -104,24 +101,16 @@ public class RegisterProfileActivity extends AppCompatActivity {
             loadSnapTemp();
         }
 
+        //Get Views by IDs
         mChangeButton = findViewById(R.id.btnChangePhoto);
-
         mEditName = (EditText) findViewById(R.id.editName);
-
         mRadioGenderGroup = (RadioGroup) findViewById(R.id.radioGender);
-
         mMale = (RadioButton) findViewById(R.id.radioGenderM);
-
         mFemale = (RadioButton) findViewById(R.id.radioGenderF);
-
         mEditEmail = (EditText) findViewById(R.id.editEmail);
-
         mEditPassword = (EditText) findViewById(R.id.editPassword);
-
         mEditPhoneNumber = (EditText) findViewById(R.id.editPhone);
-
         mMajor  = (EditText) findViewById(R.id.editMajor);
-
         mClassYear = (EditText) findViewById(R.id.editClassYear);
 
         if (getIntent().getStringExtra(INTENT_FROM).equals("from_main_activity")) {
@@ -130,9 +119,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mEditEmail.setKeyListener(null);
             //Need to check if password changes after we have loaded the profile
             initialPassword = mEditPassword.getText().toString();
-
         }
-
 
         mChangeButton.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -141,7 +128,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 displayDialog(MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM);
             }
         });
-
         Log.d("onCreate()","*** end of onCreate()");
     }
 
@@ -162,14 +148,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
         //Menu bar clicks
         int id = item.getItemId();
 
-        if (id == R.id.buttonSave) {        //On save button click
+        if (id == R.id.buttonSave) {
             //Save the pic we just took
-
-
             //"Toast": tell user pic is saved
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.profile_save_text),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.profile_save_text), Toast.LENGTH_SHORT).show();
             // Exit/Close & save active only if fields have been filled appropriately
             if (saveProfile() == false){
                 //If we are coming from the main activity, i.e editing our profile && password was changed
@@ -184,15 +166,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 }
             }
             return true;
-        } else if (id == android.R.id.home){         //On home button click
-
+        } else if (id == android.R.id.home){
+            //On home button click
             finish();
             return true;
-
         }else{
-            Toast.makeText(getApplicationContext(),
-                    getString(R.string.profile_registration_incomplete),
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.profile_registration_incomplete), Toast.LENGTH_SHORT).show();
         }
 
         return super.onOptionsItemSelected(item);
@@ -206,14 +185,17 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
         //Check if permission has been granted
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+                || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE
+            }, 0);
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] ==
                 PackageManager.PERMISSION_GRANTED && grantResults[2] ==
                 PackageManager.PERMISSION_GRANTED) {
@@ -223,9 +205,10 @@ public class RegisterProfileActivity extends AppCompatActivity {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
                 if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA) ||
-                        shouldShowRequestPermissionRationale(Manifest.permission.
-                                WRITE_EXTERNAL_STORAGE) || shouldShowRequestPermissionRationale(Manifest.permission.
-                        READ_EXTERNAL_STORAGE)) {
+                        shouldShowRequestPermissionRationale(Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+                        shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
+                {
+
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setMessage("This permission is important for the app.")
                             .setTitle("Important permission required");
@@ -234,13 +217,12 @@ public class RegisterProfileActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int id) {
                             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,
                                     Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-
                         }
-
                     });
 
                     builder.show();
-                }else{
+
+                }else {
                     //Permission is denied... sad :(
                     //App must continue on without camera/photo access
                 }
@@ -279,7 +261,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
             return;
 
         switch (requestCode) {
-
             case Crop.REQUEST_CROP:
                 //We changed the RequestCode to the one being used by the library.
                 handleCrop(resultCode, data);
@@ -301,9 +282,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 //Set mImageCaptureUri so we can save the state if stop in lifecycle
-                mImageUri = FileProvider.getUriForFile(this,
-                        BuildConfig.APPLICATION_ID,
-                        mPhotoFile);
+                mImageUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID, mPhotoFile);
                 beginCrop(mImageUri);
                 break;
         }
@@ -339,9 +318,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 } catch (ActivityNotFoundException e) {
                     e.printStackTrace();
                 }
-
                 break;
-
             case MyRunsDialogFragment.DIALOG_ID_PHOTO_ITEM:
                 try {
                     //Create file to save photo
@@ -406,6 +383,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
         }
     }
 
+    //Save bitmap to profile
     private void saveSnap() {
         mImageV.buildDrawingCache();
         Bitmap bmap = mImageV.getDrawingCache();
@@ -460,9 +438,7 @@ public class RegisterProfileActivity extends AppCompatActivity {
                 //Crop our file
                 Crop.of(source, destination).asSquare().start(this);
             }
-
         }
-
     }
 
     //Do the actual cropping
@@ -516,7 +492,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
             gender_selected = 0;
         }
 
-
         if (TextUtils.isEmpty(name)){
             mEditName.setError("Name is required to register.");
             mEditName.requestFocus();
@@ -533,7 +508,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
                     "longer than 5 characters.");
             mEditPassword.requestFocus();
             canceled = true;
-
         }
 
         if(TextUtils.isEmpty(email)){
@@ -545,23 +519,18 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mEditEmail.setError("Email is not valid");
             mEditEmail.requestFocus();
             canceled = true;
-
         }
 
         if(gender_selected == -1){
             mRadioGenderGroup.requestFocus();
             Toast.makeText(this, "Gender is required", Toast.LENGTH_SHORT).show();
             canceled = true;
-
-
         }
 
         if (TextUtils.isEmpty(phone)){
             mEditPhoneNumber.setError("Phone field is required");
             mEditPhoneNumber.requestFocus();
             canceled = true;
-
-
         } else if(!TextUtils.isDigitsOnly(phone)){
             mEditPhoneNumber.setError("Phone number can only contain numbers.");
             mEditPhoneNumber.requestFocus();
@@ -573,7 +542,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mClassYear.setError("Class Year field is required");
             mClassYear.requestFocus();
             canceled = true;
-
         } else if(!TextUtils.isDigitsOnly(class_year)){
             mClassYear.setError("Class Year field must be digits");
             mClassYear.requestFocus();
@@ -585,13 +553,11 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mMajor.setError("Major field is required");
             mMajor.requestFocus();
             canceled = true;
-
         }
 
         if (canceled){
             return true;
         }else{
-
             //Here we take our profile and save it to the ProfilePreferences
             mProfilePreference.clearProfilePreferences();
             mProfilePreference.setProfileName(name);
@@ -604,7 +570,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
             mProfilePreference.ProfilePictureCommit();
             return false;
         }
-
     }
 
     private File createImageFile() throws IOException {
@@ -623,7 +588,6 @@ public class RegisterProfileActivity extends AppCompatActivity {
     private Bitmap imageOrientationValidator(File photoFile) {
         ExifInterface ei;
         try {
-
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), FileProvider.getUriForFile(this,
                     BuildConfig.APPLICATION_ID,
                     photoFile));

@@ -26,12 +26,8 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
     private static final String DEBUG_TAG = "HistoryFragment";
     private static final int ALL_COMMENTS_LOADER_ID = 1;
     public static ArrayList<Exercise> itemsData = new  ArrayList<Exercise>();
-    //public static AlertDialog.Builder recyclerView;
-
     public static RecyclerView recyclerView;
-    //private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    //ArrayList<Exercise> itemsData;
     public static HistoryAdapterRecycler mAdapter;
     public ExerciseEntry ex;
     private static final String FROM_HISTORY_TAB = "history_tab";
@@ -41,17 +37,12 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         Log.d(DEBUG_TAG, "onCreateView()");
 
         View v = inflater.inflate(R.layout.history_fragment, container, false);
-        //setContentView(R.layout.history_fragment);
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerView);
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        //mAdapter = new HistoryAdapterRecycler(getContext(), itemsData);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
         recyclerView.setAdapter(mAdapter);
         return v;
     }
-
 
     @Override
     public void onStart() {
@@ -66,9 +57,6 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         ex = new ExerciseEntry(getContext());
         ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
-
-
-
     }
 
     @Override
@@ -82,7 +70,6 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
     }
-
 
     @NonNull
     @Override
@@ -118,6 +105,4 @@ public class HistoryFragment extends Fragment implements LoaderManager.LoaderCal
         Log.d(DEBUG_TAG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
 
     }
-
-
 }
