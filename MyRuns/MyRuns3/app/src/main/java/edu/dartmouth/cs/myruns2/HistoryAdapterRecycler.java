@@ -4,6 +4,7 @@ package edu.dartmouth.cs.myruns2;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,6 +29,7 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
     private Context context;
     private static final String FROM_HISTORY_TAB = "history_tab";
     public static final String ITEM_TO_DELETE = "item";
+    private AsyncTask task;
 
     public HistoryAdapterRecycler(Context context, ArrayList<Exercise> list) {
         this.orderList = list;
@@ -93,8 +95,7 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         Log.d("Adapter", "onactivity request 1=>delete & 0=> insert" + res);
 
         if (res == -10) {
-            //String _pos= data.getStringExtra(MAIN_ITEM_TO_DELETE);
-            //int pos = Integer.parseInt(_pos);
+
             Log.d("Adapter", "onactivity result DELETE: " + dele_pos);
             orderList.remove(dele_pos);
             HistoryFragment.onActivityResult();
@@ -104,23 +105,16 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         } else {
 
             Log.d("Adapter", "User did not delete" + res);
+                String[] mytasks = {String.valueOf(res)};
+            task = new AsyncExerciseLoad().execute(mytasks);
 
-            ExerciseEntry mEntry = new ExerciseEntry(context);
-
-            mEntry.open();
-
-           Exercise ee = mEntry.fetchEntryByIndex(res);
-            mEntry.close();
-
-            orderList.add(ee);
-
-            HistoryFragment.onActivityResult();
+          //  task.execute(mytasks);
 
 
         }
     }
 
-        @Override
+    @Override
     public int getItemCount() {
         return orderList.size();
     }
@@ -145,5 +139,40 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         String formatted = String.format("%.2f", miles);
         return formatted;
     }
+
+    class AsyncExerciseLoad extends AsyncTask<String, Void, Void> {
+
+
+        @Override
+        protected Void doInBackground(String... _id) {
+
+            long id = Long.parseLong(_id[0]);
+
+            Log.d("History Adapter", "Updating history frag UI Exercise ID:  " + id);
+
+            ExerciseEntry mEntry = new ExerciseEntry(context);
+
+            mEntry.open();
+
+            Exercise ee = mEntry.fetchEntryByIndex(id);
+            mEntry.close();
+
+            orderList.add(ee);
+
+        //    HistoryFragment.onActivityResult();
+
+            return null;
+        }
+
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            task = null;
+
+
+        }
+    }
+
+
 
 }
