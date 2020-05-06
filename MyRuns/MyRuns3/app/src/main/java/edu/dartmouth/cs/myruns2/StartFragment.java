@@ -9,11 +9,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-public class StartFragment extends Fragment {
+public class StartFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private static final String DEBUG_TAG = "StartFragment";
     private FloatingActionButton mStartButton;
@@ -23,8 +24,6 @@ public class StartFragment extends Fragment {
     private String activity = "";
     private static final String FROM_START_TAB = "start_tab";
 
-//    EditText partyTitleView,partyVenueView,partyDateView,partyTimeView;
-    //DatePickerDialog.OnDateSetListener partyDatePicker;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.start_fragment, container, false);
@@ -32,6 +31,10 @@ public class StartFragment extends Fragment {
         mStartButton = (FloatingActionButton) v.findViewById(R.id.startButton);
         mInput = (Spinner) v.findViewById(R.id.input_spinner);
         mActivity = (Spinner) v.findViewById(R.id.activity_spinner);
+
+        //Set our selection listeners
+        mInput.setOnItemSelectedListener(this);
+        mActivity.setOnItemSelectedListener(this);
 
         // Create a listener to launch the appropriate action based on current spinner option
         mStartButton.setOnClickListener(new View.OnClickListener(){
@@ -63,7 +66,17 @@ public class StartFragment extends Fragment {
         return v;
     }
 
+    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        if(mInput.getSelectedItem().toString().equals("Automatic")){
+            mActivity.setEnabled(false);
+        }else {
+            mActivity.setEnabled(true);
+        }
+    }
 
+    public void onNothingSelected(AdapterView<?> parent) {
+        // If nothing is selected we don't care but this method is required for the interface
+    }
 
     @Override
     public void onStart() {
