@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -44,6 +43,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import edu.dartmouth.cs.myruns2.fragments.MyRunsDialogFragment;
 import edu.dartmouth.cs.myruns2.models.ProfilePreferences;
 
 

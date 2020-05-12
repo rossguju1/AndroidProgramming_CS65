@@ -1,13 +1,9 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-
-import java.util.ArrayList;
-
-import edu.dartmouth.cs.myruns2.models.Exercise;
 
 public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
 

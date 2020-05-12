@@ -1,22 +1,14 @@
 package edu.dartmouth.cs.myruns2;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.preference.ListPreference;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.PreferenceManager;
+
+import edu.dartmouth.cs.myruns2.fragments.SettingsFragment;
 
 public class SettingsActivity extends AppCompatActivity {
     private static final String DEBUG_TAG = "SettingsActivity";

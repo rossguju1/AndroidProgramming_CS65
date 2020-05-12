@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.fragments;
 
 
 import androidx.fragment.app.Fragment;
@@ -13,6 +13,11 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import edu.dartmouth.cs.myruns2.ManualInputActivity;
+import edu.dartmouth.cs.myruns2.MapInputActivity;
+import edu.dartmouth.cs.myruns2.R;
+import edu.dartmouth.cs.myruns2.fragments.HistoryFragment;
 
 public class StartFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 

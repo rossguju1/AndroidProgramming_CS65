@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,7 +16,9 @@ import androidx.preference.PreferenceManager;
 
 import java.util.ArrayList;
 
-
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
+import edu.dartmouth.cs.myruns2.R;
+import edu.dartmouth.cs.myruns2.SigninActivity;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
 

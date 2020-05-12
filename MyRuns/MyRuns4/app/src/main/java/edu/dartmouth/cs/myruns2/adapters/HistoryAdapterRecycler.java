@@ -1,23 +1,25 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.adapters;
 
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
+import edu.dartmouth.cs.myruns2.MainMyRunsActivity;
+import edu.dartmouth.cs.myruns2.ManualInputActivity;
+import edu.dartmouth.cs.myruns2.R;
+import edu.dartmouth.cs.myruns2.fragments.HistoryFragment;
 import edu.dartmouth.cs.myruns2.models.Exercise;
-import edu.dartmouth.cs.myruns2.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
 
 public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterRecycler.ViewHolder> {

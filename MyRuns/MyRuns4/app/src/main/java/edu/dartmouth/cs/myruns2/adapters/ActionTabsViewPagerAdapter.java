@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.adapters;
 
 //import android.app.Fragment;
 import androidx.fragment.app.Fragment;

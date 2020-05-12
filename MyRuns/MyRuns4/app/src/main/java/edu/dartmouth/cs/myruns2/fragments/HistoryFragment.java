@@ -1,8 +1,5 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.fragments;
 
-import android.app.AlertDialog;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import edu.dartmouth.cs.myruns2.database.AsyncHistoryLoad;
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
+import edu.dartmouth.cs.myruns2.adapters.HistoryAdapterRecycler;
+import edu.dartmouth.cs.myruns2.R;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 
 public class HistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<ArrayList<Exercise>> {

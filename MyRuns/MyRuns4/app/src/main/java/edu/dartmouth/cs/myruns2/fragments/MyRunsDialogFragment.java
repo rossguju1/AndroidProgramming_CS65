@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
 
+import edu.dartmouth.cs.myruns2.R;
+import edu.dartmouth.cs.myruns2.RegisterProfileActivity;
 
 
 public class MyRunsDialogFragment extends DialogFragment {

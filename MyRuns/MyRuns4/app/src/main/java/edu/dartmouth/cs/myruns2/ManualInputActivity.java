@@ -3,18 +3,14 @@ package edu.dartmouth.cs.myruns2;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
-import androidx.preference.PreferenceManager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.ExpandableListActivity;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
@@ -27,19 +23,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
+import edu.dartmouth.cs.myruns2.fragments.StartFragment;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 import edu.dartmouth.cs.myruns2.models.MyGlobals;
-import edu.dartmouth.cs.myruns2.ExerciseEntry;
-import edu.dartmouth.cs.myruns2.HistoryFragment;
-import static edu.dartmouth.cs.myruns2.RegisterProfileActivity.INTENT_FROM;
 
 public class ManualInputActivity extends AppCompatActivity {
     public static final String MANUAL_INTENT_FROM = "manual_from";

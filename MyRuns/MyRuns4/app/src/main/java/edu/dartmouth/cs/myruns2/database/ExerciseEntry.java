@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,23 +6,12 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
-import android.text.format.DateUtils;
-import com.google.android.gms.maps.model.LatLng;
 
-import org.w3c.dom.Comment;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 //import android.icu.util.Calendar;
-import edu.dartmouth.cs.myruns2.ExerciseEntryDbHelper;
 import edu.dartmouth.cs.myruns2.models.Exercise;
-import android.text.format.DateUtils;
 
-class ExerciseEntry {
+public class ExerciseEntry {
 
         private static final String TAG = "DB";
         // Database fields
@@ -46,7 +35,7 @@ class ExerciseEntry {
                         ExerciseEntryDbHelper.COLUMN_GPS // cursor index 13
                 };
 
-        ExerciseEntry(Context context) {
+        public ExerciseEntry(Context context) {
                 dbHelper = new ExerciseEntryDbHelper(context);
         }
 

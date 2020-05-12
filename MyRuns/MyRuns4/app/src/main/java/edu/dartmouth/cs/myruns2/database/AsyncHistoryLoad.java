@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myruns2;
+package edu.dartmouth.cs.myruns2.database;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,9 +10,10 @@ import androidx.loader.content.AsyncTaskLoader;
 import java.util.ArrayList;
 
 
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
 import edu.dartmouth.cs.myruns2.models.Exercise;
 
-class AsyncHistoryLoad extends AsyncTaskLoader<ArrayList<Exercise>> {
+public class AsyncHistoryLoad extends AsyncTaskLoader<ArrayList<Exercise>> {
 
     private static final String DEBUG_TAG = "HistoryAsyncLoad";
     private final ExerciseEntry dataSource;

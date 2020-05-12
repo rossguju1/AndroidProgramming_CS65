@@ -67,5 +67,6 @@
         <item>Take picture from camera</item>
         <item>Choose Picture From Gallery</item>
     </string-array>
+    <string name="title_activity_maps">Map</string>
 
 </resources>
