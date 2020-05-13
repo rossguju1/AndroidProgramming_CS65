@@ -28,6 +28,10 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
     private String input = "";
     private String activity = "";
     private static final String FROM_START_TAB = "start_tab";
+    private static final String FROM_START_TAB_GPS = "gps";
+    private static final String FROM_START_TAB_AUTO = "auto";
+
+
     public static final String START_INSERT_ITEM = "start_insert_item";
 
     @Override
@@ -56,8 +60,12 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
                         intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_START_TAB);
                     } else if(input.equals("Automatic")){
                         intent = new Intent(getActivity(), MapInputActivity.class);
+                        intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_AUTO);
+
                     } else if(input.equals("GPS")){
                         intent = new Intent(getActivity(), MapInputActivity.class);
+                        intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_GPS);
+
                     }
 
                     //Here we make sure our intent has be initialized and then pass in activity as extra string
