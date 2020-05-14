@@ -486,11 +486,6 @@ public class ManualInputActivity extends AppCompatActivity {
 
                     delete_task = new AsyncDelete();
                     delete_task.execute();
-                    finish();
-
-
-
-
                 }
                 return true;
 
@@ -663,6 +658,7 @@ public class ManualInputActivity extends AppCompatActivity {
             intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
             setResult(1,intent);
 
+            finish();
 
         }
     }

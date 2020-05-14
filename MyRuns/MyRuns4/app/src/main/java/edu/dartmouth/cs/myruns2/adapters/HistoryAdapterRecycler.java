@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+import edu.dartmouth.cs.myruns2.MapInputActivity;
 import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
 import edu.dartmouth.cs.myruns2.MainMyRunsActivity;
 import edu.dartmouth.cs.myruns2.ManualInputActivity;
@@ -82,12 +83,23 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //int input = order.getmInputType();
+                if (order.getmInputType() == 0){
                 Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
                 intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
                 intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
                 intent.putExtra(ManualInputActivity.DELETE_ITEM, String.valueOf(position));
                 ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
                 dele_pos = position;
+                } else {
+
+                    Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
+                    intent.putExtra(MapInputActivity.FROM, "history_tab");
+                    intent.putExtra(MapInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+                    intent.putExtra(MapInputActivity.DELETE_ITEM, String.valueOf(position));
+                    ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
+
+                }
             }
 
         });
