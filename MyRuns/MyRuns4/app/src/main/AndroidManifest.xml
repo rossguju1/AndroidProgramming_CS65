@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -25,10 +26,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".services.LocationService"
+            android:name=".services.ARService"
             android:exported="false"></service>
         <service
             android:name=".services.TrackingService"
+            android:enabled="true"
+            android:exported="true" />
+        <service
+            android:name=".services.LocationService"
             android:enabled="true"
             android:exported="true" />
         <!--

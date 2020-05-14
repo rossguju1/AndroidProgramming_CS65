@@ -4,10 +4,13 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
@@ -18,7 +21,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,10 +32,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.soundcloud.android.crop.Crop;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
+
+import edu.dartmouth.cs.myruns2.models.Constants;
+import edu.dartmouth.cs.myruns2.services.LocationService;
+import edu.dartmouth.cs.myruns2.services.TrackingService;
 
 public class MapInputActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String DEBUG_TAG = "MapInputActivity";
@@ -38,7 +48,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private GoogleMap mMap;
     public Marker whereAmI;
     private static final int PERMISSION_REQUEST_CODE = 1;
-
+    private Marker mMaker;
+    private Intent serviceIntent;
+    String coords = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,14 +72,104 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         setCalorieText("0");
         setElevationDifText("0");
         setDistanceText("0");
+
+
+
+
+
     }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.d(DEBUG_TAG, "onStart");
+        Log.d(TAG, "onStart():start Tracking Service");
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocationBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
+
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+
+
+        startTrackingService();
     }
 
+    BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION)) {
+
+
+                Location location = intent.getParcelableExtra("location");
+                Log.d(TAG, "onReceive() Locations " + location.getLongitude() + location.getLatitude());
+                if (coords.equals("")){
+                    coords = coords + location.getLongitude() + "," + location.getLatitude();
+                } else {
+                    coords = coords + "|"  + location.getLongitude() + "," + location.getLatitude();
+                }
+
+                Log.d(TAG, "cumaltive Locations: " + coords);
+
+
+            }
+        }
+    };
+
+    BroadcastReceiver mActivityBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
+                int type = intent.getIntExtra("type", -1);
+                int confidence = intent.getIntExtra("confidence", 0);
+                Log.d(TAG, "onReceive() AR " + "Type: " + type + "confidence: " + confidence);
+                Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
+
+                //handleUserActivity(type, confidence);
+            }
+        }
+    };
+    private String handleUserActivity(int type, int confidence) {
+        String label = "Unknown";
+        switch (type) {
+            case DetectedActivity.IN_VEHICLE: {
+                label = "In_Vehicle";
+                break;
+            }
+            case DetectedActivity.ON_BICYCLE: {
+                label = "On_Bicycle";
+                break;
+            }
+            case DetectedActivity.ON_FOOT: {
+                label = "On_Foot";
+                break;
+            }
+            case DetectedActivity.RUNNING: {
+                label = "Running";
+                break;
+            }
+            case DetectedActivity.STILL: {
+                label = "Still";
+                break;
+            }
+            case DetectedActivity.TILTING: {
+                label = "Tilting";
+                break;
+            }
+            case DetectedActivity.WALKING: {
+                label = "Walking";
+                break;
+            }
+            case DetectedActivity.UNKNOWN: {
+                break;
+            }
+
+        }
+        return label + " with " + confidence;
+    }
     @Override
     public void onResume() {
         super.onResume();
@@ -78,6 +180,16 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
+
+        if(mLocationBroadcastReceiver!= null){
+            stopService(new Intent(this, TrackingService.class));
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        }
+
+        if(mActivityBroadcastReceiver != null){
+            stopService(new Intent(this,TrackingService.class));
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
+        }
     }
 
     @Override
@@ -142,6 +254,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
 //        myLocationText.setText(getString(R.string.position_is)
 //                + latLongString + getString(R.string.format) + addressString);
+    }
+
+    private void startTrackingService() {
+        serviceIntent = new Intent(this, TrackingService.class);
+        startForegroundService(serviceIntent);
     }
 
     private final LocationListener locationListener = new LocationListener() {
