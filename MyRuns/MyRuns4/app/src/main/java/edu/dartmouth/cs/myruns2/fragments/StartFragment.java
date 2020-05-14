@@ -122,13 +122,15 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
         Log.d(DEBUG_TAG, "IN START FRAGMENT  " + requestCode);
 
         if (requestCode == 2){
+            if(data != null){
+                String _id = data.getStringExtra(START_INSERT_ITEM);
+                long id = Long.parseLong(_id);
+                Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + Long.parseLong(_id));
+                HistoryFragment.mAdapter.onActivityResult(id);
+            }else {
+                Log.d(DEBUG_TAG, "Error onACTIVITYResult in MainMyRuns retrieving ID");
+            }
 
-            String _id = data.getStringExtra(START_INSERT_ITEM);
-
-           long id = Long.parseLong(_id);
-
-            Log.d(DEBUG_TAG, "onACTIVITYResult in MainMyRuns:  ID= " + Long.parseLong(_id));
-            HistoryFragment.mAdapter.onActivityResult(id);
         }
     }
 
