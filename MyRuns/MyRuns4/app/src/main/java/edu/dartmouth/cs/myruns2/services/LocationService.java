@@ -59,7 +59,7 @@ public class LocationService extends  IntentService {
 
         for (DetectedActivity activity : detectedActivities) {
             //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
-            broadcastActivity(activity);
+            //broadcastActivity(activity);
         }
     }
 
@@ -78,7 +78,7 @@ public class LocationService extends  IntentService {
 
     }
 
-    private LocationCallback mLocationCallback = new LocationCallback()  {
+    private LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
@@ -90,10 +90,11 @@ public class LocationService extends  IntentService {
 
 
         private void broadcastActivity(DetectedActivity activity) {
-        // Log.d(TAG,TAG+ "broadcastActivity()");
-        Intent intent = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
-        intent.putExtra("type", activity.getType());
-        intent.putExtra("confidence", activity.getConfidence());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-    }
+            // Log.d(TAG,TAG+ "broadcastActivity()");
+            Intent intent = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
+            intent.putExtra("type", activity.getType());
+            intent.putExtra("confidence", activity.getConfidence());
+            //LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    };
 }
