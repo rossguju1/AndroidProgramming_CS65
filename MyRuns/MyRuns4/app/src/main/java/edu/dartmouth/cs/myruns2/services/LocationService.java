@@ -45,7 +45,7 @@ public class LocationService extends IntentService {
     private FusedLocationProviderClient fusedLocationClient;
     private static final long UPDATE_INTERVAL = 5000;
     private static final long FAST_INTERVAL = 1000;
-    //public static final String BROADCAST_LOCATION = "location update";
+    public static final String BROADCAST_LOCATION = "location update";
 
     public LocationService() {
         super(TAG);
@@ -56,7 +56,6 @@ public class LocationService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, TAG + "onCreate()");
-
     }
 
     @Override
@@ -79,12 +78,10 @@ public class LocationService extends IntentService {
 
 
     private void broadcastLocation(Location loc) {
-         Log.d(TAG,TAG+ "broadcastLocation()");
+        Log.d(TAG,TAG+ "broadcastLocation()");
 
         Intent i = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
         i.putExtra("location", loc);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
-
-
 }
