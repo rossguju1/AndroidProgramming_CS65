@@ -127,7 +127,7 @@ public class TrackingService extends Service {
                 .setContentTitle("MyRuns")
                 .setContentText("Tracking your locations")
                 .setSmallIcon(android.R.mipmap.sym_def_app_icon)
-                .setOngoing(false)
+                .setOngoing(true)
                 .setContentIntent(pendingIntent)
                 .build();
 
