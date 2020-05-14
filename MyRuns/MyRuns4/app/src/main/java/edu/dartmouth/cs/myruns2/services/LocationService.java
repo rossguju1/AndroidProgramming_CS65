@@ -70,10 +70,9 @@ public class LocationService extends IntentService {
 
             List<Location> detectedLocations = res.getLocations();
 
-            for (Location location : detectedLocations) {
-                //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
-                broadcastLocation(location);
-            }
+        for (DetectedActivity activity : detectedActivities) {
+            //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+            broadcastActivity(activity);
         }
     }
 
@@ -86,4 +85,23 @@ public class LocationService extends IntentService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            super.onLocationResult(locationResult);
+            Log.d(TAG, "TrackingService: onLocationResult(): Thread ID is:" + Thread.currentThread().getId());
+            Intent intent = new Intent(BROADCAST_LOCATION);
+            intent.putExtra("location", locationResult.getLastLocation());
+            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+        }
+
+
+        private void broadcastActivity(DetectedActivity activity) {
+            // Log.d(TAG,TAG+ "broadcastActivity()");
+            Intent intent = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
+            intent.putExtra("type", activity.getType());
+            intent.putExtra("confidence", activity.getConfidence());
+            //LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        }
+    };
 }

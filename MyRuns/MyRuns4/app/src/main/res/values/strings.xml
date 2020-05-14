@@ -61,13 +61,15 @@
     <string name="settings_class_homepage_address">http://cs.dartmouth.edu/~campbell/cs65/cs65.html</string>
     <string name="account_settings_title">Account Settings</string>
     <string name="settings_signout_title">Sign Out</string>
-
+    <string name="title_activity_maps">Map</string>
+    <string name="map_save_text">Activity Saved</string>
+    <string name="map_save_text_failed">Save Failed</string>
 
     <string-array name="ui_profile_photo_picker_items">
         <item>Take picture from camera</item>
         <item>Choose Picture From Gallery</item>
     </string-array>
-    <string name="title_activity_maps">Map</string>
+
 
 
 </resources>

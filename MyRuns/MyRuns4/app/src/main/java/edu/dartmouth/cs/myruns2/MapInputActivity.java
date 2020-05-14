@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -35,12 +36,15 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.soundcloud.android.crop.Crop;
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
+import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
+import edu.dartmouth.cs.myruns2.models.Exercise;
 import edu.dartmouth.cs.myruns2.models.Constants;
 import edu.dartmouth.cs.myruns2.services.LocationService;
 import edu.dartmouth.cs.myruns2.services.TrackingService;
@@ -53,7 +57,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String TAG = "MapsActivity";
     public static final String FROM_MAPINPUT = "from_mapinput";
     private GoogleMap mMap;
-    public Marker whereAmI;
+    public Marker startMarker;
+    public Marker finishMarker;
+    public Polyline line;
+    public List<Location> locations;
+    private Exercise mExercise;
+
+    private String mActivityName;
+    private String mSpeed;
+    private String mAvgSpeed;
+    private String mClimbed;
+    private String mCalorie;
+    private String mDistance;
+
     private static final int PERMISSION_REQUEST_CODE = 1;
     private Marker mMaker;
     private Intent serviceIntent;
@@ -80,10 +96,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
         Intent intent = getIntent();
         //get the attached extras from the intent i.e the activity name
-        String activity_name = ((Intent) intent).getStringExtra("activity_name");
-
-
-        setActivityText(activity_name);
+        mActivityName = ((Intent) intent).getStringExtra("activity_name");
+        setActivityText(mActivityName);
         setCurSpeedText("0");
         setAvgSpeedText("0");
         setCalorieText("0");
@@ -243,6 +257,77 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.map_activity_menu, menu);
+        //Set the appropriate button title depending on navigation context
+        menu.getItem(0).setTitle("Save");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //Menu bar clicks
+        int id = item.getItemId();
+
+        if (id == R.id.map_save) { //map save button clicked
+            // Exit/Close & save active only if fields have been filled appropriately
+            if (saveMapData() == false) {
+                //If we failed to save alert the user
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.map_save_text_failed),
+                        Toast.LENGTH_SHORT).show();
+                finish();
+            } else {
+                //If succesful we are done and tell user save was succesful
+                Toast.makeText(getApplicationContext(),
+                        getString(R.string.map_save_text),
+                        Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private boolean saveMapData() {
+        //NOTE: I'm going to need to make the first 6 sections of locationString data about exercise
+        // - Activity Type
+        // - Speed
+        // - Avg Speed
+        // - Altitude Gain
+        // - Calories
+        // - Distance
+        mExercise = new Exercise();
+        //Save the activity on the map data return true if successful
+        if(locations != null){
+            String exerciseString = "" +
+                    mActivityName + " | " +
+                    mSpeed + " | " +
+                    mAvgSpeed  + " | " +
+                    mClimbed  + " | " +
+                    mCalorie  + " | " +
+                    mDistance + " | ";
+            for(Location location : locations) {
+                exerciseString =
+                        exerciseString +
+                        location.getLatitude() + ", " +
+                        location.getLongitude() + " | ";
+            }
+            mExercise.setmLocationList(exerciseString);
+            ExerciseEntry mEntry =  new ExerciseEntry(this);
+            mEntry.open();
+            mEntry.insertEntry(mExercise);
+            mEntry.close();
+            return true;
+        }
+        return false;
+    }
+
+    private void parseMapData() {
+
+
+    }
+
 
     private LatLng fromLocationToLatLng(Location location) {
         return new LatLng(location.getLatitude(), location.getLongitude());
@@ -256,48 +341,38 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         String addressString = "No address found";
 
         if (location != null) {
+
             // Update the map location.
             LatLng latlng = fromLocationToLatLng(location);
+            LatLng NewYork = new LatLng(40.7, -74.0);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17));
 
-            if (whereAmI != null)
-                whereAmI.remove();
-
-            whereAmI = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
-                    BitmapDescriptorFactory.HUE_GREEN)).title("Here I Am."));
-
-            double lat = location.getLatitude();
-            double lng = location.getLongitude();
-            latLongString = "Lat:" + lat + "\nLong:" + lng;
-
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-            Geocoder gc = new Geocoder(this, Locale.getDefault());
-
-            if (!Geocoder.isPresent())
-                addressString = "No geocoder available";
-            else {
-                try {
-                    List<Address> addresses = gc.getFromLocation(latitude, longitude, 1);
-                    StringBuilder sb = new StringBuilder();
-                    if (addresses.size() > 0) {
-                        Address address = addresses.get(0);
-
-                        for (int i = 0; i < address.getMaxAddressLineIndex(); i++)
-                            sb.append(address.getAddressLine(i)).append("\n");
-
-                        sb.append(address.getLocality()).append("\n");
-                        sb.append(address.getPostalCode()).append("\n");
-                        sb.append(address.getCountryName());
-                    }
-                    addressString = sb.toString();
-                } catch (IOException e) {
-                    Log.d("WHEREAMI", "IO Exception", e);
-                }
+            if (startMarker != null) {
+                startMarker.remove();
             }
+            if (finishMarker != null) {
+                finishMarker.remove();
+            }
+
+            if(line != null) {
+                line.remove();
+            }
+
+
+            startMarker = mMap.addMarker(new MarkerOptions().position(NewYork).icon(BitmapDescriptorFactory.defaultMarker(
+                    BitmapDescriptorFactory.HUE_GREEN)).title("Start"));
+
+            finishMarker = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
+                    BitmapDescriptorFactory.HUE_RED)).title("Finish"));
+
+            List<LatLng> points = new ArrayList<>();
+            points.add(latlng);
+            points.add(NewYork);
+            line = mMap.addPolyline(new PolylineOptions()
+                    .addAll(points)
+                    .width(5)
+                    .color(Color.BLUE));
         }
-//        myLocationText.setText(getString(R.string.position_is)
-//                + latLongString + getString(R.string.format) + addressString);
     }
 
     private void startTrackingService() {
@@ -365,7 +440,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         //criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setAccuracy(Criteria.ACCURACY_COARSE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
-        criteria.setAltitudeRequired(false);
+        criteria.setAltitudeRequired(true);
         criteria.setBearingRequired(false);
         criteria.setSpeedRequired(false);
         criteria.setCostAllowed(true);
@@ -391,8 +466,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Location l = locationManager.getLastKnownLocation(provider);
         LatLng latlng = fromLocationToLatLng(l);
 
-        whereAmI = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
-                BitmapDescriptorFactory.HUE_GREEN)));//set position and icon for the marker
+        finishMarker = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
+                BitmapDescriptorFactory.HUE_RED)));//set position and icon for the marker
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         // Zoom in
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0

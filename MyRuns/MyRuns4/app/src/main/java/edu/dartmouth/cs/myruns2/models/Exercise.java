@@ -20,7 +20,7 @@ public class Exercise {
     private int mHeartRate;        // Heart rate
     private String mComment;       // Comments
     private int mPrivacy;
-    //private ArrayList<LatLng> mLocationList; // Location list
+//    private ArrayList<LatLng> mLocationList; // Location list
     private String mLocationList;
 
 
