@@ -549,7 +549,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             activity.setText("Distance: " + distance + " m");
         }
     }
-
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         int id = item.getItemId();
@@ -587,6 +587,4 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
         return super.onCreateOptionsMenu(menu);
     }
-
-
 }

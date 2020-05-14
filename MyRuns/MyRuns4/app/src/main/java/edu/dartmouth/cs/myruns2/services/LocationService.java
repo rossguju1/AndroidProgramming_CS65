@@ -84,5 +84,4 @@ public class LocationService extends IntentService {
         i.putExtra("location", loc);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
-
 }
