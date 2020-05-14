@@ -40,6 +40,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.soundcloud.android.crop.Crop;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -64,8 +65,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private Exercise mExercise;
 
     private String mActivityName;
-    private String mSpeed;
-    private String mAvgSpeed;
+    private float mSpeed;
+    private ArrayList<Float> speedCollection;
+    private float mAvgSpeed;
     private String mClimbed;
     private String mCalorie;
     private String mDistance;
@@ -98,16 +100,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         //get the attached extras from the intent i.e the activity name
         mActivityName = ((Intent) intent).getStringExtra("activity_name");
         setActivityText(mActivityName);
-        setCurSpeedText("0");
-        setAvgSpeedText("0");
         setCalorieText("0");
         setElevationDifText("0");
         setDistanceText("0");
-
-
-
-
-
     }
 
     @Override
@@ -257,37 +252,29 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(DEBUG_TAG, "onDestroy");
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.map_activity_menu, menu);
-        //Set the appropriate button title depending on navigation context
-        menu.getItem(0).setTitle("Save");
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //Menu bar clicks
-        int id = item.getItemId();
-
-        if (id == R.id.map_save) { //map save button clicked
-            // Exit/Close & save active only if fields have been filled appropriately
-            if (saveMapData() == false) {
-                //If we failed to save alert the user
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.map_save_text_failed),
-                        Toast.LENGTH_SHORT).show();
-                finish();
-            } else {
-                //If succesful we are done and tell user save was succesful
-                Toast.makeText(getApplicationContext(),
-                        getString(R.string.map_save_text),
-                        Toast.LENGTH_SHORT).show();
-                finish();
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        //Menu bar clicks
+//        int id = item.getItemId();
+//
+//        if (id == R.id.map_save) { //map save button clicked
+//            // Exit/Close & save active only if fields have been filled appropriately
+//            if (saveMapData() == false) {
+//                //If we failed to save alert the user
+//                Toast.makeText(getApplicationContext(),
+//                        getString(R.string.map_save_text_failed),
+//                        Toast.LENGTH_SHORT).show();
+//                finish();
+//            } else {
+//                //If succesful we are done and tell user save was succesful
+//                Toast.makeText(getApplicationContext(),
+//                        getString(R.string.map_save_text),
+//                        Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     private boolean saveMapData() {
         //NOTE: I'm going to need to make the first 6 sections of locationString data about exercise
@@ -302,8 +289,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         if(locations != null){
             String exerciseString = "" +
                     mActivityName + " | " +
-                    mSpeed + " | " +
-                    mAvgSpeed  + " | " +
+                    String.valueOf(mSpeed) + " | " +
+                    String.valueOf(mAvgSpeed) + " | " +
                     mClimbed  + " | " +
                     mCalorie  + " | " +
                     mDistance + " | ";
@@ -438,11 +425,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         // to give the best last location see getLastKnownLocation() here
         // https://stackoverflow.com/questions/20438627/getlastknownlocation-returns-null
         //criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+//        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
         criteria.setPowerRequirement(Criteria.POWER_LOW);
         criteria.setAltitudeRequired(true);
         criteria.setBearingRequired(false);
-        criteria.setSpeedRequired(false);
+        criteria.setSpeedRequired(true);
         criteria.setCostAllowed(true);
         String provider = locationManager.getBestProvider(criteria, true);
 
@@ -464,6 +452,21 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
         Location l = locationManager.getLastKnownLocation(provider);
+
+        //Calculate our speed and avgspeed
+        mSpeed = l.getSpeed();
+        Log.d("SPEEEEEEED", String.valueOf(mSpeed));
+        if(speedCollection != null){
+            speedCollection.add(mSpeed);
+        }else {
+            speedCollection = new ArrayList<Float>();
+            speedCollection.add(mSpeed);
+        }
+
+        setCurSpeedText(mSpeed);
+        mAvgSpeed = calculateAvgSpeed(speedCollection);
+        setAvgSpeedText(mAvgSpeed);
+
         LatLng latlng = fromLocationToLatLng(l);
 
         finishMarker = mMap.addMarker(new MarkerOptions().position(latlng).icon(BitmapDescriptorFactory.defaultMarker(
@@ -506,18 +509,24 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
     }
 
-    public void setCurSpeedText(String speed) {
+    public void setCurSpeedText(Float speed) {
         TextView activity = (TextView) findViewById(R.id.cur_speed);
         if(speed != null){
             activity.setText("Speed: " + speed + " m/s");
         }
     }
 
-    public void setAvgSpeedText(String speed) {
-        TextView activity = (TextView) findViewById(R.id.avg_speed);
-        if(speed != null){
-            activity.setText("Activity: " + speed + " m/s");
+    public float calculateAvgSpeed(ArrayList<Float> speeds) {
+        float sum = 0;
+        for(float speed : speeds){
+            sum = sum + speed;
         }
+        return sum/speeds.size();
+    }
+
+    public void setAvgSpeedText(float speed) {
+        TextView activity = (TextView) findViewById(R.id.avg_speed);
+        activity.setText("Activity: " + speed + " m/s");
     }
 
     public void setElevationDifText(String elevation) {
@@ -543,10 +552,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-
         int id = item.getItemId();
         switch ( id ) {
-
             case android.R.id.home:
                 Toast.makeText(getApplicationContext(),
                         "Moved Back",
@@ -554,23 +561,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 NavUtils.navigateUpFromSameTask(this);
                 return true;
             case R.id.ManualEntryBttn:
-
                 if (current_tab == 0){
-
                     Toast.makeText(getApplicationContext(),
                             "Saved",
                             Toast.LENGTH_SHORT).show();
-
                     //database save entry
                 } else if(current_tab == 1){
 
-                    //
-
-
                 }
                 return true;
-
-
             default:
                 return super.onOptionsItemSelected(item);
         }

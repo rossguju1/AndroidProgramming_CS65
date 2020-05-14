@@ -45,7 +45,7 @@ public class LocationService extends IntentService {
     private FusedLocationProviderClient fusedLocationClient;
     private static final long UPDATE_INTERVAL = 5000;
     private static final long FAST_INTERVAL = 1000;
-    //public static final String BROADCAST_LOCATION = "location update";
+    public static final String BROADCAST_LOCATION = "location update";
 
     public LocationService() {
         super(TAG);
@@ -56,7 +56,6 @@ public class LocationService extends IntentService {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, TAG + "onCreate()");
-
     }
 
     @Override
@@ -70,38 +69,20 @@ public class LocationService extends IntentService {
 
             List<Location> detectedLocations = res.getLocations();
 
-        for (DetectedActivity activity : detectedActivities) {
-            //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
-            broadcastActivity(activity);
+            for (Location loc : detectedLocations) {
+                //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+                broadcastLocation(loc);
+            }
         }
     }
 
 
     private void broadcastLocation(Location loc) {
-         Log.d(TAG,TAG+ "broadcastLocation()");
+        Log.d(TAG,TAG+ "broadcastLocation()");
 
         Intent i = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
         i.putExtra("location", loc);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
-    private LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            Log.d(TAG, "TrackingService: onLocationResult(): Thread ID is:" + Thread.currentThread().getId());
-            Intent intent = new Intent(BROADCAST_LOCATION);
-            intent.putExtra("location", locationResult.getLastLocation());
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-        }
-
-
-        private void broadcastActivity(DetectedActivity activity) {
-            // Log.d(TAG,TAG+ "broadcastActivity()");
-            Intent intent = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
-            intent.putExtra("type", activity.getType());
-            intent.putExtra("confidence", activity.getConfidence());
-            //LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
-    };
 }
