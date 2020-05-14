@@ -540,54 +540,54 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             activity.setText("Distance: " + distance + " m");
         }
     }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item){
-
-        int id = item.getItemId();
-        switch ( id ) {
-
-            case android.R.id.home:
-                Toast.makeText(getApplicationContext(),
-                        "Moved Back",
-                        Toast.LENGTH_SHORT).show();
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            case R.id.ManualEntryBttn:
-
-                if (current_tab == 0){
-
-                    Toast.makeText(getApplicationContext(),
-                            "Saved",
-                            Toast.LENGTH_SHORT).show();
-
-                    //database save entry
-                } else if(current_tab == 1){
-
-                    //
-
-
-                }
-                return true;
-
-
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.manual_entry_menu, menu);
-        //Set the appropriate button title depending on navigation context
-        if(getIntent().getStringExtra(FROM).equals("start_tab")){
-            current_tab = 0;
-            menu.getItem(0).setTitle("SAVE");
-        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
-            current_tab = 1;
-            menu.getItem(0).setTitle("DELETE");
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item){
+//
+//        int id = item.getItemId();
+//        switch ( id ) {
+//
+//            case android.R.id.home:
+//                Toast.makeText(getApplicationContext(),
+//                        "Moved Back",
+//                        Toast.LENGTH_SHORT).show();
+//                NavUtils.navigateUpFromSameTask(this);
+//                return true;
+//            case R.id.ManualEntryBttn:
+//
+//                if (current_tab == 0){
+//
+//                    Toast.makeText(getApplicationContext(),
+//                            "Saved",
+//                            Toast.LENGTH_SHORT).show();
+//
+//                    //database save entry
+//                } else if(current_tab == 1){
+//
+//                    //
+//
+//
+//                }
+//                return true;
+//
+//
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.manual_entry_menu, menu);
+//        //Set the appropriate button title depending on navigation context
+//        if(getIntent().getStringExtra(FROM).equals("start_tab")){
+//            current_tab = 0;
+//            menu.getItem(0).setTitle("SAVE");
+//        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
+//            current_tab = 1;
+//            menu.getItem(0).setTitle("DELETE");
+//        }
+//        return super.onCreateOptionsMenu(menu);
+//    }
 
 
 }
