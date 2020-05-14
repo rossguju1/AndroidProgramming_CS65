@@ -60,11 +60,11 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
                         intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_START_TAB);
                     } else if(input.equals("Automatic")){
                         intent = new Intent(getActivity(), MapInputActivity.class);
-                        intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_AUTO);
+                        //intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_AUTO);
 
                     } else if(input.equals("GPS")){
                         intent = new Intent(getActivity(), MapInputActivity.class);
-                        intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_GPS);
+                        //intent.putExtra(MapInputActivity.MAPINPUT_INTENT_FROM, FROM_START_TAB_GPS);
 
                     }
 

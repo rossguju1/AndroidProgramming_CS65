@@ -22,7 +22,7 @@ import com.google.android.gms.location.LocationSettingsRequest;
 
 import java.util.Map;
 
-import edu.dartmouth.cs.myruns2.MapsActivity;
+import edu.dartmouth.cs.myruns2.MapInputActivity;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -87,7 +87,7 @@ public class TrackingService extends Service {
     }
 
     private void createNotification() {
-        Intent notificationIntent = new Intent(this, MapsActivity.class);
+        Intent notificationIntent = new Intent(this, MapInputActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         // Create notification and its channel
