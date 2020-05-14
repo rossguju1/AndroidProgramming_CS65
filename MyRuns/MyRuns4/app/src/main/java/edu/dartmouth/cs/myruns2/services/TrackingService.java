@@ -37,6 +37,7 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 
 public class TrackingService extends Service {
     public static final String TAG = "service";
+    public static final String TRACKING_TYPE = "tracking_intent";
     private static final long UPDATE_INTERVAL = 5000;
     private static final long FAST_INTERVAL = 5000;
     private static final int SERVICE_NOTIFICATION_ID =1;
@@ -48,6 +49,8 @@ public class TrackingService extends Service {
 
     private PendingIntent mPendingIntentAR;
     private ActivityRecognitionClient mActivityRecognitionClient;
+
+    private String mInputType;
 
 
     public TrackingService() {
@@ -67,6 +70,23 @@ public class TrackingService extends Service {
         Log.d(TAG, "TrackingService: onStartCommand(): Thread ID is:" + Thread.currentThread().getId());
         createNotification();
 
+       if (intent.getStringExtra(TRACKING_TYPE).equals("auto")){
+           Log.d(TAG, "get intent in sevice: auto");
+           mActivityRecognitionClient = new ActivityRecognitionClient(this);
+           Intent mIntentServiceAR = new Intent(this, ARService.class);
+           mPendingIntentAR = PendingIntent.getService(this,
+                   2, mIntentServiceAR, PendingIntent.FLAG_UPDATE_CURRENT);
+           requestActivityUpdatesHandler();
+
+
+
+       } else if (intent.getStringExtra(TRACKING_TYPE).equals("gps")){
+
+           Log.d(TAG, "get intent in sevice: gps");
+
+       }
+
+
         locationRequest = new LocationRequest();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setInterval(UPDATE_INTERVAL);
@@ -82,11 +102,7 @@ public class TrackingService extends Service {
 
 
 
-        mActivityRecognitionClient = new ActivityRecognitionClient(this);
-        Intent mIntentServiceAR = new Intent(this, ARService.class);
-        mPendingIntentAR = PendingIntent.getService(this,
-                2, mIntentServiceAR, PendingIntent.FLAG_UPDATE_CURRENT);
-        requestActivityUpdatesHandler();
+
 
 
         return START_STICKY;
@@ -129,7 +145,9 @@ public class TrackingService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "TrackingService: onBind() Thread ID is:" + Thread.currentThread().getId());
+       // mInputType = intent.getStringExtra(TRACKING_TYPE);
+        Log.d(TAG, "TrackingService: onBind() ");
+
         return null;
     }
 

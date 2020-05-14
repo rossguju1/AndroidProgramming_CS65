@@ -45,6 +45,7 @@ import edu.dartmouth.cs.myruns2.services.TrackingService;
 public class MapInputActivity extends AppCompatActivity implements OnMapReadyCallback {
     private static final String DEBUG_TAG = "MapInputActivity";
     private static final String TAG = "MapsActivity";
+    public static final String FROM_MAPINPUT = "from_mapinput";
     private GoogleMap mMap;
     public Marker whereAmI;
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -63,9 +64,18 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) this);
 
+        // TODO check which intent created this activity
+        //  If start tab was the creating intent do the stuff now (i.e. getIntent()....)
+        //  If this was made by the history fragment (i.e. Recycler adapter)
+        //  Get the exercise and show the info in the corner of the map
+        //  and read the coordinates in the db and show them on the screen
+
+
         Intent intent = getIntent();
         //get the attached extras from the intent i.e the activity name
         String activity_name = ((Intent) intent).getStringExtra("activity_name");
+
+
         setActivityText(activity_name);
         setCurSpeedText("0");
         setAvgSpeedText("0");
@@ -111,7 +121,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     coords = coords + "|"  + location.getLongitude() + "," + location.getLatitude();
                 }
 
-                Log.d(TAG, "cumaltive Locations: " + coords);
+                Log.d(TAG, "cumalative Locations: " + coords);
+
+                // TODO
+                //  now create Async Task that updates the rest of the db entries
+                //  The async task not only updates the coordinates
+                //  but also updates calories, distance, duration, ect
+                //
+                //
+                //  TODO Then update the map
 
 
             }
@@ -129,6 +147,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
 
                 //handleUserActivity(type, confidence);
+
+                // TODO psuedo code for  AsyncTask auto_insert()
+                //  if confidence > 70: update activity name
+                //  update the other parameters
+                //
+                //  TODO Then update the info in the corner of the screen
+
+
+
             }
         }
     };
@@ -258,6 +285,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void startTrackingService() {
         serviceIntent = new Intent(this, TrackingService.class);
+        if (getIntent().getStringExtra(FROM_MAPINPUT).equals("auto")){
+            serviceIntent.putExtra(TrackingService.TRACKING_TYPE, "auto");
+
+        }else{
+            serviceIntent.putExtra(TrackingService.TRACKING_TYPE, "gps");
+        }
         startForegroundService(serviceIntent);
     }
 
