@@ -26,13 +26,14 @@ public class ExerciseEntry {
                         ExerciseEntryDbHelper.COLUMN_DURATION, // cursor index 4
                         ExerciseEntryDbHelper.COLUMN_DISTANCE, // cursor index 5
                         ExerciseEntryDbHelper.COLUMN_PACE, // cursor index 6
-                        ExerciseEntryDbHelper.COLUMN_SPEED, // cursor index 7
+                        ExerciseEntryDbHelper.COLUMN_AVGSPEED, // cursor index 7
                         ExerciseEntryDbHelper.COLUMN_CALORIES, // cursor index 8
                         ExerciseEntryDbHelper.COLUMN_CLIMB, // cursor index 9
                         ExerciseEntryDbHelper.COLUMN_HEARTRATE, // cursor index 10
                         ExerciseEntryDbHelper.COLUMN_COMMENT, // cursor index 11
                         ExerciseEntryDbHelper.COLUMN_PRIVACY, // cursor index 12
-                        ExerciseEntryDbHelper.COLUMN_GPS // cursor index 13
+                        ExerciseEntryDbHelper.COLUMN_GPS, // cursor index 13
+                        ExerciseEntryDbHelper.COLUMN_SPEED, // cursor index 14
                 };
 
         public ExerciseEntry(Context context) {
@@ -59,13 +60,14 @@ public class ExerciseEntry {
                 values.put( ExerciseEntryDbHelper.COLUMN_DURATION, entry.getmDuration());
                 values.put( ExerciseEntryDbHelper.COLUMN_DISTANCE, entry.getmDistance());
                 values.put( ExerciseEntryDbHelper.COLUMN_PACE, entry.getmAvgPace());
-                values.put( ExerciseEntryDbHelper.COLUMN_SPEED, entry.getmAvgSpeed());
+                values.put( ExerciseEntryDbHelper.COLUMN_AVGSPEED, entry.getmAvgSpeed());
                 values.put( ExerciseEntryDbHelper.COLUMN_CALORIES, entry.getmCalories());
                 values.put( ExerciseEntryDbHelper.COLUMN_CLIMB, entry.getmClimb());
                 values.put( ExerciseEntryDbHelper.COLUMN_HEARTRATE, entry.getmHeartRate());
                 values.put( ExerciseEntryDbHelper.COLUMN_COMMENT, entry.getmComment());
                 values.put( ExerciseEntryDbHelper.COLUMN_PRIVACY, entry.getmPrivacy());
                 values.put( ExerciseEntryDbHelper.COLUMN_GPS, entry.getmLocationList());
+                values.put( ExerciseEntryDbHelper.COLUMN_SPEED, entry.getmSpeed());
 
                 long insertId = database.insert( ExerciseEntryDbHelper.TABLE_EXERCISES, null,
                         values);
@@ -167,6 +169,7 @@ public class ExerciseEntry {
                 mExercise.setmComment(cursor.getString(11));
                 mExercise.setmPrivacy(cursor.getInt(12));
                 mExercise.setmLocationList(cursor.getString(13));
+                mExercise.setmSpeed(cursor.getDouble(14));
 
                 return mExercise;
         }
@@ -183,7 +186,8 @@ public class ExerciseEntry {
                values.put( ExerciseEntryDbHelper.COLUMN_DURATION, entry.getmDuration());
                values.put( ExerciseEntryDbHelper.COLUMN_DISTANCE, entry.getmDistance());
                values.put( ExerciseEntryDbHelper.COLUMN_PACE, entry.getmAvgPace());
-               values.put( ExerciseEntryDbHelper.COLUMN_SPEED, entry.getmAvgSpeed());
+               values.put( ExerciseEntryDbHelper.COLUMN_AVGSPEED, entry.getmAvgSpeed());
+               values.put( ExerciseEntryDbHelper.COLUMN_SPEED, entry.getmSpeed());
                values.put( ExerciseEntryDbHelper.COLUMN_CALORIES, entry.getmCalories());
                values.put( ExerciseEntryDbHelper.COLUMN_CLIMB, entry.getmClimb());
                values.put( ExerciseEntryDbHelper.COLUMN_HEARTRATE, entry.getmHeartRate());
@@ -210,6 +214,7 @@ public class ExerciseEntry {
                         + "  mComment  " + ex.getmComment()
                         + "  mPrivacy   " + ex.getmPrivacy()
                         + "  mLocationList:  " + ex.getmLocationList()
+                        + "  mSpeed:  " + ex.getmSpeed()
                 );
         }
 
