@@ -53,6 +53,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
@@ -98,9 +99,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     
     private String from_who;
     private  String which_input;
-
-
-
 
     private ServiceConnection mConnection = this; // as we implement ServiceConnection
     private Messenger mServiceMessenger = null;
@@ -187,9 +185,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         if (from_who != null && which_input != null ){
             outState.putString(INPUT_STATE_KEY, which_input);
             outState.putString(FROM_STATE_KEY, from_who);
-
-
-
         }
     }
 
