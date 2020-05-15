@@ -121,21 +121,15 @@ public class ManualInputActivity extends AppCompatActivity {
         distanceLabel.setText(globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS));
 
 
-        if (getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("history_tab")){
+        if (getIntent().getStringExtra(MANUAL_INTENT_FROM) != null &&
+                getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("history_tab")){
+
             current_tab = 1;
-
-
            _id = getIntent().getStringExtra(DELETE_EXERCISE);
-
            id = Long.parseLong(_id);
-
-
-
             Log.d("DEBUG", "INSIDE MANUAL FROM *HISTORY* Tab and clicked on ID: " + id );
 
-
             mEntry = new ExerciseEntry(this);
-
             mEntry.open();
            // try {
                 Exercise e = mEntry.fetchEntryByIndex(id);
@@ -499,10 +493,12 @@ public class ManualInputActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manual_entry_menu, menu);
         //Set the appropriate button title depending on navigation context
-        if(getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("start_tab")){
+        if(getIntent().getStringExtra(MANUAL_INTENT_FROM) != null &&
+        getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("start_tab")){
             current_tab = 0;
             menu.getItem(0).setTitle("SAVE");
-        }else if (getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("history_tab")){
+        }else if (getIntent().getStringExtra(MANUAL_INTENT_FROM) != null &&
+        getIntent().getStringExtra(MANUAL_INTENT_FROM).equals("history_tab")){
             current_tab = 1;
             menu.getItem(0).setTitle("DELETE");
         }

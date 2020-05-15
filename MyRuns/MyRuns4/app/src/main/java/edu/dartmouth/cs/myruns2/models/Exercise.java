@@ -15,6 +15,7 @@ public class Exercise {
     private double mDistance;      // Distance traveled. Either in meters or feet.
     private double mAvgPace;       // Average pace
     private double mAvgSpeed;      // Average speed
+    private double mSpeed;      // Average speed
     private int mCalories;          // Calories burnt
     private double mClimb;         // Climb. Either in meters or feet.
     private int mHeartRate;        // Heart rate
@@ -87,6 +88,14 @@ public class Exercise {
 
     public void setmAvgSpeed(double mAvgSpeed) {
         this.mAvgSpeed = mAvgSpeed;
+    }
+
+    public double getmSpeed() {
+        return mSpeed;
+    }
+
+    public void setmSpeed(double mAvgSpeed) {
+        this.mSpeed = mSpeed;
     }
 
     public int getmCalories() {
