@@ -138,23 +138,23 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
 
         Intent intent = getIntent();
-        if(intent.getStringExtra(FROM) != null &&intent.getStringExtra(FROM).equals("start_tab")) {
+        from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
+        which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
+
+        if(from_who != null && from_who.equals("start_tab")) {
             mActivityName = ((Intent) intent).getStringExtra("activity_name");
             setActivityText(mActivityName);
             setCalorieText("0");
             setElevationDifText("0");
             setDistanceText("0");
-	    from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
-	    which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
+            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
+            mEditor1.putString("from_who", from_who).commit();
 
-	    SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
-	    SharedPreferences.Editor mEditor1 = mPrefs1.edit();
-	    mEditor1.putString("from_who", from_who).commit();
-
-	    SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
-	    SharedPreferences.Editor mEditor2 = mPrefs2.edit();
-	    mEditor2.putString("which_input", which_input).commit();
-        } else {
+            SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+            SharedPreferences.Editor mEditor2 = mPrefs2.edit();
+            mEditor2.putString("which_input", which_input).commit();
+        } else if(from_who.equals("history_tab")) {
             current_tab = 1;
             _id = intent.getStringExtra(DELETE_EXERCISE);
             id = Long.parseLong(_id);
@@ -208,12 +208,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(TAG, "onStart():start Tracking Service");
 	try {
 	    if(from_who.equals("start_tab")) {
-		//We only want to kick off broadcasting logic if we are starting a new gps entry
-		if(getIntent().getStringExtra(FROM) != null && getIntent().getStringExtra(FROM).equals("start_tab")) {
-			LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
-				new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-			startTrackingService();
-		}
+            //We only want to kick off broadcasting logic if we are starting a new gps entry
+            if(getIntent().getStringExtra(FROM) != null && getIntent().getStringExtra(FROM).equals("start_tab")) {
+                LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
+                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+                startTrackingService();
+            }
 	    }
 
 	} catch (Exception e){
@@ -341,18 +341,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         doUnbindService();
     }
 
-private void destroy(){
-    try {
-        doUnbindService();
-    } catch (Throwable t) {
-        Log.e(TAG, "Failed to unbind from the service", t);
-    }
+    private void destroy() {
+        try {
+            doUnbindService();
+        } catch (Throwable t) {
+            Log.e(TAG, "Failed to unbind from the service", t);
+        }
 
-    if (mLocationBroadcastReceiver != null) {
-        // stopService(new Intent(this, TrackingService.class));
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        if (mLocationBroadcastReceiver != null) {
+            // stopService(new Intent(this, TrackingService.class));
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        }
+        stopService(new Intent(this, TrackingService.class));
     }
-    stopService(new Intent(this, TrackingService.class));
     
     private boolean saveMapData() {
         //NOTE: I'm going to need to make the first 6 sections of locationString data about exercise
@@ -829,6 +830,7 @@ private void destroy(){
                 finish();
                 return true;
             case R.id.map_save:
+                Log.d("mAPPP SAVE WAS CLICKED ", "-------------");
                 if (current_tab == 0) {
                     task = new MapInputActivity.AsyncInsert();
                     task.execute();
@@ -836,6 +838,7 @@ private void destroy(){
                             "Saved",
                             Toast.LENGTH_SHORT).show();
                 } else if(current_tab == 1){
+                    Log.d("CURRENT TAB ! SHOULD BE DELETE", "-------------");
                     delete_task = new MapInputActivity.AsyncDelete();
                     delete_task.execute();
                     Toast.makeText(getApplicationContext(),
@@ -851,12 +854,13 @@ private void destroy(){
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("INSIDE ON CREATE OTPIONS MENU: " + from_who,"  ********");
         getMenuInflater().inflate(R.menu.map_activity_menu, menu);
         //Set the appropriate button title depending on navigation context
-        if(from_who.equals("start_tab")){
+        if(getIntent().getStringExtra(FROM).equals("start_tab")){
             current_tab = 0;
             menu.getItem(0).setTitle("SAVE");
-        }else if (from_who.equals("history_tab")){
+        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
             current_tab = 1;
             menu.getItem(0).setTitle("DELETE");
         }

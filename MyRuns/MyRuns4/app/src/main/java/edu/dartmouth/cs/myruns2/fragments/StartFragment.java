@@ -62,14 +62,10 @@ public class StartFragment extends Fragment implements AdapterView.OnItemSelecte
                         intent = new Intent(getActivity(), MapInputActivity.class);
                         intent.putExtra(MapInputActivity.FROM_MAPINPUT, FROM_START_TAB_AUTO);
                         intent.putExtra(MapInputActivity.FROM, "start_tab");
-
-
                     } else if(input.equals("GPS")){
                         intent = new Intent(getActivity(), MapInputActivity.class);
                         intent.putExtra(MapInputActivity.FROM_MAPINPUT, FROM_START_TAB_GPS);
                         intent.putExtra(MapInputActivity.FROM, "start_tab");
-
-
                     }
 
                     //Here we make sure our intent has be initialized and then pass in activity as extra string

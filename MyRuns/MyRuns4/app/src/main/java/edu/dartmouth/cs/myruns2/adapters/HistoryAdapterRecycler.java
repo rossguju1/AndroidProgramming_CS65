@@ -104,13 +104,11 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
                     dele_pos = position;
                 }
                 else {
-
-                    Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
-                    intent.putExtra(MapInputActivity.FROM, "history_tab");
-                    intent.putExtra(MapInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
-                    intent.putExtra(MapInputActivity.DELETE_ITEM, String.valueOf(position));
-                    ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
-
+//                    Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
+//                    intent.putExtra(MapInputActivity.FROM, "history_tab");
+//                    intent.putExtra(MapInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+//                    intent.putExtra(MapInputActivity.DELETE_ITEM, String.valueOf(position));
+//                    ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
                 }
             }
 
