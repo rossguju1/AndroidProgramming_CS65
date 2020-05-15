@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -85,13 +86,24 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
             public void onClick(View v) {
                 //int input = order.getmInputType();
                 if (order.getmInputType() == 0){
-                Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
-                intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
-                intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
-                intent.putExtra(ManualInputActivity.DELETE_ITEM, String.valueOf(position));
-                ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
-                dele_pos = position;
-                } else {
+                    Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
+                    intent.putExtra(ManualInputActivity.MANUAL_INTENT_FROM, FROM_HISTORY_TAB);
+                    intent.putExtra(ManualInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+                    intent.putExtra(ManualInputActivity.DELETE_ITEM, String.valueOf(position));
+                    ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
+                    dele_pos = position;
+                } else if(order.getmInputType() == 1){
+                    Toast.makeText(context.getApplicationContext(),
+                            "GPS ATTEMPT TO LOAD DATA",
+                            Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(v.getContext(), MapInputActivity.class);
+                    intent.putExtra(MapInputActivity.FROM, FROM_HISTORY_TAB);
+                    intent.putExtra(MapInputActivity.DELETE_EXERCISE, String.valueOf(order.getId()));
+                    intent.putExtra(MapInputActivity.DELETE_ITEM, String.valueOf(position));
+                    ((MainMyRunsActivity) v.getContext()).startActivityForResult(intent,1);
+                    dele_pos = position;
+                }
+                else {
 
                     Intent intent = new Intent(v.getContext(), ManualInputActivity.class);
                     intent.putExtra(MapInputActivity.FROM, "history_tab");

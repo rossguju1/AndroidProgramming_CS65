@@ -22,13 +22,14 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
     public static final String COLUMN_DURATION = "duration";
     public static final String COLUMN_DISTANCE = "distance";
     public static final String COLUMN_PACE = "avg_pace";
-    public static final String COLUMN_SPEED = "avg_speed";
+    public static final String COLUMN_AVGSPEED = "avg_speed";
     public static final String COLUMN_CALORIES = "calories";
     public static final String COLUMN_CLIMB = "climb";
     public static final String COLUMN_HEARTRATE = "heartrate";
     public static final String COLUMN_COMMENT = "comment";
     public static final String COLUMN_PRIVACY = "privacy";
     public static final String COLUMN_GPS = "gps_data";
+    public static final String COLUMN_SPEED = "speed";
 
     private static final String CREATE_TABLE_ENTRIES = "create table "
             + TABLE_EXERCISES + "("
@@ -39,14 +40,14 @@ public class ExerciseEntryDbHelper extends SQLiteOpenHelper{
             + COLUMN_DURATION + " integer not null, "
             + COLUMN_DISTANCE + " float, "
             + COLUMN_PACE + " float, "
-            + COLUMN_SPEED + " float, "
+            + COLUMN_AVGSPEED + " float, "
             + COLUMN_CALORIES + " integer, "
             + COLUMN_CLIMB + " float, "
             + COLUMN_HEARTRATE + " integer, "
             + COLUMN_COMMENT + " text, "
             + COLUMN_PRIVACY + " integer, "
-            + COLUMN_GPS + " text);";
-
+            + COLUMN_GPS + " text, "
+            + COLUMN_SPEED + " text);";
     // Constructor
     public ExerciseEntryDbHelper(Context context) {
         // DATABASE_NAME is, of course the name of the database, which is defined as a string constant
