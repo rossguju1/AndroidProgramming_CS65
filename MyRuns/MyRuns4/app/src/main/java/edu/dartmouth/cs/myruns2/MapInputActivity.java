@@ -51,6 +51,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.soundcloud.android.crop.Crop;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -76,6 +77,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String FROM_STATE_KEY = "from_state_key";
     private static final String ROTATED_KEY = "rotated_key";
     private static final String AR_MAJORITY_KEY = "ar_majority_key";
+    private static DecimalFormat df = new DecimalFormat("0.00");
     private GoogleMap mMap;
     public Marker startMarker;
     public Marker finishMarker;
@@ -85,11 +87,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     private String mActivityName;
     private float mSpeed;
-    private ArrayList<Float> speedCollection;
     private float mAvgSpeed;
-    private String mClimbed;
+    private float mClimbed;
     private String mCalorie;
-    private String mDistance;
+    private float mDistance = 0;
     private List<LatLng> points;
     private static final int PERMISSION_REQUEST_CODE = 1;
     private Marker mMaker;
@@ -116,6 +117,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private MapInputActivity.AsyncInsert task = null;
     private MapInputActivity.AsyncDelete delete_task = null;
     private ExerciseEntry mEntry;
+    private long startTime;
+    private long prevTime;
+    private float prevAltitude = -10000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,23 +142,25 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
 
         Intent intent = getIntent();
-        if(intent.getStringExtra(FROM) != null &&intent.getStringExtra(FROM).equals("start_tab")) {
+        from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
+        which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
+
+        if(from_who != null && from_who.equals("start_tab")) {
             mActivityName = ((Intent) intent).getStringExtra("activity_name");
             setActivityText(mActivityName);
+            setAvgSpeedText(mAvgSpeed);
+            setCurSpeedText(mSpeed);
             setCalorieText("0");
-            setElevationDifText("0");
-            setDistanceText("0");
-	    from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
-	    which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
+            setElevationDifText(mClimbed);
+            setDistanceText(mDistance);
+            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
+            mEditor1.putString("from_who", from_who).commit();
 
-	    SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
-	    SharedPreferences.Editor mEditor1 = mPrefs1.edit();
-	    mEditor1.putString("from_who", from_who).commit();
-
-	    SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
-	    SharedPreferences.Editor mEditor2 = mPrefs2.edit();
-	    mEditor2.putString("which_input", which_input).commit();
-        } else {
+            SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+            SharedPreferences.Editor mEditor2 = mPrefs2.edit();
+            mEditor2.putString("which_input", which_input).commit();
+        } else if(from_who.equals("history_tab")) {
             current_tab = 1;
             _id = intent.getStringExtra(DELETE_EXERCISE);
             id = Long.parseLong(_id);
@@ -166,13 +172,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Exercise e = mEntry.fetchEntryByIndex(id);
             setActivityText(globs.getValue_str(globs.ACT, e.getmActivityType()));
             if (globs.CURRENT_UNITS == 1) {
-                setDistanceText(String.valueOf(KilometersToMiles(e.getmDistance())));
+                setDistanceText(Float.parseFloat(KilometersToMiles(e.getmDistance())));
             } else {
-                setDistanceText(String.valueOf(e.getmDistance()));
+                setDistanceText((float)e.getmDistance());
             }
             setCalorieText(String.valueOf(e.getmCalories()));
             setCurSpeedText((float)e.getmSpeed());
             setAvgSpeedText((float)e.getmAvgSpeed());
+            setElevationDifText((float)e.getmClimb());
+            setDistanceText((float)e.getmDistance());
             //This fills our points ArrayList
             parseMapData(e.getmLocationList());
             //Now update our map from the saved data
@@ -208,12 +216,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(TAG, "onStart():start Tracking Service");
 	try {
 	    if(from_who.equals("start_tab")) {
-		//We only want to kick off broadcasting logic if we are starting a new gps entry
-		if(getIntent().getStringExtra(FROM) != null && getIntent().getStringExtra(FROM).equals("start_tab")) {
-			LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
-				new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-			startTrackingService();
-		}
+            //We only want to kick off broadcasting logic if we are starting a new gps entry
+            if(getIntent().getStringExtra(FROM) != null && getIntent().getStringExtra(FROM).equals("start_tab")) {
+                LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
+                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+                startTrackingService();
+            }
 	    }
 
 	} catch (Exception e){
@@ -341,18 +349,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         doUnbindService();
     }
 
-private void destroy(){
-    try {
-        doUnbindService();
-    } catch (Throwable t) {
-        Log.e(TAG, "Failed to unbind from the service", t);
-    }
+    private void destroy() {
+        try {
+            doUnbindService();
+        } catch (Throwable t) {
+            Log.e(TAG, "Failed to unbind from the service", t);
+        }
 
-    if (mLocationBroadcastReceiver != null) {
-        // stopService(new Intent(this, TrackingService.class));
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        if (mLocationBroadcastReceiver != null) {
+            // stopService(new Intent(this, TrackingService.class));
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        }
+        stopService(new Intent(this, TrackingService.class));
     }
-    stopService(new Intent(this, TrackingService.class));
     
     private boolean saveMapData() {
         //NOTE: I'm going to need to make the first 6 sections of locationString data about exercise
@@ -419,6 +428,11 @@ private void destroy(){
         return formatted;
     }
 
+    public float KPHtoMPH(float kilometer){
+        float mph = (float) (kilometer / 1.609);
+        return mph;
+    }
+
     private LatLng fromLocationToLatLng(Location location) {
         return new LatLng(location.getLatitude(), location.getLongitude());
     }
@@ -461,22 +475,47 @@ private void destroy(){
                         .width(5)
                         .color(Color.BLUE));
             } else {
+                LatLng prev = points.get(points.size() -1);
+                float[] dist = {(float)0};
+                Location.distanceBetween(latlng.latitude, latlng.longitude,prev.latitude,prev.longitude, dist);
+                mDistance = mDistance + (float)dist[dist.length -1];
+                setDistanceText(mDistance);
                 points.add(latlng);
                 line.setPoints(points);
-            }
 
-            //Calculate our speed and avgspeed
-            mSpeed = location.getSpeed();
-            if(speedCollection != null){
-                speedCollection.add(mSpeed);
-            }else {
-                speedCollection = new ArrayList<Float>();
-                speedCollection.add(mSpeed);
-            }
+                //Calculate our speed and avgspeed
 
-            setCurSpeedText(mSpeed);
-            mAvgSpeed = calculateAvgSpeed(speedCollection);
-            setAvgSpeedText(mAvgSpeed);
+                if(prevTime == 0) {
+                    long curTime = System.currentTimeMillis();
+                    long timeElapsed = curTime - prevTime;
+                    long totalTimeElapsed = curTime - startTime;
+                    mSpeed = (mDistance * 1000) / (timeElapsed / 3600000);
+                    mAvgSpeed = (mDistance * 1000) / (totalTimeElapsed / 3600000);
+                    prevTime = curTime;
+                } else {
+                    prevTime = System.currentTimeMillis();
+                    startTime = System.currentTimeMillis();
+                }
+                //Set text with appropriate units
+                if (globs.CURRENT_UNITS == 1) {
+                    setCurSpeedText(KPHtoMPH(mSpeed));
+                    setAvgSpeedText(KPHtoMPH(mAvgSpeed));
+                } else {
+                    setCurSpeedText(mSpeed);
+                    setAvgSpeedText(mAvgSpeed);
+                }
+
+                //if we have a prev alt check diff and calculated climb
+                if(prevAltitude != -10000){
+                    float curAlt = (float) location.getAltitude();
+                    if(prevAltitude < curAlt){
+                        mClimbed = mClimbed + (curAlt - prevAltitude);
+                    }
+                }else {
+                    prevAltitude = (float) location.getAltitude();
+                }
+                setElevationDifText(mClimbed);
+            }
         }
     }
 
@@ -772,34 +811,19 @@ private void destroy(){
         }
     }
 
-    public void setCurSpeedText(Float speed) {
+    public void setCurSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.cur_speed);
-        if(speed != null){
-            activity.setText("Speed: " + speed + " m/s");
-        }
-    }
-
-    public float calculateAvgSpeed(ArrayList<Float> speeds) {
-        float sum = 0;
-        if(speeds != null){
-            for(float speed : speeds){
-                sum = sum + speed;
-            }
-            return sum/speeds.size();
-        }
-        return (float)0;
+        activity.setText("Speed: " + df.format(speed) + " m/s");
     }
 
     public void setAvgSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.avg_speed);
-        activity.setText("Activity: " + speed + " m/s");
+        activity.setText("Avg Speed: " + df.format(speed) + " m/s");
     }
 
-    public void setElevationDifText(String elevation) {
+    public void setElevationDifText(float elevation) {
         TextView activity = (TextView) findViewById(R.id.elevation_dif);
-        if(elevation != null){
-            activity.setText("Climbed: " + elevation + " m");
-        }
+        activity.setText("Climbed: " + df.format(elevation) + " m");
     }
 
     public void setCalorieText(String calorie) {
@@ -809,11 +833,9 @@ private void destroy(){
         }
     }
 
-    public void setDistanceText(String distance) {
+    public void setDistanceText(float distance) {
         TextView activity = (TextView) findViewById(R.id.distance);
-        if(distance != null){
-            activity.setText("Distance: " + distance + " m");
-        }
+        activity.setText("Distance: " + df.format(distance) + " m");
     }
     
     @Override
@@ -829,6 +851,7 @@ private void destroy(){
                 finish();
                 return true;
             case R.id.map_save:
+                Log.d("mAPPP SAVE WAS CLICKED ", "-------------");
                 if (current_tab == 0) {
                     task = new MapInputActivity.AsyncInsert();
                     task.execute();
@@ -836,6 +859,7 @@ private void destroy(){
                             "Saved",
                             Toast.LENGTH_SHORT).show();
                 } else if(current_tab == 1){
+                    Log.d("CURRENT TAB ! SHOULD BE DELETE", "-------------");
                     delete_task = new MapInputActivity.AsyncDelete();
                     delete_task.execute();
                     Toast.makeText(getApplicationContext(),
@@ -851,12 +875,13 @@ private void destroy(){
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d("INSIDE ON CREATE OTPIONS MENU: " + from_who,"  ********");
         getMenuInflater().inflate(R.menu.map_activity_menu, menu);
         //Set the appropriate button title depending on navigation context
-        if(from_who.equals("start_tab")){
+        if(getIntent().getStringExtra(FROM).equals("start_tab")){
             current_tab = 0;
             menu.getItem(0).setTitle("SAVE");
-        }else if (from_who.equals("history_tab")){
+        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
             current_tab = 1;
             menu.getItem(0).setTitle("DELETE");
         }
