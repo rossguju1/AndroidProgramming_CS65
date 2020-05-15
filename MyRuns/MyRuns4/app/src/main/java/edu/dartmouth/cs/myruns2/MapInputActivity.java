@@ -1,5 +1,6 @@
 package edu.dartmouth.cs.myruns2;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -9,9 +10,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
@@ -21,6 +25,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,13 +59,16 @@ import edu.dartmouth.cs.myruns2.models.Constants;
 import edu.dartmouth.cs.myruns2.services.LocationService;
 import edu.dartmouth.cs.myruns2.services.TrackingService;
 
-public class MapInputActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapInputActivity extends AppCompatActivity implements OnMapReadyCallback, ServiceConnection {
     public static final String FROM = "from intent";
     public static final String DELETE_ITEM = "delete_item";
     public static final String DELETE_EXERCISE = "delete_exercise";
     private static final String DEBUG_TAG = "MapInputActivity";
-    private static final String TAG = "MapsActivity";
+    private static final String TAG = "MapInputActivity";
     public static final String FROM_MAPINPUT = "from_mapinput";
+    private static final String INPUT_STATE_KEY = "input_state_key";
+    private static final String FROM_STATE_KEY = "from_state_key";
+    private static final String ROTATED_KEY = "rotated_key";
     private GoogleMap mMap;
     public Marker startMarker;
     public Marker finishMarker;
@@ -77,6 +89,20 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private Intent serviceIntent;
     private int current_tab;
     String coords = "";
+    private String from_who;
+    private  String which_input;
+
+
+    private ServiceConnection mConnection = this; // as we implement ServiceConnection
+    private Messenger mServiceMessenger = null;
+    private final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
+    boolean mIsBound;
+
+    boolean mRotated = false;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +129,42 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         setCalorieText("0");
         setElevationDifText("0");
         setDistanceText("0");
+
+       from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
+       which_input = getIntent().getStringExtra(FROM_MAPINPUT);//gets auto or gps
+
+        SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+        SharedPreferences.Editor mEditor1 = mPrefs1.edit();
+        mEditor1.putString("from_who", from_who).commit();
+
+        SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+        SharedPreferences.Editor mEditor2 = mPrefs2.edit();
+        mEditor2.putString("which_input", which_input).commit();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (from_who != null && which_input != null ){
+            outState.putString(INPUT_STATE_KEY, which_input);
+            outState.putString(FROM_STATE_KEY, from_who);
+
+
+        }
+
+    }
+
+    // save data across orientation changes.
+    // comment them out and see what will happen (textviews will disappear and appear)
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            which_input = savedInstanceState.getString(INPUT_STATE_KEY);
+            from_who = savedInstanceState.getString(FROM_STATE_KEY);
+            mRotated = savedInstanceState.getBoolean(ROTATED_KEY);
+        }
+        super.onRestoreInstanceState(savedInstanceState);
     }
 
     @Override
@@ -110,23 +172,28 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         super.onStart();
         Log.d(DEBUG_TAG, "onStart");
         Log.d(TAG, "onStart():start Tracking Service");
+try {
+    if(from_who.equals("start_tab")) {
 
-        if(getIntent().getStringExtra(FROM).equals("start_tab")) {
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(mLocationBroadcastReceiver,
-                    new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
-
-
-            LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
-                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocationBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
 
 
-            startTrackingService();
-        }
+        LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
 
-        if(getIntent().getStringExtra(FROM).equals("history_tab")) {
 
-        }
+        startTrackingService();
+    }
+
+    if(from_who.equals("history_tab")) {
+
+    }
+
+} catch (Exception e){
+    Log.d(DEBUG_TAG, "onStart() Exception ");
+}
+
     }
 
     BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
@@ -224,24 +291,27 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
+
+        //sendMessageToService(Constants.MSG_PAUSE);
+        SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+        from_who = mPrefs1.getString("from_who", "");
+
+
+        SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+        which_input = mPrefs2.getString("which_input", "");
+        if(TrackingService.isRunning()){
+            doBindService(new Intent(this, TrackingService.class));
+        }
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
-        if(getIntent().getStringExtra(FROM).equals("start_tab")) {
+        if(from_who.equals("start_tab")) {
+            sendMessageToService(Constants.MSG_PAUSE);
 
-
-        if(mLocationBroadcastReceiver!= null){
-            stopService(new Intent(this, TrackingService.class));
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
-        }
-
-        if(mActivityBroadcastReceiver != null){
-            stopService(new Intent(this,TrackingService.class));
-            LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
-        }
         }
     }
 
@@ -250,8 +320,31 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
+        doUnbindService();
+        //destroy();
+
+
+
+    }
+private void destroy(){
+    try {
+        doUnbindService();
+    } catch (Throwable t) {
+        Log.e(TAG, "Failed to unbind from the service", t);
     }
 
+    if (mLocationBroadcastReceiver != null) {
+        // stopService(new Intent(this, TrackingService.class));
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+    }
+
+    if (mActivityBroadcastReceiver != null) {
+        //  stopService(new Intent(this,TrackingService.class));
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
+    }
+    stopService(new Intent(this, TrackingService.class));
+
+}
 //    @Override
 //    public boolean onOptionsItemSelected(MenuItem item) {
 //        //Menu bar clicks
@@ -364,14 +457,157 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void startTrackingService() {
         serviceIntent = new Intent(this, TrackingService.class);
-        if (getIntent().getStringExtra(FROM_MAPINPUT).equals("auto")){
-            serviceIntent.putExtra(TrackingService.TRACKING_TYPE, "auto");
 
-        }else{
-            serviceIntent.putExtra(TrackingService.TRACKING_TYPE, "gps");
-        }
-        startForegroundService(serviceIntent);
+
+        mIsBound = false; // by default set this to unbound
+        automaticBind(serviceIntent);
+
     }
+    private void automaticBind(Intent intent) {
+        //if (TrackingService.isRunning()) {
+            Log.d(TAG, "C:MyService.isRunning: doBindService()");
+            doBindService(intent);
+      //  }
+    }
+
+    private void doBindService(Intent intent) {
+        Log.d(TAG, "C:doBindService()");
+
+        // pass mConnection to tell the server it is this activity that is trying to bind to the server.
+        //
+        // For bindService(Intent, ServiceConnection, flag) if flag Context.BIND_AUTO_CREATE is used
+        // it will bind the service and start the service, but if "0" is used, method will return true and
+        // will not start service until a call like startService(Intent) is made to start the service.
+        // One of the common use of "0" is in the case where an activity to connect to a local service if that
+        // service is running, otherwise you can start the service.
+
+        bindService(intent, mConnection, 0);// http://stackoverflow.com/questions/14746245/use-0-or-bind-auto-create-for-bindservices-flag
+        mIsBound = true;
+        startForegroundService(intent);
+    }
+
+
+    private void doUnbindService() {
+        Log.d(TAG, "C:doUnBindService()");
+        if (mIsBound) {
+            // If we have received the service, and hence registered with it,
+            // then now is the time to unregister.
+            if (mServiceMessenger != null) {
+                try {
+                    Message msg = Message.obtain(null, Constants.MSG_UNREGISTER_CLIENT);//  obtain (Handler h, int what) - 'what' is the tag of the message, which will be used in line 72 in MyService.java. Returns a new Message from the global message pool. More efficient than creating and allocating new instances.
+                    //Log.d(TAG, "C: TX MSG_UNREGISTER_CLIENT");
+                    msg.replyTo = mMessenger;
+                    mServiceMessenger.send(msg);// need to use the server messenger to send the message to the server
+                } catch (RemoteException e) {
+                    // There is nothing special we need to do if the service has
+                    // crashed.
+                }
+            }
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
+
+
+    @Override
+    public void onServiceConnected(ComponentName name, IBinder service) {
+        Log.d(TAG, "C:onServiceConnected()");
+        // this is the Messenger defined in line 49 of MyService.java
+        mServiceMessenger = new Messenger(service);
+        try {
+            if(which_input.equals("auto")) {
+                Message msg = Message.obtain(null, Constants.MSG_REGISTER_CLIENT, Constants.MSG_AUTO, Constants.MSG_START_FRAGMENT);
+                msg.replyTo = mMessenger;
+                Log.d(TAG, "C: TX MSG_REGISTER_CLIENT: AUTO");
+
+                // We use service Messenger to send the msg to the Server
+                mServiceMessenger.send(msg);
+            } else if(which_input.equals("gps")) {
+                Message msg = Message.obtain(null, Constants.MSG_REGISTER_CLIENT, Constants.MSG_GPS, Constants.MSG_START_FRAGMENT);
+                msg.replyTo = mMessenger;
+                Log.d(TAG, "C: TX MSG_REGISTER_CLIENT: GPS");
+
+                // We use service Messenger to send the msg to the Server
+                mServiceMessenger.send(msg);
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "RemoteException", e);
+        }
+    }
+
+
+    /**
+     * Send data to the service
+     *
+     * @param intvaluetosend The data to send
+     */
+    private void sendMessageToService(int intvaluetosend) {
+        if (mIsBound) {
+            if (mServiceMessenger != null) {
+                try {
+                    Message msg = Message.obtain(null, Constants.MSG_SET_INT_VALUE, intvaluetosend, 0);// http://developer.android.com/intl/es/reference/android/os/Message.html#obtain()
+                    msg.replyTo = mMessenger;
+                    // we use the server messenger to send msg to the server
+                    mServiceMessenger.send(msg);
+                } catch (RemoteException e) {
+                }
+            }
+        }
+    }
+
+    private class IncomingMessageHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            Log.d(TAG, "C:IncomingHandler:handleMessage " + msg.replyTo);
+            switch (msg.what) {
+                case Constants.MSG_SET_INT_VALUE:
+                    Log.d(TAG, "C: RX MSG_SET_INT_VALUE");
+                    // msg.arg1 here as only arg1 was used to store data in the server class.
+                    Log.d(DEBUG_TAG, "Tracking Service echos:  "+  msg.arg1);
+                    if (msg.arg1 == Constants.MSG_GPS ){
+
+                        which_input = "gps";
+                    }
+                    if( msg.arg1 == Constants.MSG_AUTO){
+                        which_input = "auto";
+
+                    }
+                    if (msg.arg1 == Constants.MSG_HISTORYFRAGMENT){
+                        from_who = "history_fragment";
+
+                    }
+                    if (msg.arg1 == Constants.MSG_START_FRAGMENT){
+                        from_who = "start_fragment";
+                    }
+                    break;
+
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
+    // This is called when the connection with the service has been
+    // established, giving us the service object we can use to
+    // interact with the service.
+
+    // bindService(new Intent(this, MyService.class), mConnection,
+    // Context.BIND_AUTO_CREATE) calls onbind in the service which
+    // returns an IBinder to the client.
+
+    // this class implements ServiceConnection so onServiceConnected needs to be implemented.
+    // onServiceConnected() is called when binding to the server is successful.
+
+    @Override
+    public void onServiceDisconnected(ComponentName name) {
+        Log.d(TAG, "C:onServiceDisconnected()");
+        // This is called when the connection with the service has been
+        // unexpectedly disconnected - process crashed.
+        mServiceMessenger = null;
+
+    }
+
 
     private final LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
@@ -559,6 +795,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                         "Moved Back",
                         Toast.LENGTH_SHORT).show();
                 NavUtils.navigateUpFromSameTask(this);
+                destroy();
+                finish();
                 return true;
             case R.id.ManualEntryBttn:
                 if (current_tab == 0){
@@ -567,8 +805,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                             Toast.LENGTH_SHORT).show();
                     //database save entry
                 } else if(current_tab == 1){
-
+                    // this is
                 }
+                destroy();
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -578,10 +818,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.manual_entry_menu, menu);
         //Set the appropriate button title depending on navigation context
-        if(getIntent().getStringExtra(FROM).equals("start_tab")){
+        if(from_who.equals("start_tab")){
             current_tab = 0;
             menu.getItem(0).setTitle("SAVE");
-        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
+        }else if (from_who.equals("history_tab")){
             current_tab = 1;
             menu.getItem(0).setTitle("DELETE");
         }
