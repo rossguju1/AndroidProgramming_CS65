@@ -77,6 +77,21 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String FROM_STATE_KEY = "from_state_key";
     private static final String ROTATED_KEY = "rotated_key";
     private static final String AR_MAJORITY_KEY = "ar_majority_key";
+
+    private static final float Running = (float) 12.5;
+    private static final float Walking = (float) 3.5;
+    private static final float Standing = (float) 1.2;
+    private static final float Cycling = (float) 10;
+    private static final float Hiking = (float) 6;
+    private static final float DownhillSkiing = (float) 6;
+    private static final float XCSkiing = (float) 8;
+    private static final float Snowboarding = (float) 8;
+    private static final float Skating = (float) 7;
+    private static final float Swimming = (float) 10;
+    private static final float MountainBiking = (float) 8.5;
+    private static final float Wheelchair = (float) 8;
+    private static final float Elliptical = (float) 5;
+
     private static DecimalFormat df = new DecimalFormat("0.00");
     private GoogleMap mMap;
     public Marker startMarker;
@@ -89,7 +104,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private float mSpeed;
     private float mAvgSpeed;
     private float mClimbed;
-    private String mCalorie;
+    private float mCalorie;
     private float mDistance = 0;
     private List<LatLng> points;
     private static final int PERMISSION_REQUEST_CODE = 1;
@@ -118,7 +133,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private MapInputActivity.AsyncDelete delete_task = null;
     private ExerciseEntry mEntry;
     private long startTime;
-    private long prevTime;
+    private long prevTime = 0;
     private float prevAltitude = -10000;
 
 
@@ -158,7 +173,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
             setAvgSpeedText(mAvgSpeed);
             setCurSpeedText(mSpeed);
-            setCalorieText("0");
+            setCalorieText(mCalorie);
             setElevationDifText(mClimbed);
             setDistanceText(mDistance);
             SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
@@ -185,7 +200,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             } else {
                 setDistanceText((float)e.getmDistance());
             }
-            setCalorieText(String.valueOf(e.getmCalories()));
+            setCalorieText((float)e.getmCalories());
             setCurSpeedText((float)e.getmSpeed());
             setAvgSpeedText((float)e.getmAvgSpeed());
             setElevationDifText((float)e.getmClimb());
@@ -513,13 +528,23 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
                 //Calculate our speed and avgspeed
 
-                if(prevTime == 0) {
+                if(prevTime != 0) {
                     long curTime = System.currentTimeMillis();
                     long timeElapsed = curTime - prevTime;
                     long totalTimeElapsed = curTime - startTime;
-                    mSpeed = (mDistance * 1000) / (timeElapsed / 3600000);
-                    mAvgSpeed = (mDistance * 1000) / (totalTimeElapsed / 3600000);
+                    mSpeed = (mDistance * 1000) / ((float)timeElapsed / (float)3600000);
+                    mAvgSpeed = (mDistance * 1000) / ((float)totalTimeElapsed / (float)3600000);
                     prevTime = curTime;
+
+                    //Also want to update calories using time elapsed
+
+                    //Calc calories provides estimate for calories per hour, multiply by duration in hours
+                    //for the total calories burned
+                    mCalorie = (calcCalories(getMetValue(mActivityName)) * ((float)totalTimeElapsed / (float)3600000));
+                    Log.d("HERE WE HAVE CALORIES ********!: ",String.valueOf(mCalorie));
+                    Log.d("HERE WE HAVE duration ********!: ",String.valueOf((float)totalTimeElapsed / (float)3600000));
+                    Log.d("HERE WE HAVE Cal/Hour ********!: ",String.valueOf(calcCalories(getMetValue(mActivityName))));
+                    setCalorieText(mCalorie);
                 } else {
                     prevTime = System.currentTimeMillis();
                     startTime = System.currentTimeMillis();
@@ -543,6 +568,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     prevAltitude = (float) location.getAltitude();
                 }
                 setElevationDifText(mClimbed);
+
             }
         }
     }
@@ -829,7 +855,51 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         else
             return false;
     }
-    //****** Check run time permission ************
+
+    public float getMetValue(String activity){
+        switch(activity) {
+            case "Running":
+                return Running;
+            case "Walking":
+                return Walking;
+            case "Standing":
+                return Standing;
+            case "Cycling":
+                return Cycling;
+            case "Hiking":
+                return Hiking;
+            case "Downhill Skiing":
+                return DownhillSkiing;
+            case "Cross-Country Skiing":
+                return XCSkiing;
+            case "Snowboarding":
+                return Snowboarding;
+            case "Skating":
+                return Skating;
+            case "Swimming":
+                return Swimming;
+            case "Mountain Biking":
+                return MountainBiking;
+            case "Wheelchair":
+                return Wheelchair;
+            case "Elliptical":
+                return Elliptical;
+            default:
+                return (float)0.0;
+        }
+    }
+
+    //Calculate our calories burned for each activity
+    public float calcCalories(float MET){
+        // (METs x 3.5 x (your body weight in kilograms) / 200) * 60 = calories burned per hour
+        // https://www.healthline.com/health/what-are-mets#calorie-connection
+        // Assume avg weight of 80kg
+        // Assume moderate effort
+        // MET values by Activity:
+        // https://community.plu.edu/~chasega/met.html
+
+        return (float) ((MET * 3.5 * 80 / 200)*60);
+    }
 
     // Setters for our map overlay text
     public void setActivityText(String activityName) {
@@ -841,12 +911,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     public void setCurSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.cur_speed);
-        activity.setText("Speed: " + df.format(speed) + " m/s");
+        activity.setText("Speed: " + df.format(speed/360000) + " m/s");
     }
 
     public void setAvgSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.avg_speed);
-        activity.setText("Avg Speed: " + df.format(speed) + " m/s");
+        activity.setText("Avg Speed: " + df.format(speed/360000) + " m/s");
     }
 
     public void setElevationDifText(float elevation) {
@@ -854,11 +924,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         activity.setText("Climbed: " + df.format(elevation) + " m");
     }
 
-    public void setCalorieText(String calorie) {
+    public void setCalorieText(float calorie) {
         TextView activity = (TextView) findViewById(R.id.calorie);
-        if(calorie != null){
-            activity.setText("Calorie: " + calorie + " cal");
-        }
+        activity.setText("Calorie: " + df.format(calorie) + " cal");
     }
 
     public void setDistanceText(float distance) {
