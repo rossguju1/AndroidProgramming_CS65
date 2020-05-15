@@ -121,6 +121,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private long prevTime;
     private float prevAltitude = -10000;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,10 +145,17 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Intent intent = getIntent();
         from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
         which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
+        saveInstanceInfo();
 
         if(from_who != null && from_who.equals("start_tab")) {
-            mActivityName = ((Intent) intent).getStringExtra("activity_name");
-            setActivityText(mActivityName);
+            if (which_input.equals("auto")){
+                setActivityText("Unknown");
+                globs.initAR_majority();
+
+            } else{
+                mActivityName = ((Intent) intent).getStringExtra("activity_name");
+                setActivityText(mActivityName);
+            }
             setAvgSpeedText(mAvgSpeed);
             setCurSpeedText(mSpeed);
             setCalorieText("0");
@@ -157,9 +165,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             SharedPreferences.Editor mEditor1 = mPrefs1.edit();
             mEditor1.putString("from_who", from_who).commit();
 
-            SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
-            SharedPreferences.Editor mEditor2 = mPrefs2.edit();
-            mEditor2.putString("which_input", which_input).commit();
+            // SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+            // SharedPreferences.Editor mEditor2 = mPrefs2.edit();
+            // mEditor2.putString("which_input", which_input).commit();
+
         } else if(from_who.equals("history_tab")) {
             current_tab = 1;
             _id = intent.getStringExtra(DELETE_EXERCISE);
@@ -215,15 +224,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(DEBUG_TAG, "onStart");
         Log.d(TAG, "onStart():start Tracking Service");
 	try {
-	    if(from_who.equals("start_tab")) {
             //We only want to kick off broadcasting logic if we are starting a new gps entry
-            if(getIntent().getStringExtra(FROM) != null && getIntent().getStringExtra(FROM).equals("start_tab")) {
-                LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
-                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-                startTrackingService();
-            }
+	    if(from_who != null && from_who.equals("start_tab")) {
+		LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
+		    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+		startTrackingService();
 	    }
-
 	} catch (Exception e){
 	    Log.d(DEBUG_TAG, "onStart() Exception ");
 	}
@@ -264,8 +270,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
                 int type = intent.getIntExtra("type", -1);
                 int confidence = intent.getIntExtra("confidence", 0);
+
+                if (confidence>70){
+
+                    setActivityText(handleUserActivity(type, confidence));
+                    globs.setAR_majority(type);
+
+                }
                 Log.d(TAG, "onReceive() AR " + "Type: " + type + "confidence: " + confidence);
-                Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
 
                 //handleUserActivity(type, confidence);
 
@@ -281,15 +294,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         String label = "Unknown";
         switch (type) {
             case DetectedActivity.IN_VEHICLE: {
-                label = "In_Vehicle";
+                label = "In Vehicle";
                 break;
             }
             case DetectedActivity.ON_BICYCLE: {
-                label = "On_Bicycle";
+                label = "On Bicycle";
                 break;
             }
             case DetectedActivity.ON_FOOT: {
-                label = "On_Foot";
+                label = "On Foot";
                 break;
             }
             case DetectedActivity.RUNNING: {
@@ -313,23 +326,28 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
         }
-        return label + " with " + confidence;
+        return label;
     }
     @Override
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
+        saveInstanceInfo();
 
-        //sendMessageToService(Constants.MSG_PAUSE);
+        if(TrackingService.isRunning()){
+            doBindService(new Intent(this, TrackingService.class));
+        }
+
+    }
+
+    public void saveInstanceInfo(){
+
         SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
         from_who = mPrefs1.getString("from_who", "");
 
 
         SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
         which_input = mPrefs2.getString("which_input", "");
-        if(TrackingService.isRunning()){
-            doBindService(new Intent(this, TrackingService.class));
-        }
 
     }
 
@@ -337,6 +355,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
+        saveInstanceInfo();
         if(from_who.equals("start_tab")) {
             sendMessageToService(Constants.MSG_PAUSE);
         }
@@ -381,15 +400,27 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                         location.getLatitude() + "," +
                         location.getLongitude() + "@";
             }
+            if(which_input.equals("gps")){
+                int input = globs.getValue_int(globs.IN, "GPS");
+                mExercise.setmInputType(input);
+                int activity = globs.getValue_int(globs.ACT, mActivityName);
+                mExercise.setmActivityType(activity);
+            } else {
+                int input = globs.getValue_int(globs.IN, "AUTO");
+                mExercise.setmInputType(input);
+                int _activity = globs.getAR_majorityMAJORITY();
+                mExercise.setmActivityType(_activity);
 
-            int input = globs.getValue_int(globs.IN, "GPS");
-            int activity = globs.getValue_int(globs.ACT, mActivityName);
+
+            }
+
+
             String time = _sdf_time.format(cal.getTime());
             String date = _sdf_date.format(cal.getTime());
             String date_time = date + " " + time;
             mExercise.setmLocationList(exerciseString);
-            mExercise.setmInputType(input);
-            mExercise.setmActivityType(activity);
+
+
             mExercise.setmDateTime(date_time);
             mExercise.setmAvgSpeed(mAvgSpeed);
             mExercise.setmSpeed(mSpeed);
@@ -404,14 +435,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void parseMapData(String data) {
         points = new ArrayList<LatLng>();
-        Log.d("Data HERE *********",data);
         String[] LatLongPairs = data.split("@");
         int counter = 0;
         String[] pair;
         for(String LatLngPair : LatLongPairs) {
             pair = LatLngPair.split(",");
-            Log.d("PAIR *************",pair[0]);
-            Log.d("PAIR *************",pair[1]);
             points.add(new LatLng(Double.valueOf(pair[0]),Double.valueOf(pair[1])));
         }
     }
@@ -725,9 +753,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     , PERMISSION_REQUEST_CODE);
         }
         else{
-            if(getIntent().getStringExtra(FROM).equals("start_tab")) {
+            if(from_who.equals("start_tab")) {
                 upDateMap();
-            } else if(getIntent().getStringExtra(FROM).equals("history_tab")){
+            } else if(from_who.equals("history_tab")){
                 setMapFromSave(points);
             }
         }
