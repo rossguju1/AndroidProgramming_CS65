@@ -54,6 +54,7 @@ import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
 import edu.dartmouth.cs.myruns2.database.ExerciseEntry;
@@ -74,6 +75,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private static final String INPUT_STATE_KEY = "input_state_key";
     private static final String FROM_STATE_KEY = "from_state_key";
     private static final String ROTATED_KEY = "rotated_key";
+    private static final String AR_MAJORITY_KEY = "ar_majority_key";
     private GoogleMap mMap;
     public Marker startMarker;
     public Marker finishMarker;

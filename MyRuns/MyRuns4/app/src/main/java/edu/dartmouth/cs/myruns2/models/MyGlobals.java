@@ -15,9 +15,12 @@ public class MyGlobals {
     Hashtable<String, Integer> INPUT_TYPES = new Hashtable<>();
     Hashtable<String, Integer> UNITS = new Hashtable<>();
 
+
     Hashtable<Integer, String> _ACTIVITY_TYPES = new Hashtable<>();
     Hashtable<Integer, String> _INPUT_TYPES = new Hashtable<>();
     Hashtable<Integer, String> _UNITS = new Hashtable<>();
+
+    Hashtable<Integer, Integer> AR_MAJORITY;
 
     public MyGlobals() {
         ACTIVITY_TYPES.put("Running",0);
@@ -88,4 +91,30 @@ public class MyGlobals {
         }
     return "NaN";
     }
+    public void initAR_majority(){
+       AR_MAJORITY = new Hashtable<>();
+       for(int i = 0; i < 8; i++){
+           AR_MAJORITY.put(i, 0);
+        }
+    }
+    public void setAR_majority(int activity){
+       int count = AR_MAJORITY.get(activity);
+
+       count = count + 1;
+
+       AR_MAJORITY.put(activity, count);
+
+    }
+
+    public int getAR_majorityMAJORITY(){
+        int max = -1;
+        for(int i = 0; i < 8; i++){
+            int curr_count = AR_MAJORITY.get(i);
+            if (curr_count > max){
+                max = curr_count;
+            }
+        }
+        return max;
+    }
+
 }
