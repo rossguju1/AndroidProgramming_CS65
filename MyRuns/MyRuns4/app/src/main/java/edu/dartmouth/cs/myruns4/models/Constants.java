@@ -8,7 +8,9 @@ public class Constants {
     public static final int MSG_START_FRAGMENT = 4;
     public static final int MSG_HISTORYFRAGMENT = 5;
     public static final int MSG_RESUME = 6;
-    public static final int MSG_DELETE = 7;
+    public static final int MSG_DESTROY = 7;
+    public static final int MSG_DELETE = 8;
+
 
     public static final int MSG_REGISTER_CLIENT = 1;
     public static final int MSG_UNREGISTER_CLIENT = 2;

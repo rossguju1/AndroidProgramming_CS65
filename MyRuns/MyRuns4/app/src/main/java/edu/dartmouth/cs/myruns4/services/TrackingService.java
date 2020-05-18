@@ -37,7 +37,6 @@ import java.util.List;
 import edu.dartmouth.cs.myruns4.MapInputActivity;
 import edu.dartmouth.cs.myruns4.models.Constants;
 
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 public class TrackingService extends Service {
     public static boolean isRunning = false;
@@ -65,7 +64,7 @@ public class TrackingService extends Service {
 
     private boolean Was_Paused = false;
 
-    private String coords = "";
+    public static String coords = "";
 
     private String activitylist = "";
 
@@ -106,21 +105,6 @@ public class TrackingService extends Service {
             stopMyService();
 
         }
-
-
-//       if (intent.getStringExtra(TRACKING_TYPE).equals("auto")){
-//        createARService();
-//
-//       } else if (intent.getStringExtra(TRACKING_TYPE).equals("gps")){
-//
-//           Log.d(TAG, "get intent in sevice: gps");
-//
-//
-//       }
-//
-//        createLocationService();
-//
-//
 
 
         return START_STICKY;
@@ -291,26 +275,7 @@ public class TrackingService extends Service {
                         createLocationService();
                         sendMessageToUI(input_type);
                     }
-                    if(isPaused){
-                        Log.d(TAG, "UNPAUSED");
-                        isPaused = false;
-                        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mLocationBroadcastReceiverLIST);
-                        Intent i = new Intent(Constants.BROADCAST_DETECTED_LOCATION_STRING);
-                        i.putExtra("location_strings", coords);
-                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
-                        if (input_type == Constants.MSG_AUTO) {
-                            LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mActivityBroadcastReceiverLIST);
-                            Intent intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY_STRING);
-                            intent.putExtra("activity_strings", activitylist);
-                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
 
-
-
-                        }
-                        activitylist = "";
-                        coords = "";
-
-                    }
                     break;
                 case Constants.MSG_UNREGISTER_CLIENT:
                     Log.d(TAG, "S: RX MSG_REGISTER_CLIENT:mClients.remove(msg.replyTo) ");
@@ -321,22 +286,27 @@ public class TrackingService extends Service {
                 case Constants.MSG_SET_INT_VALUE:
                     mMessage = msg.arg1;
                     sendMessageToUI(mMessage);
-                   /* if (mMessage==Constants.MSG_PAUSE){
-                        Log.d(TAG, "RECIEVED PAUSED");
+
+                    if (mMessage == Constants.MSG_PAUSE){
+                        Log.d(TAG, "IS PAUSED");
                         isPaused = true;
+                    }
+                    if (mMessage == Constants.MSG_DESTROY && isPaused){
+                        Log.d(TAG, "IS DESTROYED");
 
-                        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverLIST,
-                                new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_LIST));
-                        if (input_type == Constants.MSG_AUTO) {
+                        Log.d(TAG, "SAVED COORDS: " + coords);
 
-                            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiverLIST,
-                                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_LIST));
-                        }
+
+
+                    }
+                    if (mMessage == Constants.MSG_DELETE){
+                        Log.d(TAG, "IS DELETED");
+                        coords = "";
+
 
 
                     }
 
-                    */
                     break;
                 default:
                     super.handleMessage(msg);
@@ -344,22 +314,18 @@ public class TrackingService extends Service {
         }
     }
 
-
-
-    BroadcastReceiver mLocationBroadcastReceiverLIST = new BroadcastReceiver() {
+    BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Log.d(TAG, "onReceive()");
-            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION_LIST)) {
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION)) {
 
-                Location location = intent.getParcelableExtra("location_list");
+                Location location = intent.getParcelableExtra("location");
 
-                Log.d(TAG, "onReceive() Locations LIST: " + location.getLongitude() + location.getLatitude());
-
+                Log.d(TAG, "onReceive() Locations " + location.getLongitude() + location.getLatitude());
                 if (coords.equals("")){
                     coords = coords + location.getLongitude() + "," + location.getLatitude();
                 } else {
-                    coords = coords + "@"  + location.getLongitude() + "," + location.getLatitude();
+                    coords = coords + "|"  + location.getLongitude() + "," + location.getLatitude();
                 }
 
                 Log.d(TAG, "cumalative Locations: " + coords);
@@ -368,29 +334,6 @@ public class TrackingService extends Service {
             }
         }
     };
-
-    BroadcastReceiver mActivityBroadcastReceiverLIST = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Log.d(TAG, "onReceive()");
-            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY_LIST)) {
-
-                int type = intent.getIntExtra("type_list", -1);
-                int confidence = intent.getIntExtra("confidence_list", 0);
-                String temp = "";
-                temp = type + "," + confidence;
-                if (activitylist.equals("")){
-                    activitylist = activitylist + temp;
-                } else {
-                    activitylist = activitylist + "@"+temp;
-                }
-
-                Log.d(TAG, "ACTIVITY LIST:  " + activitylist);
-
-            }
-        }
-    };
-
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "S:onBind() - return mMessenger.getBinder()");
@@ -421,14 +364,6 @@ public class TrackingService extends Service {
                 Message msg_int = Message.obtain(null, Constants.MSG_SET_INT_VALUE, intvaluetosend, 0);
                 messenger.send(msg_int);
 
-//                Bundle bundle = new Bundle();//Bundle is generally used for passing data between various activities of android. It depends on you what type of values you want to pass, but bundle can hold all types of values, and pass to the new activity.
-//                bundle.putString("str1", "ab" + intvaluetosend + "cd");
-//                // you need to tell the client what type of data it receives.Here it is MSG_SET_STRING_VALUE type.
-//                Message msg_str = Message.obtain(null, MSG_SET_STRING_VALUE);
-//                msg_str.setData(bundle);
-//                Log.d(TAG, "S:TX MSG_SET_STRING_VALUE");
-//                messenger.send(msg_str);
-
             } catch (RemoteException e) {
                 // The client is dead. Remove it from the list.
                 mClients.remove(messenger);
@@ -448,7 +383,7 @@ public class TrackingService extends Service {
         locationRequest.setFastestInterval(FAST_INTERVAL);
 
 
-        Log.d(TAG, "onStartCommand()");
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         Intent mIntentService = new Intent(this, LocationService.class);
         mPendingIntent = PendingIntent.getService(this,

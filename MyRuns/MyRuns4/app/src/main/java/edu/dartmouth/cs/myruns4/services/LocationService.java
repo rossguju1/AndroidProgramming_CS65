@@ -64,17 +64,10 @@ public class LocationService extends IntentService {
     private void broadcastLocation(Location loc) {
         Log.d(TAG,TAG+ "broadcastLocation()");
 
-        Intent i;
-        if (TrackingService.isPaused){
-
-             i = new Intent(Constants.BROADCAST_DETECTED_LOCATION_LIST);
-            i.putExtra("location_list", loc);
-            LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-        }else{
-             i = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
+        Intent i = new Intent(Constants.BROADCAST_DETECTED_LOCATION);
             i.putExtra("location", loc);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-        }
+
 
     }
 }

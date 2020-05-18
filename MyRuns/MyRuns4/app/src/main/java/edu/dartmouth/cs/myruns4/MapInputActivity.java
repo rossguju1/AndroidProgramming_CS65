@@ -28,6 +28,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -68,8 +69,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public static final String FROM_MAPINPUT = "from_mapinput";
     private static final String INPUT_STATE_KEY = "input_state_key";
     private static final String FROM_STATE_KEY = "from_state_key";
-    private static final String ROTATED_KEY = "rotated_key";
-    private static final String AR_MAJORITY_KEY = "ar_majority_key";
+
 
     //MET Values for calorie calculation
     private static final float Running = (float) 12.5;
@@ -87,6 +87,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private static final float Elliptical = (float) 5;
 
     private static DecimalFormat df = new DecimalFormat("0.00");
+
     private GoogleMap mMap;
     public Marker startMarker;
     public Marker finishMarker;
@@ -105,11 +106,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private Marker mMaker;
     private Intent serviceIntent;
     private int current_tab;
-    private boolean deleteService = false;
-    String coords = "";
+    public static String coords = "";
     
     private String from_who;
     private  String which_input;
+    private boolean mDestroy = false;
 
     private ServiceConnection mConnection = this; // as we implement ServiceConnection
     private Messenger mServiceMessenger = null;
@@ -144,11 +145,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Map");
+
         setContentView(R.layout.activity_map_input);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) this);
-        //globs = new MyGlobals();
 
 
         Intent intent = getIntent();
@@ -156,9 +157,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
 
         if (from_who == null){
-
+            // if this intent was destroyed then check if it was created by another intent and load
+            // info if null
             getInstanceInfo();
         } else {
+            // save basic info into shared preferences
             SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
             SharedPreferences.Editor mEditor1 = mPrefs1.edit();
             mEditor1.putString("from_who", from_who).commit();
@@ -193,22 +196,21 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Log.d(DEBUG_TAG, "Saving start Time:  " + start);
 
         }
-
+        // if the start tab made this intent
         if(from_who != null && from_who.equals("start_tab")) {
             Log.d(DEBUG_TAG, "which input1:  " + which_input);
 
             if (which_input.equals("auto")) {
                 Log.d(DEBUG_TAG, "which input2:  " + which_input);
+                // initialize the majority algo
                 globs.initAR_majority();
                 setActivityText("Unknown");
-                // globs.initAR_majority();
 
             } else{
-                //mActivityName = ((Intent) intent).getStringExtra("activity_name");
                 Log.d(DEBUG_TAG, "mActivity Name " + mActivityName);
                 setActivityText(mActivityName);
             }
-
+            // set up the screen
             setAvgSpeedText(mAvgSpeed);
             Log.d("ATTEMPTING SET HERE ***","HERE!!!!");
             setCurSpeedText(mSpeed);
@@ -216,7 +218,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setElevationDifText(mClimbed);
             setDistanceText(mDistance);
 
-
+        // if this intent was created by history_tab
+            // then set up it up for deletion
         } else if(from_who.equals("history_tab")) {
             current_tab = 1;
             _id = intent.getStringExtra(DELETE_EXERCISE);
@@ -277,39 +280,33 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Log.d(TAG, "onStart(): Tracking service not yet running");
             //We only want to kick off broadcasting logic if we are starting a new gps entry
             if (from_who != null && from_who.equals("start_tab")) {
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
-                        new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
-                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
-                startTrackingService();
+
+
+//                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
+//                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
+//
+//                if(which_input.equals("auto")) {
+//                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
+//                            new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+//
+//                }
 
             }
         } else {
-
             Log.d(TAG, "onStart(): Tracking service is already Running");
-            if (TrackingService.isPaused && TrackingService.isRunning()){
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
-                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_STRING));
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
-                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
-                if (which_input.equals("auto")){
-                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
-                            new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiverString,
-                            new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_STRING));
-                }
-
-                startTrackingService();
-
-            }
-
-
-        }
+//            if (TrackingService.isPaused){
+////                coords = TrackingService.coords;
+////                Log.d(DEBUG_TAG, "onStart(): Coords: " + coords);
+////                TrackingService.isPaused = false;
+////
+////               // TrackingService.isPaused = false;
+//            }
+	    }
 	} catch (Exception e){
 	    Log.d(DEBUG_TAG, "onStart() Exception ");
-	}
+	    }
     }
-
+// this is the broadcast reciever for location intents
     BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -319,9 +316,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
                 Log.d(TAG, "onReceive() Locations " + location.getLongitude() + location.getLatitude());
                 if (coords.equals("")){
-                    coords = coords + location.getLongitude() + "," + location.getLatitude();
+                    coords = coords + location.getLatitude() + "," + location.getLongitude();
                 } else {
-                    coords = coords + "|"  + location.getLongitude() + "," + location.getLatitude();
+                    coords = coords + "@"  +  location.getLatitude() + "," + location.getLongitude();
                 }
 
                 Log.d(TAG, "cumalative Locations: " + coords);
@@ -330,7 +327,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     };
-
+// this is the broadcast reciever for activity intents
     BroadcastReceiver mActivityBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -339,6 +336,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 int type = intent.getIntExtra("type", -1);
                 int confidence = intent.getIntExtra("confidence", 0);
                 if (globs != null) {
+                    // once we recieve an AR broadcast
+                    // if it is greater than 70 in confidence
+                    // save it and then update screen
                     if (confidence > 70) {
                         try {
                             setActivityText(globs.getValue_str(globs.ACT, convertUserActivity(type)));
@@ -355,34 +355,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     };
-    BroadcastReceiver  mLocationBroadcastReceiverString =new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Log.d(TAG, "onReceive()");
-            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION_STRING)) {
-                String locs = intent.getStringExtra("location_strings");
 
-
-
-                Log.d(DEBUG_TAG, "onReceive() Locations list (String))   " + locs);
-
-            }
-        }
-    };
-    BroadcastReceiver mActivityBroadcastReceiverString =new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            // Log.d(TAG, "onReceive()");
-            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY_STRING)) {
-                String activity_list = intent.getStringExtra("activity_strings");
-
-
-
-                Log.d(DEBUG_TAG, "onReceive() Activity list (String))   " + activity_list);
-
-            }
-        }
-    };
+// this is used to convert AR activity types to our activity types
     private int convertUserActivity(int type){
         int label = -1;
 
@@ -424,54 +398,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
         return label;
     }
-    private String handleUserActivity(int type, int confidence) {
-        String label = "Unknown";
-        switch (type) {
-            case DetectedActivity.IN_VEHICLE: {
-                label = "In Vehicle";
-                break;
-            }
-            case DetectedActivity.ON_BICYCLE: {
-                label = "On Bicycle";
-                break;
-            }
-            case DetectedActivity.ON_FOOT: {
-                label = "On Foot";
-                break;
-            }
-            case DetectedActivity.RUNNING: {
-                label = "Running";
-                break;
-            }
-            case DetectedActivity.STILL: {
-                label = "Still";
-                break;
-            }
-            case DetectedActivity.TILTING: {
-                label = "Tilting";
-                break;
-            }
-            case DetectedActivity.WALKING: {
-                label = "Walking";
-                break;
-            }
-            case DetectedActivity.UNKNOWN: {
-                break;
-            }
 
-        }
-        return label;
-    }
     @Override
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
+        if (TrackingService.isPaused){
 
-
-
+            coords = TrackingService.coords;
+            //TrackingService.isPaused = false;
+        }
 
     }
-
+// this method saves basic information in shared preferences
     public void getInstanceInfo(){
 
         SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
@@ -497,35 +436,27 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
+        // send message to service that it is pausing
+        sendMessageToService(Constants.MSG_PAUSE);
 
-        /*
-
-        if(from_who.equals("start_tab")) {
-            sendMessageToService(Constants.MSG_PAUSE);
-            if (mLocationBroadcastReceiver != null) {
-                // stopService(new Intent(this, TrackingService.class));
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
-            }
-            if (mActivityBroadcastReceiver != null) {
-                LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
-            }
-            doUnbindService();
-            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
-                    new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_STRING));
-            if (which_input.equals("auto")) {
-                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
-                        new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_STRING));
-            }
-
-        }
-
-         */
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
+        Log.d(DEBUG_TAG, "COORDS NOT DELETED YET: " + coords);
+
+        if (mDestroy){
+            //actually delete coordinates in tracking service
+            TrackingService.coords = "";
+            coords = "";
+        }else {
+            //we want to store our current coordinates in TrackingService
+            TrackingService.coords = TrackingService.coords + coords;
+            sendMessageToService(Constants.MSG_DESTROY);
+        }
+
 
     }
 
@@ -537,11 +468,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         if (mLocationBroadcastReceiver != null) {
-            // stopService(new Intent(this, TrackingService.class));
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
         }
         if (mActivityBroadcastReceiver != null) {
-            // stopService(new Intent(this, TrackingService.class));
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
         }
         stopService(new Intent(this, TrackingService.class));
@@ -593,7 +522,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             String time = _sdf_time.format(cal.getTime());
             String date = _sdf_date.format(cal.getTime());
             String date_time = date + " " + time;
-            mExercise.setmLocationList(exerciseString);
+           // mExercise.setmLocationList(exerciseString);
+            Log.d(DEBUG_TAG, "SAVING Coords:  "+ coords);
+            mExercise.setmLocationList(coords);
 
 
             mExercise.setmDateTime(date_time);
@@ -618,13 +549,20 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void parseMapData(String data) {
+        Log.d(DEBUG_TAG, "parseMapData: " + data);
         points = new ArrayList<LatLng>();
         String[] LatLongPairs = data.split("@");
         int counter = 0;
         String[] pair;
         for(String LatLngPair : LatLongPairs) {
-            pair = LatLngPair.split(",");
-            points.add(new LatLng(Double.valueOf(pair[0]),Double.valueOf(pair[1])));
+            try {
+                pair = LatLngPair.split(",");
+                Log.d(DEBUG_TAG, "Long: " + Double.valueOf(pair[0]));
+                Log.d(DEBUG_TAG, "Lat: " + Double.valueOf(pair[1]));
+                points.add(new LatLng(Double.valueOf(pair[0]), Double.valueOf(pair[1])));
+            } catch (Exception e){
+                Log.d(DEBUG_TAG, "Extra deliminator");
+            }
         }
     }
 
@@ -752,9 +690,14 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     private void startTrackingService() {
 
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
 
+        if(which_input.equals("auto")) {
+            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
+                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
 
-
+        }
 
         serviceIntent = new Intent(getApplicationContext(), TrackingService.class);
         serviceIntent.setAction("start");
@@ -802,7 +745,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (mServiceMessenger != null) {
                 try {
                     Message msg = Message.obtain(null, Constants.MSG_UNREGISTER_CLIENT);//  obtain (Handler h, int what) - 'what' is the tag of the message, which will be used in line 72 in MyService.java. Returns a new Message from the global message pool. More efficient than creating and allocating new instances.
-
 
                     msg.replyTo = mMessenger;
                     mServiceMessenger.send(msg);// need to use the server messenger to send the message to the server
@@ -929,6 +871,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        Log.d(DEBUG_TAG, "onMapReady()");
         mMap = googleMap;
         if (!checkPermission()){
             ActivityCompat.requestPermissions(this, new String[]{
@@ -938,7 +881,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
         else{
             if(from_who.equals("start_tab")) {
+                if (TrackingService.isPaused) {
+
+
+                    coords = coords + "@";
+                    Log.d(DEBUG_TAG, "about to parse the coords: " + coords);
+                    parseMapData(coords);
+                    setMapFromSave(points);
+                    TrackingService.isPaused = false;
+
+                }
                 upDateMap(null);
+
+
             } else if(from_who.equals("history_tab")){
                 setMapFromSave(points);
             }
@@ -946,7 +901,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void upDateMap(Location loc) {
-
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -956,13 +910,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             //NOT SURE IF I NEED THIS
             ActivityCompat.requestPermissions(this, new String[]{
                     Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSION_REQUEST_CODE);
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
         if (loc == null) {
@@ -993,6 +941,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             // Update our camera to our current location
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
             updateWithNewLocation(l);
+            startTrackingService();
         } else {
 
             LatLng latlng = fromLocationToLatLng(loc);
@@ -1151,7 +1100,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 finish();
                 return true;
             case R.id.map_save:
-                Log.d("mAPPP SAVE WAS CLICKED ", "-------------");
+                Log.d(DEBUG_TAG, "SAVE WAS CLICKED ");
                 if (current_tab == 0) {
                     task = new MapInputActivity.AsyncInsert();
                     task.execute();
@@ -1159,7 +1108,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                             "Saved",
                             Toast.LENGTH_SHORT).show();
                 } else if(current_tab == 1){
-                    Log.d("CURRENT TAB ! SHOULD BE DELETE", "-------------");
+                    Log.d(DEBUG_TAG, "SHOULD BE DELETE");
                     delete_task = new MapInputActivity.AsyncDelete();
                     delete_task.execute();
                     Toast.makeText(getApplicationContext(),
@@ -1210,6 +1159,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG_TAG, "INSERT THREAD DONE");
+            mDestroy = true;
+            sendMessageToService(Constants.MSG_DELETE);
             task = null;
             Intent intent=new Intent();
             Log.d(DEBUG_TAG, "INSERT THREAD  passing ID  " + id );
@@ -1218,19 +1169,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setResult(2, intent);
 
 
-            if (mLocationBroadcastReceiver != null) {
-                // stopService(new Intent(this, TrackingService.class));
-                LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mLocationBroadcastReceiver);
-            }
-            if (mActivityBroadcastReceiver != null) {
-                // stopService(new Intent(this, TrackingService.class));
-                LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mActivityBroadcastReceiver);
-            }
-
-            doUnbindService();
-
-
-            stopService(new Intent(getApplicationContext(), TrackingService.class));
+            destroy();
 
             finish();
 
@@ -1280,9 +1219,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
             setResult(1, intent);
             finish();
-
-
-
 
 
         }

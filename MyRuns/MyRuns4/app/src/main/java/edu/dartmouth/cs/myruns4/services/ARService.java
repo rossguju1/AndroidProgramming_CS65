@@ -52,22 +52,11 @@ public class ARService extends IntentService {
     }
 
     private void broadcastActivity(DetectedActivity activity) {
-        // Log.d(TAG,TAG+ "broadcastActivity()");
 
-        Intent intent;
-        if (TrackingService.isPaused) {
-
-            intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY_LIST);
-            intent.putExtra("type_list", activity.getType());
-            intent.putExtra("confidence_list", activity.getConfidence());
-            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
-
-        } else {
-            intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY);
+        Intent intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY);
             intent.putExtra("type", activity.getType());
             intent.putExtra("confidence", activity.getConfidence());
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        }
+
     }
 }
