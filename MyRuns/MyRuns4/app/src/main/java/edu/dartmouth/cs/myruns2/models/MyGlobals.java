@@ -110,10 +110,12 @@ public class MyGlobals {
 
     public int getAR_majorityMAJORITY(){
         int max = -1;
+        int max_act = -1;
         for(int i = 0; i < 8; i++){
             int curr_count = AR_MAJORITY.get(i);
             Log.d("MyGlobals", "getAR_majority(): i= "+i +"current_count: "+curr_count);
             if (curr_count > max){
+                max_act = i;
                 max = curr_count;
             }
         }
@@ -121,7 +123,7 @@ public class MyGlobals {
         if (max == 0){
             return 4;
         }else {
-            return max;
+            return max_act;
         }
     }
 
