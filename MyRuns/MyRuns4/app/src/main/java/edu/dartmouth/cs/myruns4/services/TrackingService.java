@@ -6,8 +6,12 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.location.Location;
+import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -16,6 +20,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.android.gms.location.ActivityRecognitionClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -44,6 +49,7 @@ public class TrackingService extends Service {
     //public static final String BROADCAST_LOCATION = "location update";
     private NotificationManager notificationManger;
     private PendingIntent mPendingIntent;
+    public static boolean isPaused = false;
     private FusedLocationProviderClient fusedLocationClient;
     LocationRequest locationRequest;
 
@@ -58,6 +64,10 @@ public class TrackingService extends Service {
     private int mMessage = -1;
 
     private boolean Was_Paused = false;
+
+    private String coords = "";
+
+    private String activitylist = "";
 
 
 
@@ -82,12 +92,21 @@ public class TrackingService extends Service {
 
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.d(TAG, "TrackingService: onStartCommand(): Thread ID is:" + Thread.currentThread().getId());
-        createNotification();
-        isRunning = true;
+        Log.d(TAG, "onStartCommand: getAction()" + intent.getAction());
+        if (intent != null && intent.getAction().equals("start")) {
+            isRunning = true;
+            Log.d(TAG, "TrackingService: onStartCommand(): Thread ID is:" + Thread.currentThread().getId());
+
+            createNotification();
+        } else {
+            stopMyService();
+
+        }
+
 
 //       if (intent.getStringExtra(TRACKING_TYPE).equals("auto")){
 //        createARService();
@@ -111,8 +130,10 @@ public class TrackingService extends Service {
 
 
     private void createNotification() {
-        Intent notificationIntent = new Intent(this, MapInputActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        Intent notificationIntent = new Intent(getApplicationContext(), MapInputActivity.class);
+        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
 
         // Create notification and its channel
         notificationManger = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -270,35 +291,105 @@ public class TrackingService extends Service {
                         createLocationService();
                         sendMessageToUI(input_type);
                     }
+                    if(isPaused){
+                        Log.d(TAG, "UNPAUSED");
+                        isPaused = false;
+                        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mLocationBroadcastReceiverLIST);
+                        Intent i = new Intent(Constants.BROADCAST_DETECTED_LOCATION_STRING);
+                        i.putExtra("location_strings", coords);
+                        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(i);
+                        if (input_type == Constants.MSG_AUTO) {
+                            LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mActivityBroadcastReceiverLIST);
+                            Intent intent = new Intent(Constants.BROADCAST_DETECTED_ACTIVITY_STRING);
+                            intent.putExtra("activity_strings", activitylist);
+                            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+
+
+
+                        }
+                        activitylist = "";
+                        coords = "";
+
+                    }
                     break;
                 case Constants.MSG_UNREGISTER_CLIENT:
                     Log.d(TAG, "S: RX MSG_REGISTER_CLIENT:mClients.remove(msg.replyTo) ");
                     mClients.remove(msg.replyTo);// each client has a dedicated Messanger to communicae with ther server.
                     input_type = msg.arg1;
+
                     break;
                 case Constants.MSG_SET_INT_VALUE:
                     mMessage = msg.arg1;
                     sendMessageToUI(mMessage);
+                   /* if (mMessage==Constants.MSG_PAUSE){
+                        Log.d(TAG, "RECIEVED PAUSED");
+                        isPaused = true;
 
-//                    if(mMessage == Constants.MSG_PAUSE){
-//                        Was_Paused = true;
-//                    }else if(mMessage == Constants.MSG_RESUME && Was_Paused){
-//
-//
-//                        sendMessageToUI(from_type);
-//                        sendMessageToUI(input_type);
-//                        Was_Paused = false;
-//                    } else{
-//                        sendMessageToUI(mMessage);
-//                    }
-                    Log.d(TAG, "S:handleMessage: " + msg.what + msg.replyTo +" message todo received:  " +  mMessage);
+                        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverLIST,
+                                new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_LIST));
+                        if (input_type == Constants.MSG_AUTO) {
 
+                            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiverLIST,
+                                    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_LIST));
+                        }
+
+
+                    }
+
+                    */
                     break;
                 default:
                     super.handleMessage(msg);
             }
         }
     }
+
+
+
+    BroadcastReceiver mLocationBroadcastReceiverLIST = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION_LIST)) {
+
+                Location location = intent.getParcelableExtra("location_list");
+
+                Log.d(TAG, "onReceive() Locations LIST: " + location.getLongitude() + location.getLatitude());
+
+                if (coords.equals("")){
+                    coords = coords + location.getLongitude() + "," + location.getLatitude();
+                } else {
+                    coords = coords + "@"  + location.getLongitude() + "," + location.getLatitude();
+                }
+
+                Log.d(TAG, "cumalative Locations: " + coords);
+
+
+            }
+        }
+    };
+
+    BroadcastReceiver mActivityBroadcastReceiverLIST = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY_LIST)) {
+
+                int type = intent.getIntExtra("type_list", -1);
+                int confidence = intent.getIntExtra("confidence_list", 0);
+                String temp = "";
+                temp = type + "," + confidence;
+                if (activitylist.equals("")){
+                    activitylist = activitylist + temp;
+                } else {
+                    activitylist = activitylist + "@"+temp;
+                }
+
+                Log.d(TAG, "ACTIVITY LIST:  " + activitylist);
+
+            }
+        }
+    };
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -373,6 +464,12 @@ public class TrackingService extends Service {
         mPendingIntentAR = PendingIntent.getService(this,
                 1, mIntentServiceAR, PendingIntent.FLAG_UPDATE_CURRENT);
         requestActivityUpdatesHandler();
+    }
+
+   public void stopMyService() {
+        stopForeground(true);
+        stopSelf();
+       isRunning = false;
     }
 
 }

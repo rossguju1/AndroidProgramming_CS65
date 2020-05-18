@@ -31,7 +31,9 @@
         <service
             android:name="edu.dartmouth.cs.myruns4.services.TrackingService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="true">
+
+        </service>
         <service
             android:name="edu.dartmouth.cs.myruns4.services.LocationService"
             android:enabled="true"
@@ -48,7 +50,8 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name="edu.dartmouth.cs.myruns4.MapInputActivity">
+        <activity android:name="edu.dartmouth.cs.myruns4.MapInputActivity"
+            android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.dartmouth.cs.myruns4.MainMyRunsActivity"

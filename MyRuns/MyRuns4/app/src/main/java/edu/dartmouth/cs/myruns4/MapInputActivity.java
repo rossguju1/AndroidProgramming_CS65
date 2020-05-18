@@ -105,6 +105,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private Marker mMaker;
     private Intent serviceIntent;
     private int current_tab;
+    private boolean deleteService = false;
     String coords = "";
     
     private String from_who;
@@ -182,12 +183,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
 
 
-            long start = System.currentTimeMillis();
+            start = System.currentTimeMillis();
             SharedPreferences mPrefs4 = getSharedPreferences("start", 0);
             SharedPreferences.Editor mEditor4 = mPrefs4.edit();
             mEditor4.putLong("start", start).commit();
 
+
+
             Log.d(DEBUG_TAG, "Saving start Time:  " + start);
+
         }
 
         if(from_who != null && from_who.equals("start_tab")) {
@@ -267,17 +271,40 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(DEBUG_TAG, "onStart");
         Log.d(TAG, "onStart():start Tracking Service");
 	try {
+	    if(!TrackingService.isRunning()) {
+            Log.d(TAG, "onStart(): Tracking service not yet running");
             //We only want to kick off broadcasting logic if we are starting a new gps entry
-	    if(from_who != null && from_who.equals("start_tab")) {
-		LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
-		    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
-            LocalBroadcastManager.getInstance(this).registerReceiver(mLocationBroadcastReceiver,
-                    new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
-		startTrackingService();
-	    }
+            if (from_who != null && from_who.equals("start_tab")) {
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
+                        new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
+                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
+                startTrackingService();
+
+            }
+        } else {
+
+            Log.d(TAG, "onStart(): Tracking service is already Running");
+            if (TrackingService.isPaused && TrackingService.isRunning()){
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
+                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_STRING));
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiver,
+                        new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
+                if (which_input.equals("auto")){
+                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiver,
+                            new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+                    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mActivityBroadcastReceiverString,
+                            new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_STRING));
+                }
+
+                startTrackingService();
+
+            }
+
+
+        }
 	} catch (Exception e){
 	    Log.d(DEBUG_TAG, "onStart() Exception ");
 	}
@@ -286,7 +313,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            // Log.d(TAG, "onReceive()");
             if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION)) {
 
                 Location location = intent.getParcelableExtra("location");
@@ -300,13 +326,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
                 Log.d(TAG, "cumalative Locations: " + coords);
 
-                // TODO
-                //  now create Async Task that updates the rest of the db entries
-                //  The async task not only updates the coordinates
-                //  but also updates calories, distance, duration, ect
-                //
-                //
-                //  TODO Then update the map
                 upDateMap(location);
             }
         }
@@ -332,19 +351,38 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     }
                 }
                 Log.d(TAG, "onReceive() AR " + "Type: " + type + "confidence: " + confidence);
-               // Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
 
-                //handleUserActivity(type, confidence);
-
-                // TODO psuedo code for  AsyncTask auto_insert()
-                //  if confidence > 70: update activity name
-                //  update the other parameters
-                //
-                //  TODO Then update the info in the corner of the screen
             }
         }
     };
+    BroadcastReceiver  mLocationBroadcastReceiverString =new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION_STRING)) {
+                String locs = intent.getStringExtra("location_strings");
 
+
+
+                Log.d(DEBUG_TAG, "onReceive() Locations list (String))   " + locs);
+
+            }
+        }
+    };
+    BroadcastReceiver mActivityBroadcastReceiverString =new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Log.d(TAG, "onReceive()");
+            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY_STRING)) {
+                String activity_list = intent.getStringExtra("activity_strings");
+
+
+
+                Log.d(DEBUG_TAG, "onReceive() Activity list (String))   " + activity_list);
+
+            }
+        }
+    };
     private int convertUserActivity(int type){
         int label = -1;
 
@@ -428,11 +466,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
-        getInstanceInfo();
 
-        if(TrackingService.isRunning()){
-            doBindService(new Intent(this, TrackingService.class));
-        }
+
+
 
     }
 
@@ -454,23 +490,43 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         SharedPreferences mPrefs4 = getSharedPreferences("start", 0);
         start = mPrefs4.getLong("start", 0);
 
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
-        getInstanceInfo();
+
+        /*
+
         if(from_who.equals("start_tab")) {
             sendMessageToService(Constants.MSG_PAUSE);
+            if (mLocationBroadcastReceiver != null) {
+                // stopService(new Intent(this, TrackingService.class));
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+            }
+            if (mActivityBroadcastReceiver != null) {
+                LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
+            }
+            doUnbindService();
+            LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
+                    new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION_STRING));
+            if (which_input.equals("auto")) {
+                LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mLocationBroadcastReceiverString,
+                        new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY_STRING));
+            }
+
         }
+
+         */
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
-        doUnbindService();
+
     }
 
     private void destroy() {
@@ -695,18 +751,22 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void startTrackingService() {
-        serviceIntent = new Intent(this, TrackingService.class);
 
+
+
+
+
+        serviceIntent = new Intent(getApplicationContext(), TrackingService.class);
+        serviceIntent.setAction("start");
 
         mIsBound = false; // by default set this to unbound
         automaticBind(serviceIntent);
 
     }
     private void automaticBind(Intent intent) {
-        //if (TrackingService.isRunning()) {
             Log.d(TAG, "C:MyService.isRunning: doBindService()");
             doBindService(intent);
-      //  }
+
     }
 
     private void doBindService(Intent intent) {
@@ -720,9 +780,17 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         // One of the common use of "0" is in the case where an activity to connect to a local service if that
         // service is running, otherwise you can start the service.
 
-        bindService(intent, mConnection, 0);// http://stackoverflow.com/questions/14746245/use-0-or-bind-auto-create-for-bindservices-flag
+       // bindService(intent, mConnection, 0);// http://stackoverflow.com/questions/14746245/use-0-or-bind-auto-create-for-bindservices-flag
         mIsBound = true;
-        startForegroundService(intent);
+
+
+        if(TrackingService.isRunning()){
+            Log.d(DEBUG_TAG, "Tracking Service is still Running!");
+            getApplicationContext().bindService(intent, mConnection, 0);
+        }else {
+            getApplicationContext().bindService(intent, mConnection, 0);
+            startForegroundService(intent);
+        }
     }
 
 
@@ -734,7 +802,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (mServiceMessenger != null) {
                 try {
                     Message msg = Message.obtain(null, Constants.MSG_UNREGISTER_CLIENT);//  obtain (Handler h, int what) - 'what' is the tag of the message, which will be used in line 72 in MyService.java. Returns a new Message from the global message pool. More efficient than creating and allocating new instances.
-                    //Log.d(TAG, "C: TX MSG_UNREGISTER_CLIENT");
+
+
                     msg.replyTo = mMessenger;
                     mServiceMessenger.send(msg);// need to use the server messenger to send the message to the server
                 } catch (RemoteException e) {
@@ -743,7 +812,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 }
             }
             // Detach our existing connection.
-            unbindService(mConnection);
+            getApplicationContext().unbindService(mConnection);
+            Log.d(TAG, "C:doUnBindService() Actually unbinded");
             mIsBound = false;
         }
     }
@@ -1096,12 +1166,17 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                             "Delete",
                             Toast.LENGTH_SHORT).show();
                 }
-                destroy();
-                finish();
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+    @Override
+    public void onNewIntent(Intent intent) {
+
+        super.onNewIntent(intent);
+        Log.d(DEBUG_TAG, "onNewIntent()");
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -1142,7 +1217,26 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
             setResult(2, intent);
 
+
+            if (mLocationBroadcastReceiver != null) {
+                // stopService(new Intent(this, TrackingService.class));
+                LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mLocationBroadcastReceiver);
+            }
+            if (mActivityBroadcastReceiver != null) {
+                // stopService(new Intent(this, TrackingService.class));
+                LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mActivityBroadcastReceiver);
+            }
+
+            doUnbindService();
+
+
+            stopService(new Intent(getApplicationContext(), TrackingService.class));
+
             finish();
+
+
+
+
         }
     }
     class AsyncDelete extends AsyncTask<Void, String, Void> {
@@ -1185,8 +1279,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Intent intent = new Intent();
             intent.putExtra(MainMyRunsActivity.MAIN_ITEM_TO_DELETE, String.valueOf(pos));
             setResult(1, intent);
-
             finish();
+
+
+
+
 
         }
     }
