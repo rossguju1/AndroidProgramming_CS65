@@ -119,6 +119,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private long startTime;
     private long prevTime;
     private float prevAltitude = -10000;
+    private long start;
+    private long finish;
+    private long timeElapsed;
+
 
 
     @Override
@@ -136,7 +140,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         mapFragment.getMapAsync((OnMapReadyCallback) this);
         //globs = new MyGlobals();
 
-     
+
         Intent intent = getIntent();
         from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
         which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
@@ -171,6 +175,16 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 SharedPreferences.Editor mEditor3 = mPrefs3.edit();
                 mEditor3.putString("mActivityName", mActivityName).commit();
             }
+
+
+            long start = System.currentTimeMillis();
+            SharedPreferences mPrefs4 = getSharedPreferences("start", 0);
+            SharedPreferences.Editor mEditor4 = mPrefs4.edit();
+            mEditor4.putLong("start", start).commit();
+
+            Log.d(DEBUG_TAG, "Saving start Time:  " + start);
+
+
         }
 
        // saveInstanceInfo();
@@ -194,13 +208,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setCalorieText("0");
             setElevationDifText(mClimbed);
             setDistanceText(mDistance);
-//            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
-//            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
-//            mEditor1.putString("from_who", from_who).commit();
 
-            // SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
-            // SharedPreferences.Editor mEditor2 = mPrefs2.edit();
-            // mEditor2.putString("which_input", which_input).commit();
 
         } else if(from_who.equals("history_tab")) {
             current_tab = 1;
@@ -309,9 +317,13 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 int confidence = intent.getIntExtra("confidence", 0);
                 if (globs != null) {
                     if (confidence > 70) {
+                        try {
+                            setActivityText(globs.getValue_str(globs.ACT, convertUserActivity(type)));
+                            globs.setAR_majority(type);
+                        } catch (Exception e){
 
-                        setActivityText(globs.getValue_str(globs.ACT, convertUserActivity(type)));
-                        globs.setAR_majority(type);
+                            Log.d(DEBUG_TAG, "Failed to update AR");
+                        }
 
                     }
                 }
@@ -435,6 +447,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Log.d(DEBUG_TAG, "getInstanceInfo(): " + mActivityName);
         }
 
+        SharedPreferences mPrefs4 = getSharedPreferences("start", 0);
+        start = mPrefs4.getLong("start", 0);
+
     }
 
     @Override
@@ -490,6 +505,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                         location.getLatitude() + "," +
                         location.getLongitude() + "@";
             }
+            Log.d(DEBUG_TAG, "SAVING MAP DATA:  "+ exerciseString);
             if(which_input.equals("gps")){
                 int input = globs.getValue_int(globs.IN, "GPS");
                 mExercise.setmInputType(input);
@@ -521,8 +537,17 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
 
             mExercise.setmDateTime(date_time);
+            Log.d(DEBUG_TAG, "SAVED: DATE/TIME: "+date_time);
             mExercise.setmAvgSpeed(mAvgSpeed);
+            Log.d(DEBUG_TAG, "SAVED: Average Speed: "+ mAvgSpeed);
             mExercise.setmSpeed(mSpeed);
+            Log.d(DEBUG_TAG, "SAVED: speed: " + mSpeed);
+            finish = System.currentTimeMillis();
+            long _timeElapsed = finish - start;
+            String temp = String.valueOf(_timeElapsed);
+            int exerTime = (Integer.parseInt(temp) / 60000);
+            Log.d(DEBUG_TAG, "SAVED: TIME ELAPSED: " + exerTime);
+            mExercise.setmDuration(exerTime);
             mEntry =  new ExerciseEntry(this);
             mEntry.open();
             id = mEntry.insertEntry(mExercise);
@@ -897,6 +922,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
             updateWithNewLocation(loc);
         }
+
+
 
     }
 

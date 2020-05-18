@@ -156,7 +156,7 @@ public class TrackingService extends Service {
             task.addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void result) {
-                    Log.d(TAG, "Successfully requested activity updates");
+                    Log.d(TAG, "Successfully requested Location updates");
                 }
             });
             // Adds a listener that is called if the Task fails.
@@ -268,10 +268,13 @@ public class TrackingService extends Service {
                     Log.d(TAG, "MSG REGISTER_CLIENT input type: " + input_type);
 
                     if (input_type == Constants.MSG_AUTO){
+                        Log.d(TAG, "Creating AR and Location Service");
+
                         createARService();
                         createLocationService();
                         sendMessageToUI(input_type);
                     } else if(input_type == Constants.MSG_GPS){
+                        Log.d(TAG, "Creating ONLY Location Service");
 
                         createLocationService();
                         sendMessageToUI(input_type);

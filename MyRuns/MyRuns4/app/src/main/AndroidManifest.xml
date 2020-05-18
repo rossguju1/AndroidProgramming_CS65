@@ -51,7 +51,8 @@
         <activity android:name=".MapInputActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.dartmouth.cs.myruns2.MainMyRunsActivity" />
+                android:value="edu.dartmouth.cs.myruns2.MainMyRunsActivity"
+                android:launchMode="singleTask"/>
         </activity>
         <activity android:name=".SettingsActivity">
             <meta-data
