@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="edu.dartmouth.cs.myruns2">
+    package="edu.dartmouth.cs.myruns4">
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -26,14 +26,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".services.ARService"
+            android:name="edu.dartmouth.cs.myruns4.services.ARService"
             android:exported="false"></service>
         <service
-            android:name=".services.TrackingService"
+            android:name="edu.dartmouth.cs.myruns4.services.TrackingService"
             android:enabled="true"
             android:exported="true" />
         <service
-            android:name=".services.LocationService"
+            android:name="edu.dartmouth.cs.myruns4.services.LocationService"
             android:enabled="true"
             android:exported="true" />
         <!--
@@ -48,33 +48,33 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".MapInputActivity">
+        <activity android:name="edu.dartmouth.cs.myruns4.MapInputActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.dartmouth.cs.myruns2.MainMyRunsActivity"
+                android:value="edu.dartmouth.cs.myruns4.MainMyRunsActivity"
                 android:launchMode="singleTask"/>
         </activity>
-        <activity android:name=".SettingsActivity">
+        <activity android:name="edu.dartmouth.cs.myruns4.SettingsActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.dartmouth.cs.myruns2.MainMyRunsActivity" />
+                android:value="edu.dartmouth.cs.myruns4.MainMyRunsActivity" />
         </activity>
-        <activity android:name=".ManualInputActivity">
+        <activity android:name="edu.dartmouth.cs.myruns4.ManualInputActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.dartmouth.cs.myruns2.MainMyRunsActivity" />
+                android:value="edu.dartmouth.cs.myruns4.MainMyRunsActivity" />
         </activity>
         <activity
-            android:name=".RegisterProfileActivity"
+            android:name="edu.dartmouth.cs.myruns4.RegisterProfileActivity"
             android:label="@string/profile_activity_label">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="edu.dartmouth.cs.myruns2.SigninActivity" />
+                android:value="edu.dartmouth.cs.myruns4.SigninActivity" />
         </activity>
         <activity
-            android:name=".MainMyRunsActivity"
+            android:name="edu.dartmouth.cs.myruns4.MainMyRunsActivity"
             android:label="@string/my_run_lable" />
-        <activity android:name=".SigninActivity">
+        <activity android:name="edu.dartmouth.cs.myruns4.SigninActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
