@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NavUtils;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.preference.PreferenceManager;
 
 import android.Manifest;
 import android.content.BroadcastReceiver;
@@ -959,17 +960,53 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     public void setCurSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.cur_speed);
-        activity.setText("Speed: " + df.format(speed) + " m/s");
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String units = sharedPreferences.getString("list_preference", "");
+
+        if(units.equals("kms")){
+            activity.setText("Speed: " + df.format(speed) + " m/s");
+
+        } else if (units.equals("mi")) {
+
+            activity.setText("Speed: " + df.format(speed) + " mph");
+
+        }
+
+
+
+
     }
 
     public void setAvgSpeedText(float speed) {
         TextView activity = (TextView) findViewById(R.id.avg_speed);
-        activity.setText("Avg Speed: " + df.format(speed) + " m/s");
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String units = sharedPreferences.getString("list_preference", "");
+
+        if(units.equals("kms")){
+            activity.setText("Avg Speed: " + df.format(speed) + " m/s");
+
+        } else if (units.equals("mi")) {
+
+            activity.setText("Avg Speed: " + df.format(speed) + " mph");
+
+        }
     }
 
     public void setElevationDifText(float elevation) {
         TextView activity = (TextView) findViewById(R.id.elevation_dif);
-        activity.setText("Climbed: " + df.format(elevation) + " m");
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String units = sharedPreferences.getString("list_preference", "");
+
+        if(units.equals("kms")){
+
+            activity.setText("Climbed: " + df.format(elevation) + " m");
+
+        } else if (units.equals("mi")) {
+            activity.setText("Climbed: " + df.format(elevation) + " ft");
+
+        }
     }
 
     public void setCalorieText(String calorie) {
@@ -981,7 +1018,18 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     public void setDistanceText(float distance) {
         TextView activity = (TextView) findViewById(R.id.distance);
-        activity.setText("Distance: " + df.format(distance) + " m");
+
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String units = sharedPreferences.getString("list_preference", "");
+
+        if(units.equals("kms")){
+            activity.setText("Distance: " + df.format(distance) + " m");
+
+        } else if (units.equals("mi")) {
+
+            activity.setText("Distance: " + df.format(distance) + " ft");
+        }
+
     }
     
     @Override

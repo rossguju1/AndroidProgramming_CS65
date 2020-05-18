@@ -3,12 +3,14 @@ package edu.dartmouth.cs.myruns2;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NavUtils;
+import androidx.preference.PreferenceManager;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.InputType;
@@ -524,15 +526,32 @@ public class ManualInputActivity extends AppCompatActivity {
         mExercise.setmInputType(input);
         mExercise.setmActivityType(activity);
         mExercise.setmDateTime(date_time);
-        if (globs.CURRENT_UNITS == 1 ){
-            double miles = Double.parseDouble(MilesToKilometers(Double.parseDouble(distance)));
-            Log.d("DEBUG", "IN MANUAL MILES  " + miles);
-            mExercise.setmDistance(miles);
-        } else {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String units = sharedPreferences.getString("list_preference", "");
+
+        if(units.equals("kms")){
             double kilo = Double.parseDouble(distance);
             mExercise.setmDistance(kilo);
             Log.d("DEBUG", "IN MANUAL KILOS   " + kilo);
+
+
+        } else if (units.equals("mi")) {
+
+            double miles = Double.parseDouble(MilesToKilometers(Double.parseDouble(distance)));
+            Log.d("DEBUG", "IN MANUAL MILES  " + miles);
+            mExercise.setmDistance(miles);
+
         }
+
+//        if (globs.CURRENT_UNITS == 1 ){
+//            double miles = Double.parseDouble(MilesToKilometers(Double.parseDouble(distance)));
+//            Log.d("DEBUG", "IN MANUAL MILES  " + miles);
+//            mExercise.setmDistance(miles);
+//        } else {
+//            double kilo = Double.parseDouble(distance);
+//            mExercise.setmDistance(kilo);
+//            Log.d("DEBUG", "IN MANUAL KILOS   " + kilo);
+//        }
 
         mExercise.setmDuration(Integer.parseInt(duration));
         mExercise.setmCalories(Integer.parseInt(calories));

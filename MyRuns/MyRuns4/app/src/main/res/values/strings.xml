@@ -56,7 +56,7 @@
     <string name="privacy_setting_summary">Changes Privacy</string>
     <string name="unit_preference_title">Unit Prefernce</string>
     <string name="unit_preference_summary">Select your Units</string>
-    <string name="settings_unit_preference">Unit Prefrence</string>
+    <string name="settings_unit_preference">Unit Preference</string>
     <string name="settings_class_homepage_title">Webpage</string>
     <string name="settings_class_homepage_address">http://cs.dartmouth.edu/~campbell/cs65/cs65.html</string>
     <string name="account_settings_title">Account Settings</string>
