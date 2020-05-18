@@ -136,20 +136,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         mapFragment.getMapAsync((OnMapReadyCallback) this);
         //globs = new MyGlobals();
 
-        // TODO check which intent created this activity
-        //  If start tab was the creating intent do the stuff now (i.e. getIntent()....)
-        //  If this was made by the history fragment (i.e. Recycler adapter)
-        //  Get the exercise and show the info in the corner of the map
-        //  and read the coordinates in the db and show them on the screen
-
-
+     
         Intent intent = getIntent();
         from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
         which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
         Log.d(DEBUG_TAG, "which input:  " + which_input);
+        Log.d(DEBUG_TAG, "from_who:  " + from_who);
 
 
-        if (from_who == null || which_input == null){
+        if (from_who == null){
 
             getInstanceInfo();
         } else {
@@ -159,7 +154,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             mEditor1.putString("from_who", from_who).commit();
             Log.d(DEBUG_TAG, "Saving from_who: " + from_who);
 
-
+            if (which_input == null){
+                which_input = "";
+            }
             SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
             SharedPreferences.Editor mEditor2 = mPrefs2.edit();
             mEditor2.putString("which_input", which_input).commit();
@@ -228,6 +225,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setDistanceText((float)e.getmDistance());
             //This fills our points ArrayList
             parseMapData(e.getmLocationList());
+            Log.d(DEBUG_TAG, "list of mLocation Points:  " + e.getmLocationList());
+
             //Now update our map from the saved data
             mEntry.close();
         }
@@ -279,6 +278,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION)) {
 
                 Location location = intent.getParcelableExtra("location");
+
                 Log.d(TAG, "onReceive() Locations " + location.getLongitude() + location.getLatitude());
                 if (coords.equals("")){
                     coords = coords + location.getLongitude() + "," + location.getLatitude();
@@ -295,7 +295,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 //
                 //
                 //  TODO Then update the map
-                upDateMap();
+                upDateMap(location);
             }
         }
     };
@@ -464,6 +464,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         if (mLocationBroadcastReceiver != null) {
             // stopService(new Intent(this, TrackingService.class));
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
+        }
+        if (mActivityBroadcastReceiver != null) {
+            // stopService(new Intent(this, TrackingService.class));
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
         }
         stopService(new Intent(this, TrackingService.class));
     }
@@ -810,25 +814,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
 
-    private final LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            Log.d(TAG, "onLocationChanged");
-            updateWithNewLocation(location);
-        }
-
-        public void onProviderDisabled(String provider) {
-            Log.d(TAG, "onProviderDisabled");
-        }
-
-        public void onProviderEnabled(String provider) {
-            Log.d(TAG, "onProviderEnabled");
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            Log.d(TAG, "onStatusChanged");
-        }
-    };
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -849,31 +834,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
         else{
             if(from_who.equals("start_tab")) {
-                upDateMap();
+                upDateMap(null);
             } else if(from_who.equals("history_tab")){
                 setMapFromSave(points);
             }
         }
     }
 
-    private void upDateMap() {
-        LocationManager locationManager;
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    private void upDateMap(Location loc) {
 
-        Criteria criteria = new Criteria();
-        // Note that fine as provider may return null object
-        // write defensive code that determines what might be the best provider
-        // to give the best last location see getLastKnownLocation() here
-        // https://stackoverflow.com/questions/20438627/getlastknownlocation-returns-null
-        //criteria.setAccuracy(Criteria.ACCURACY_FINE);
-//        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        criteria.setAltitudeRequired(true);
-        criteria.setBearingRequired(false);
-        criteria.setSpeedRequired(true);
-        criteria.setCostAllowed(true);
-        String provider = locationManager.getBestProvider(criteria, true);
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -892,23 +861,50 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        Location l = locationManager.getLastKnownLocation(provider);
+        if (loc == null) {
+            Log.d(DEBUG_TAG, "First time map is being made. Manually get location");
+            LocationManager locationManager;
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        LatLng latlng = fromLocationToLatLng(l);
+            Criteria criteria = new Criteria();
+            // Note that fine as provider may return null object
+            // write defensive code that determines what might be the best provider
+            // to give the best last location see getLastKnownLocation() here
+            // https://stackoverflow.com/questions/20438627/getlastknownlocation-returns-null
+            //criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//        criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            criteria.setAccuracy(Criteria.ACCURACY_COARSE);
+            criteria.setPowerRequirement(Criteria.POWER_LOW);
+            criteria.setAltitudeRequired(true);
+            criteria.setBearingRequired(false);
+            criteria.setSpeedRequired(true);
+            criteria.setCostAllowed(true);
+            String provider = locationManager.getBestProvider(criteria, true);
 
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        // Update our camera to our current location
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
-        updateWithNewLocation(l);
-        // update once every 2 second, min distance 0 therefore not considered
-        locationManager.requestLocationUpdates(provider, 2000, 0, locationListener);
+
+            Location l = locationManager.getLastKnownLocation(provider);
+
+            LatLng latlng = fromLocationToLatLng(l);
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            // Update our camera to our current location
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
+            updateWithNewLocation(l);
+        } else {
+
+            LatLng latlng = fromLocationToLatLng(loc);
+            mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+            // Update our camera to our current location
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
+            updateWithNewLocation(loc);
+        }
+
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG, "permission granted. Let's show the map");
-            upDateMap();
+            upDateMap(null);
         } else {
             Log.d(TAG, "permission denied! I am going to close the app");
             finish();
@@ -998,7 +994,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.d("INSIDE ON CREATE OTPIONS MENU: " + from_who,"  ********");
+        Log.d("INSIDE ON CREATE OPTIONS MENU: " + from_who,"  ********");
         getMenuInflater().inflate(R.menu.map_activity_menu, menu);
         //Set the appropriate button title depending on navigation context
         if(from_who.equals("start_tab")){
