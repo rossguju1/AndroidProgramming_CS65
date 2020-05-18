@@ -2,6 +2,8 @@ package edu.dartmouth.cs.myruns2.models;
 
 
 
+import android.util.Log;
+
 import java.util.*;
 
 public class MyGlobals {
@@ -110,11 +112,17 @@ public class MyGlobals {
         int max = -1;
         for(int i = 0; i < 8; i++){
             int curr_count = AR_MAJORITY.get(i);
+            Log.d("MyGlobals", "getAR_majority(): i= "+i +"current_count: "+curr_count);
             if (curr_count > max){
                 max = curr_count;
             }
         }
-        return max;
+
+        if (max == 0){
+            return 4;
+        }else {
+            return max;
+        }
     }
 
 }

@@ -105,7 +105,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     private Messenger mServiceMessenger = null;
     private final Messenger mMessenger = new Messenger(new IncomingMessageHandler());
     boolean mIsBound;
-    boolean mRotated = false;
 
     //Used for saving in DB
     private long id;
@@ -125,6 +124,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(DEBUG_TAG, "onCreate()");
+        globs = new MyGlobals();
         //Create action bar with back button and name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -133,7 +134,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync((OnMapReadyCallback) this);
-        globs = new MyGlobals();
+        //globs = new MyGlobals();
 
         // TODO check which intent created this activity
         //  If start tab was the creating intent do the stuff now (i.e. getIntent()....)
@@ -145,15 +146,50 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Intent intent = getIntent();
         from_who = getIntent().getStringExtra(FROM);//gets the name of who created this activity
         which_input = intent.getStringExtra(FROM_MAPINPUT);//gets auto or gps
-        saveInstanceInfo();
+        Log.d(DEBUG_TAG, "which input:  " + which_input);
+
+
+        if (from_who == null || which_input == null){
+
+            getInstanceInfo();
+        } else {
+
+            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
+            mEditor1.putString("from_who", from_who).commit();
+            Log.d(DEBUG_TAG, "Saving from_who: " + from_who);
+
+
+            SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
+            SharedPreferences.Editor mEditor2 = mPrefs2.edit();
+            mEditor2.putString("which_input", which_input).commit();
+            Log.d(DEBUG_TAG, "Saving which_input: " + which_input);
+
+            if (which_input.equals("gps")){
+                mActivityName = ((Intent) intent).getStringExtra("activity_name");
+
+                Log.d(DEBUG_TAG, "Saving ActivityName:  " + mActivityName);
+
+                SharedPreferences mPrefs3 = getSharedPreferences("mActivityName", 0);
+                SharedPreferences.Editor mEditor3 = mPrefs3.edit();
+                mEditor3.putString("mActivityName", mActivityName).commit();
+            }
+        }
+
+       // saveInstanceInfo();
 
         if(from_who != null && from_who.equals("start_tab")) {
+            Log.d(DEBUG_TAG, "which input1:  " + which_input);
+
             if (which_input.equals("auto")){
-                setActivityText("Unknown");
+                Log.d(DEBUG_TAG, "which input2:  " + which_input);
                 globs.initAR_majority();
+                setActivityText("Unknown");
+               // globs.initAR_majority();
 
             } else{
-                mActivityName = ((Intent) intent).getStringExtra("activity_name");
+                //mActivityName = ((Intent) intent).getStringExtra("activity_name");
+                Log.d(DEBUG_TAG, "mActivity Name " + mActivityName);
                 setActivityText(mActivityName);
             }
             setAvgSpeedText(mAvgSpeed);
@@ -161,9 +197,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setCalorieText("0");
             setElevationDifText(mClimbed);
             setDistanceText(mDistance);
-            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
-            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
-            mEditor1.putString("from_who", from_who).commit();
+//            SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
+//            SharedPreferences.Editor mEditor1 = mPrefs1.edit();
+//            mEditor1.putString("from_who", from_who).commit();
 
             // SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
             // SharedPreferences.Editor mEditor2 = mPrefs2.edit();
@@ -213,7 +249,6 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         if (savedInstanceState != null) {
             which_input = savedInstanceState.getString(INPUT_STATE_KEY);
             from_who = savedInstanceState.getString(FROM_STATE_KEY);
-            mRotated = savedInstanceState.getBoolean(ROTATED_KEY);
         }
         super.onRestoreInstanceState(savedInstanceState);
     }
@@ -228,6 +263,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 	    if(from_who != null && from_who.equals("start_tab")) {
 		LocalBroadcastManager.getInstance(this).registerReceiver(mActivityBroadcastReceiver,
 		    new IntentFilter(Constants.BROADCAST_DETECTED_ACTIVITY));
+            LocalBroadcastManager.getInstance(this).registerReceiver(mLocationBroadcastReceiver,
+                    new IntentFilter(Constants.BROADCAST_DETECTED_LOCATION));
 		startTrackingService();
 	    }
 	} catch (Exception e){
@@ -270,12 +307,13 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
                 int type = intent.getIntExtra("type", -1);
                 int confidence = intent.getIntExtra("confidence", 0);
+                if (globs != null) {
+                    if (confidence > 70) {
 
-                if (confidence>70){
+                        setActivityText(globs.getValue_str(globs.ACT, convertUserActivity(type)));
+                        globs.setAR_majority(type);
 
-                    setActivityText(handleUserActivity(type, confidence));
-                    globs.setAR_majority(type);
-
+                    }
                 }
                 Log.d(TAG, "onReceive() AR " + "Type: " + type + "confidence: " + confidence);
                // Toast.makeText(getApplicationContext(), "Auto Detected:  " +  handleUserActivity(type, confidence), Toast.LENGTH_SHORT).show();
@@ -290,6 +328,48 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             }
         }
     };
+
+    private int convertUserActivity(int type){
+        int label = -1;
+
+        switch (type) {
+            case DetectedActivity.IN_VEHICLE: {
+                label = 13;
+                break;
+            }
+            case DetectedActivity.ON_BICYCLE: {
+                label = 3;
+                break;
+            }
+            case DetectedActivity.ON_FOOT: {
+                label = 1;
+                break;
+            }
+            case DetectedActivity.RUNNING: {
+                label = 0;
+                break;
+            }
+            case DetectedActivity.STILL: {
+                label = 2;
+                break;
+            }
+            case DetectedActivity.TILTING: {
+                label = 13;
+                break;
+            }
+            case DetectedActivity.WALKING: {
+                label = 1;
+                break;
+            }
+            case DetectedActivity.UNKNOWN: {
+                label = 13;
+                break;
+            }
+
+        }
+
+        return label;
+    }
     private String handleUserActivity(int type, int confidence) {
         String label = "Unknown";
         switch (type) {
@@ -332,7 +412,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
-        saveInstanceInfo();
+        getInstanceInfo();
 
         if(TrackingService.isRunning()){
             doBindService(new Intent(this, TrackingService.class));
@@ -340,7 +420,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     }
 
-    public void saveInstanceInfo(){
+    public void getInstanceInfo(){
 
         SharedPreferences mPrefs1 = getSharedPreferences("from_who", 0);
         from_who = mPrefs1.getString("from_who", "");
@@ -349,13 +429,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         SharedPreferences mPrefs2 = getSharedPreferences("which_input", 0);
         which_input = mPrefs2.getString("which_input", "");
 
+        if (which_input.equals("gps")) {
+            SharedPreferences mPrefs3 = getSharedPreferences("mActivityName", 0);
+            mActivityName = mPrefs3.getString("mActivityName", "");
+            Log.d(DEBUG_TAG, "getInstanceInfo(): " + mActivityName);
+        }
+
     }
 
     @Override
     public void onPause() {
         super.onPause();
         Log.d(DEBUG_TAG, "onPause");
-        saveInstanceInfo();
+        getInstanceInfo();
         if(from_who.equals("start_tab")) {
             sendMessageToService(Constants.MSG_PAUSE);
         }
@@ -406,10 +492,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 int activity = globs.getValue_int(globs.ACT, mActivityName);
                 mExercise.setmActivityType(activity);
             } else {
-                int input = globs.getValue_int(globs.IN, "AUTO");
+                int input = globs.getValue_int(globs.IN, "Automatic");
                 mExercise.setmInputType(input);
                 int _activity = globs.getAR_majorityMAJORITY();
-                mExercise.setmActivityType(_activity);
+
+                Log.d(DEBUG_TAG, "inserting into DB AR MAJORITY number before convert  " +_activity );
+
+
+                int MajorityActivity = convertUserActivity(_activity);
+                Log.d(DEBUG_TAG, "inserting into DB AR MAJORITY number after convert  " + MajorityActivity);
+
+
+                Log.d(DEBUG_TAG, "inserting into DB AR MAJORITY NAME:  " + globs.getValue_str(globs.ACT, MajorityActivity));
+                mExercise.setmActivityType(MajorityActivity);
 
 
             }
@@ -906,10 +1001,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d("INSIDE ON CREATE OTPIONS MENU: " + from_who,"  ********");
         getMenuInflater().inflate(R.menu.map_activity_menu, menu);
         //Set the appropriate button title depending on navigation context
-        if(getIntent().getStringExtra(FROM).equals("start_tab")){
+        if(from_who.equals("start_tab")){
             current_tab = 0;
             menu.getItem(0).setTitle("SAVE");
-        }else if (getIntent().getStringExtra(FROM).equals("history_tab")){
+        }else if (from_who.equals("history_tab")){
             current_tab = 1;
             menu.getItem(0).setTitle("DELETE");
         }

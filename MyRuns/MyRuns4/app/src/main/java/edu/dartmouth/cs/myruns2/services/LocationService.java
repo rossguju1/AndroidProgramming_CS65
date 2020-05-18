@@ -70,7 +70,7 @@ public class LocationService extends IntentService {
             List<Location> detectedLocations = res.getLocations();
 
             for (Location loc : detectedLocations) {
-                //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
+                Log.d(TAG, "Detected location: " + loc.getLongitude() + " " + loc.getLatitude());
                 broadcastLocation(loc);
             }
         }

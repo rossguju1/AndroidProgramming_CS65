@@ -48,7 +48,6 @@ public class ARService extends IntentService {
         List<DetectedActivity> detectedActivities = result.getProbableActivities();
 
         for (DetectedActivity activity : detectedActivities) {
-            //Log.d(TAG, "Detected activity: " + activity.getType() + ", " + activity.getConfidence());
             broadcastActivity(activity);
         }
     }

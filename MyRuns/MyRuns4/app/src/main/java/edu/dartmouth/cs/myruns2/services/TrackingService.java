@@ -377,7 +377,7 @@ public class TrackingService extends Service {
         mActivityRecognitionClient = new ActivityRecognitionClient(this);
         Intent mIntentServiceAR = new Intent(this, ARService.class);
         mPendingIntentAR = PendingIntent.getService(this,
-                2, mIntentServiceAR, PendingIntent.FLAG_UPDATE_CURRENT);
+                1, mIntentServiceAR, PendingIntent.FLAG_UPDATE_CURRENT);
         requestActivityUpdatesHandler();
     }
 
