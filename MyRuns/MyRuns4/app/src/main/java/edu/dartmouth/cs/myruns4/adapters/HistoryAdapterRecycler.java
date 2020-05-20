@@ -125,7 +125,6 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
             Log.d("Adapter", "User did not delete" + res);
                 String[] mytasks = {String.valueOf(res)};
             task = new AsyncExerciseLoad().execute(mytasks);
-          //  task.execute(mytasks);
         }
     }
 

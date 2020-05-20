@@ -63,11 +63,10 @@ public class TrackingService extends Service {
 
     private int mMessage = -1;
 
-    private boolean Was_Paused = false;
 
     public static String coords = "";
 
-    private String activitylist = "";
+
     public static MyGlobals TrackingService_Globs;
 
 
@@ -248,6 +247,8 @@ public class TrackingService extends Service {
         removeActivityUpdatesHandler();
         notificationManger.cancelAll(); // Cancel the persistent notification.
         isRunning = false;
+        isPaused = false;
+
     }
 
     private class IncomingMessageHandler extends Handler {
@@ -299,19 +300,10 @@ public class TrackingService extends Service {
                         Log.d(TAG, "IS PAUSED");
                        // isPaused = true;
                     }
-                    if (mMessage == Constants.MSG_DESTROY && isPaused){
-                        Log.d(TAG, "IS DESTROYED");
 
-                        Log.d(TAG, "SAVED COORDS: " + coords);
-
-
-
-                    }
                     if (mMessage == Constants.MSG_DELETE){
                         Log.d(TAG, "IS DELETED");
                         coords = "";
-
-
 
                     }
 
@@ -325,12 +317,7 @@ public class TrackingService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "S:onBind() - return mMessenger.getBinder()");
-        // getBinder()
-        // Return the IBinder that this Messenger is using to communicate with
-        // its associated Handler; that is, IncomingMessageHandler().
-        // *** onBind() is only called once when a bind is established (e.g. bindService()
-        // is called by the client. onBind() wont be called again no matter how many times
-        // bindService() is called unless the service is stopped (e.g. stopService()) and started again.
+
         return mMessenger.getBinder();// Retrieve the IBinder that this Messenger is using to communicate with its associated Handler.
 
     }
@@ -390,9 +377,10 @@ public class TrackingService extends Service {
     }
 
    public void stopMyService() {
+       isRunning = false;
         stopForeground(true);
         stopSelf();
-       isRunning = false;
+
     }
 
 }
