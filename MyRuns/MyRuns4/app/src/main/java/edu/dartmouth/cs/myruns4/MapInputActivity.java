@@ -141,6 +141,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         Log.d(DEBUG_TAG, "onCreate()");
         globs = new MyGlobals();
+        coords = "";
         //Create action bar with back button and name
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
@@ -203,7 +204,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (which_input.equals("auto")) {
                 Log.d(DEBUG_TAG, "which input2:  " + which_input);
                 // initialize the majority algo
-                globs.initAR_majority();
+                //globs.initAR_majority();
                 setActivityText("Unknown");
 
             } else{
@@ -216,6 +217,8 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             setCurSpeedText(mSpeed);
             setCalorieText(mCalorie);
             setElevationDifText(mClimbed);
+            Log.d(DEBUG_TAG, "onCreate setDistance Text: distance: "+ mDistance);
+
             setDistanceText(mDistance);
 
         // if this intent was created by history_tab
@@ -232,15 +235,14 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             Exercise e = mEntry.fetchEntryByIndex(id);
             setActivityText(globs.getValue_str(globs.ACT, e.getmActivityType()));
             if (globs.CURRENT_UNITS == 1) {
-                setDistanceText(Float.parseFloat(KilometersToMiles(e.getmDistance())));
+                setDistanceText(Float.parseFloat(KilometersToMiles(e.getmDistance())) * 5280);
             } else {
-                setDistanceText((float)e.getmDistance());
+                setDistanceText((float)e.getmDistance()*1000);
             }
             setCalorieText((float)e.getmCalories());
             setCurSpeedText((float)e.getmSpeed());
             setAvgSpeedText((float)e.getmAvgSpeed());
             setElevationDifText((float)e.getmClimb());
-            setDistanceText((float)e.getmDistance());
 
             //This fills our points ArrayList
             parseMapData(e.getmLocationList());
@@ -293,7 +295,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
             }
         } else {
-            Log.d(TAG, "onStart(): Tracking service is already Running");
+            Log.d(TAG, "onStart(): Tracking service is already Running" + TrackingService.coords);
 //            if (TrackingService.isPaused){
 ////                coords = TrackingService.coords;
 ////                Log.d(DEBUG_TAG, "onStart(): Coords: " + coords);
@@ -322,6 +324,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                 }
 
                 Log.d(TAG, "cumalative Locations: " + coords);
+                if (TrackingService.isPaused){
+                    Log.d(TAG, "on Paused cumalative Locations: " + coords);
+                    TrackingService.coords = coords;
+
+                }
 
                 upDateMap(location);
             }
@@ -335,14 +342,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             if (intent.getAction().equals(Constants.BROADCAST_DETECTED_ACTIVITY)) {
                 int type = intent.getIntExtra("type", -1);
                 int confidence = intent.getIntExtra("confidence", 0);
-                if (globs != null) {
+                if (TrackingService.TrackingService_Globs != null) {
                     // once we recieve an AR broadcast
                     // if it is greater than 70 in confidence
                     // save it and then update screen
                     if (confidence > 70) {
                         try {
+                            Log.d(DEBUG_TAG, "updateing AR to: " + globs.getValue_str(globs.ACT, convertUserActivity(type)));
                             setActivityText(globs.getValue_str(globs.ACT, convertUserActivity(type)));
-                            globs.setAR_majority(type);
+                            TrackingService.TrackingService_Globs.setAR_majority(type);
                         } catch (Exception e){
 
                             Log.d(DEBUG_TAG, "Failed to update AR");
@@ -403,10 +411,15 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     public void onResume() {
         super.onResume();
         Log.d(DEBUG_TAG, "onResume");
+        globs = new MyGlobals();
         if (TrackingService.isPaused){
 
             coords = TrackingService.coords;
+            Log.d(DEBUG_TAG, "onResume: getting TrackService.coords: " + TrackingService.coords);
+            Log.d(DEBUG_TAG, "onResume: setting TrackService.coords to our coords: " + coords);
             //TrackingService.isPaused = false;
+            //TrackingService.isPaused = false;
+
         }
 
     }
@@ -438,6 +451,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         Log.d(DEBUG_TAG, "onPause");
         // send message to service that it is pausing
         sendMessageToService(Constants.MSG_PAUSE);
+        TrackingService.isPaused = true;
 
     }
 
@@ -445,33 +459,35 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     protected void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG_TAG, "onDestroy");
-        Log.d(DEBUG_TAG, "COORDS NOT DELETED YET: " + coords);
+//        Log.d(DEBUG_TAG, "COORDS NOT DELETED YET: " + coords);
 
-        if (mDestroy){
-            //actually delete coordinates in tracking service
-            TrackingService.coords = "";
-            coords = "";
-        }else {
-            //we want to store our current coordinates in TrackingService
-            TrackingService.coords = TrackingService.coords + coords;
-            sendMessageToService(Constants.MSG_DESTROY);
-        }
+//        if (mDestroy){
+//            //actually delete coordinates in tracking service
+//            TrackingService.coords = "";
+//            coords = "";
+//        }else {
+//            //we want to store our current coordinates in TrackingService
+//            TrackingService.coords = TrackingService.coords + coords;
+//            sendMessageToService(Constants.MSG_DESTROY);
+//        }
 
 
     }
 
     private void destroy() {
-        try {
-            doUnbindService();
-        } catch (Throwable t) {
-            Log.e(TAG, "Failed to unbind from the service", t);
-        }
+
 
         if (mLocationBroadcastReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocationBroadcastReceiver);
         }
         if (mActivityBroadcastReceiver != null) {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(mActivityBroadcastReceiver);
+        }
+        TrackingService.coords = "";
+        try {
+            doUnbindService();
+        } catch (Throwable t) {
+            Log.e(TAG, "Failed to unbind from the service", t);
         }
         stopService(new Intent(this, TrackingService.class));
     }
@@ -503,7 +519,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             } else {
                 int input = globs.getValue_int(globs.IN, "Automatic");
                 mExercise.setmInputType(input);
-                int _activity = globs.getAR_majorityMAJORITY();
+                int _activity = TrackingService.TrackingService_Globs.getAR_majorityMAJORITY();
 
                 Log.d(DEBUG_TAG, "inserting into DB AR MAJORITY number before convert  " +_activity );
 
@@ -525,8 +541,17 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
            // mExercise.setmLocationList(exerciseString);
             Log.d(DEBUG_TAG, "SAVING Coords:  "+ coords);
             mExercise.setmLocationList(coords);
+            Log.d(DEBUG_TAG, "SAVING mDistriance:  "+ mDistance);
 
+            mExercise.setmDistance(mDistance/1000);
+            Log.d(DEBUG_TAG, "SAVING mCalories: " + mCalorie);
+            Double tempy = Math.ceil(Double.parseDouble(String.valueOf(mCalorie)));
+            Log.d(DEBUG_TAG, "SAVING mCalories Tempy: " +tempy);
+            int _temp =(int) Math.round(tempy);
+            mExercise.setmCalories(Integer.parseInt(String.valueOf(_temp)));
 
+            Log.d(DEBUG_TAG, "SAVING mClimbed: " + mClimbed);
+            mExercise.setmClimb(Float.parseFloat(String.valueOf(mClimbed)));
             mExercise.setmDateTime(date_time);
             Log.d(DEBUG_TAG, "SAVED: DATE/TIME: "+date_time);
             mExercise.setmAvgSpeed(mAvgSpeed);
@@ -549,6 +574,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void parseMapData(String data) {
+        if(locations == null){
+            locations = new ArrayList<>();
+        }
         Log.d(DEBUG_TAG, "parseMapData: " + data);
         points = new ArrayList<LatLng>();
         String[] LatLongPairs = data.split("@");
@@ -556,10 +584,19 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         String[] pair;
         for(String LatLngPair : LatLongPairs) {
             try {
+
+
+
+
                 pair = LatLngPair.split(",");
                 Log.d(DEBUG_TAG, "Long: " + Double.valueOf(pair[0]));
                 Log.d(DEBUG_TAG, "Lat: " + Double.valueOf(pair[1]));
-                points.add(new LatLng(Double.valueOf(pair[0]), Double.valueOf(pair[1])));
+                LatLng _temp = new LatLng(Double.valueOf(pair[0]), Double.valueOf(pair[1]));
+                points.add(_temp);
+                Location temp = new Location(LocationManager.GPS_PROVIDER);
+                temp.setLatitude(_temp.latitude);
+                temp.setLongitude(_temp.longitude);
+                locations.add(temp);
             } catch (Exception e){
                 Log.d(DEBUG_TAG, "Extra deliminator");
             }
@@ -573,8 +610,10 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     public String KilometersToMiles(double kilo){
+        Log.d(DEBUG_TAG, "in KilometersTomiles() kilo: " + kilo);
         double miles = kilo * 0.621371;
         String formatted = String.format("%.2f", miles);
+        Log.d(DEBUG_TAG, "in KilometersTomiles() after formatted string" + formatted);
         return formatted;
     }
 
@@ -592,10 +631,13 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void updateWithNewLocation(Location location) {
+        Log.d(DEBUG_TAG, "updateWithNewLocation");
         String latLongString = "No location found";
         String addressString = "No address found";
         if (location != null) {
+            Log.d(DEBUG_TAG, "in updateWithNewLocation: location != null");
             if(locations == null){
+                Log.d(DEBUG_TAG, "Locations == null");
                 locations = new ArrayList<>();
             }
             locations.add(location);
@@ -619,19 +661,26 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             // If our polyline hasn't been created add our second point to points and create the line
             // If we have our points and our line then add another point and update the line
             if(points == null){
+                Log.d(DEBUG_TAG, "points == null");
                 points = new ArrayList<>();
                 points.add(latlng);
             } else if(line == null) {
+                Log.d(DEBUG_TAG, "line == null");
                 points.add(latlng);
                 line = mMap.addPolyline(new PolylineOptions()
                         .addAll(points)
                         .width(5)
                         .color(Color.BLUE));
             } else {
+                Log.d(DEBUG_TAG, "updating marker points");
                 LatLng prev = points.get(points.size() -1);
                 float[] dist = {(float)0};
+                float temp_dist = mDistance;
                 Location.distanceBetween(latlng.latitude, latlng.longitude,prev.latitude,prev.longitude, dist);
+                Log.d(DEBUG_TAG, "before adding distance: " + mDistance);
                 mDistance = mDistance + (float)dist[dist.length -1];
+                Log.d(DEBUG_TAG, "distance: " + mDistance);
+
                 setDistanceText(mDistance);
                 points.add(latlng);
                 line.setPoints(points);
@@ -641,9 +690,12 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     long curTime = System.currentTimeMillis();
                     long timeElapsed = curTime - prevTime;
                     long totalTimeElapsed = curTime - startTime;
-                    mSpeed = (mDistance * 1000) / ((float)timeElapsed / (float)3600000);
-                    mAvgSpeed = (mDistance * 1000) / ((float)totalTimeElapsed / (float)3600000);
+                    mSpeed = (mDistance*1000) / ((float)timeElapsed / (float)3600000);
+                    Log.d(DEBUG_TAG, "mSpeed: " + mSpeed);
+                    mAvgSpeed = (mDistance*1000) / ((float)totalTimeElapsed / (float)3600000);
                     prevTime = curTime;
+                    Log.d(DEBUG_TAG, "mAvgSpeed: " + mAvgSpeed);
+
 
                     //Also want to update calories using time elapsed
 
@@ -700,7 +752,11 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         serviceIntent = new Intent(getApplicationContext(), TrackingService.class);
-        serviceIntent.setAction("start");
+        if (which_input.equals("auto")) {
+            serviceIntent.setAction("auto");
+        } else {
+            serviceIntent.setAction("gps");
+        }
 
         mIsBound = false; // by default set this to unbound
         automaticBind(serviceIntent);
@@ -880,8 +936,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                     , PERMISSION_REQUEST_CODE);
         }
         else{
+            Log.d(DEBUG_TAG, "mapUpdate: from_who: " + from_who);
             if(from_who.equals("start_tab")) {
-                if (TrackingService.isPaused) {
+                if (TrackingService.isPaused && !coords.equals("") && coords != null) {
 
 
                     coords = coords + "@";
@@ -901,6 +958,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
     }
 
     private void upDateMap(Location loc) {
+        Log.d(DEBUG_TAG, "upDateMap");
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED
@@ -914,7 +972,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             return;
         }
         if (loc == null) {
-            Log.d(DEBUG_TAG, "First time map is being made. Manually get location");
+            Log.d(DEBUG_TAG, "First time map is being made. Manually get location (loc == null)");
             LocationManager locationManager;
             locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -941,7 +999,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             // Update our camera to our current location
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latlng, 17)); //17: the desired zoom level, in the range of 2.0 to 21.0
             updateWithNewLocation(l);
-            startTrackingService();
+            if(!TrackingService.isRunning()) {
+                startTrackingService();
+            }
         } else {
 
             LatLng latlng = fromLocationToLatLng(loc);
@@ -1076,13 +1136,22 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
 
     public void setDistanceText(float distance) {
         TextView activity = (TextView) findViewById(R.id.distance);
+        if (activity == null)
+        {
+            Log.d(DEBUG_TAG, "activity is null");
+        }
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String units = sharedPreferences.getString("list_preference", "");
 
         if(units.equals("kms")){
+            Log.d(DEBUG_TAG, "in setDistenceText kms: distance: " + distance);
             activity.setText("Distance: " + df.format(distance) + " m");
         } else if (units.equals("mi")) {
+            Log.d(DEBUG_TAG, "in setDistenceText mi: distance: " + distance);
+
             activity.setText("Distance: " + df.format(MtoFt(distance)) + " ft");
+        }else {
+            Log.d(DEBUG_TAG, "setDistanceText: error");
         }
 
     }
@@ -1096,6 +1165,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
                         "Moved Back",
                         Toast.LENGTH_SHORT).show();
                 NavUtils.navigateUpFromSameTask(this);
+                TrackingService.isPaused = false;
+                TrackingService.coords ="";
+
                 destroy();
                 finish();
                 return true;
@@ -1159,7 +1231,7 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
         @Override
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG_TAG, "INSERT THREAD DONE");
-            mDestroy = true;
+
             sendMessageToService(Constants.MSG_DELETE);
             task = null;
             Intent intent=new Intent();
@@ -1167,8 +1239,9 @@ public class MapInputActivity extends AppCompatActivity implements OnMapReadyCal
             intent.putExtra(StartFragment.START_INSERT_ITEM, String.valueOf(id));
 
             setResult(2, intent);
-
-
+            TrackingService.isPaused = false;
+            TrackingService.coords = "";
+            coords = "";
             destroy();
 
             finish();

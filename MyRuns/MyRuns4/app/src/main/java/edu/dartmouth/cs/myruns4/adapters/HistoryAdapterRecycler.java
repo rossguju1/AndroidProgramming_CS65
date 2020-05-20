@@ -3,6 +3,7 @@ package edu.dartmouth.cs.myruns4.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -65,11 +67,15 @@ public class HistoryAdapterRecycler extends RecyclerView.Adapter<HistoryAdapterR
         String showDate = "" + order.getmDateTime();
         String showDistance;
 
-        if (globs.CURRENT_UNITS == 1 ){
-            showDistance = "" + KilometersToMiles(order.getmDistance()) + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + ", ";
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String units = sharedPreferences.getString("list_preference", "");
+
+
+        if (units.equals("mi")){
+            showDistance = "" + KilometersToMiles(order.getmDistance()) + "  " + "mi" + ", ";
         } else {
             String temp_dist = String.valueOf(order.getmDistance());
-            showDistance = "" + temp_dist + "  " + globs.getValue_str(globs.UNIT_TABLE, globs.CURRENT_UNITS) + ", ";
+            showDistance = "" + temp_dist + "  " + "kms" + ", ";
         }
 
         String temp_dur = String.valueOf(order.getmDuration());

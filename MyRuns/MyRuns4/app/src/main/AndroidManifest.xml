@@ -55,7 +55,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="edu.dartmouth.cs.myruns4.MainMyRunsActivity"
-                android:launchMode="singleTask"/>
+              />
         </activity>
         <activity android:name="edu.dartmouth.cs.myruns4.SettingsActivity">
             <meta-data

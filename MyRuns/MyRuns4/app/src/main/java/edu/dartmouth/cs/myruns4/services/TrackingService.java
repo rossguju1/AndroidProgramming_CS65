@@ -36,6 +36,7 @@ import java.util.List;
 
 import edu.dartmouth.cs.myruns4.MapInputActivity;
 import edu.dartmouth.cs.myruns4.models.Constants;
+import edu.dartmouth.cs.myruns4.models.MyGlobals;
 
 
 public class TrackingService extends Service {
@@ -67,6 +68,7 @@ public class TrackingService extends Service {
     public static String coords = "";
 
     private String activitylist = "";
+    public static MyGlobals TrackingService_Globs;
 
 
 
@@ -96,10 +98,15 @@ public class TrackingService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.d(TAG, "onStartCommand: getAction()" + intent.getAction());
-        if (intent != null && intent.getAction().equals("start")) {
+        if (intent != null && (intent.getAction().equals("auto") || intent.getAction().equals("gps"))) {
             isRunning = true;
+            coords = "";
             Log.d(TAG, "TrackingService: onStartCommand(): Thread ID is:" + Thread.currentThread().getId());
-
+            if(intent.getAction().equals("auto")) {
+                Log.d(TAG, "inSErvice making tracking service");
+                TrackingService_Globs = new MyGlobals();
+                TrackingService_Globs.initAR_majority();
+            }
             createNotification();
         } else {
             stopMyService();
@@ -115,9 +122,9 @@ public class TrackingService extends Service {
 
     private void createNotification() {
         Intent notificationIntent = new Intent(getApplicationContext(), MapInputActivity.class);
-        notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+        //notificationIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        //notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         // Create notification and its channel
         notificationManger = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -260,6 +267,7 @@ public class TrackingService extends Service {
                     mClients.add(msg.replyTo);//replyTo is the Messanger, that carrys the Message over.
                     input_type = msg.arg1;
                     from_type = msg.arg2;
+                    coords = "";
 
                     Log.d(TAG, "MSG REGISTER_CLIENT input type: " + input_type);
 
@@ -289,7 +297,7 @@ public class TrackingService extends Service {
 
                     if (mMessage == Constants.MSG_PAUSE){
                         Log.d(TAG, "IS PAUSED");
-                        isPaused = true;
+                       // isPaused = true;
                     }
                     if (mMessage == Constants.MSG_DESTROY && isPaused){
                         Log.d(TAG, "IS DESTROYED");
@@ -314,26 +322,6 @@ public class TrackingService extends Service {
         }
     }
 
-    BroadcastReceiver mLocationBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (intent.getAction().equals(Constants.BROADCAST_DETECTED_LOCATION)) {
-
-                Location location = intent.getParcelableExtra("location");
-
-                Log.d(TAG, "onReceive() Locations " + location.getLongitude() + location.getLatitude());
-                if (coords.equals("")){
-                    coords = coords + location.getLongitude() + "," + location.getLatitude();
-                } else {
-                    coords = coords + "|"  + location.getLongitude() + "," + location.getLatitude();
-                }
-
-                Log.d(TAG, "cumalative Locations: " + coords);
-
-
-            }
-        }
-    };
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "S:onBind() - return mMessenger.getBinder()");
