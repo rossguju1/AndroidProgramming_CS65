@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">MyOrganizer</string>
+    <string name="action_settings">Settings</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="action_syncro">Organize</string>
+    <string name="picture_picker_fragment">Picture Options</string>
+    <string name="action_plus">plus</string>
+    <string name="dialog_fragment_tag_photo_picker">dialog_fragment_photo_picker</string>
+    <string name="ui_file_add">ui_file_add</string>
+
+
+</resources>

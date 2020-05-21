@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="ui_profile_photo_picker_items">
+        <item>Take picture from camera</item>
+        <item>Choose Picture From Gallery</item>
+    </string-array>
+    <string-array name="adding_photos">
+        <item>Take picture from camera</item>
+        <item>Choose Picture From Gallery</item>
+    </string-array>
+
+</resources>
