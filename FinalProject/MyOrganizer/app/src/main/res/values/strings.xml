@@ -22,11 +22,13 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="main_activity">main_activity</string>
+    <string name="main_activity">My Organizer</string>
     <string name="ui_profile_photo_content_description">Picture</string>
     <string name="title_grid">Pictures</string>
     <string name="title_label">Labels</string>
     <string name="grid_label">Pictures</string>
     <string name="labels_label">Labels</string>
+    <string name="action_camera">Camera</string>
+    <string name="action_gallery">Gallery</string>
 
 </resources>

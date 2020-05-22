@@ -55,7 +55,7 @@ public class AddfileFragmentFragment extends DialogFragment {
                 DialogInterface.OnClickListener dialoglistener = new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
 
-                        ((MainActivity) parent).onPhotoPickerItemSelected(item);
+                        //parent.onPhotoPickerItemSelected(item);
                     }
                 };
                 final CharSequence[] items = {"Take Picture", "Add Photo", "Add other File"};

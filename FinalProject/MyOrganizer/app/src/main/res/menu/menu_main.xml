@@ -2,11 +2,18 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.dartmouth.cs.myorganizer.MainActivity">
-    <item
-        android:id="@+id/action_plus"
 
-        android:icon="@mipmap/ic_plus"
-        android:title="@string/action_plus"
+    <item
+        android:id="@+id/action_camera"
+
+        android:icon="@mipmap/ic_camera"
+        android:title="@string/action_camera"
+        app:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_gallery"
+
+        android:icon="@mipmap/ic_gallery"
+        android:title="@string/action_gallery"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_settings"
