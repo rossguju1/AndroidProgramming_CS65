@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -31,6 +32,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,6 +42,7 @@ import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -64,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     File directoryFile;
     Bitmap rotatedBitmap;
     File myorganizerDir;
+    private ImageView mImageView;
 
     ArrayList<String> images;
 
@@ -79,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
        // setSupportActionBar(toolbar);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+
+        mImageView = (ImageView) findViewById(R.id.imageProfile);
 
 
         images = new  ArrayList<String>();
@@ -201,6 +207,32 @@ public class MainActivity extends AppCompatActivity {
                 //ImageView imageView;
                 //imageView.setImageBitmap(imageBitmap);
 
+
+                Bitmap mBitmap = MediaStore.Images.Media.getBitmap(this. getContentResolver(), loadPhotoUri);
+                //mImageView.setImageBitmap(rotatedBitmap);
+
+                FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
+                FirebaseVisionTextRecognizer _textRecognizer =
+                        FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+                _textRecognizer.processImage(_image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+
+                        String text = firebaseVisionText.getText();
+
+                        String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
+                        images.add(upToNCharacters);
+                        Log.d(DEBUG, "TEXT:    " + text);
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
                 images.add(loadPhotoUri.toString());
                 Log.d(DEBUG, "PICK_IMAGE URI before save: " + loadPhotoUri);
 
@@ -219,8 +251,10 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case REQUEST_TAKE_PICTURE_FROM_CAMERA:
                 Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA: loadPhotofile: " + loadPhotoFile);
-
+//                FileInputStream fis = openFileInput(loadPhotoFile.getAbsolutePath());
+//                Bitmap bmap = BitmapFactory.decodeStream(fis);
                 Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
+                //mImageView.setImageBitmap(rotatedBitmap);
 
                 FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
                 FirebaseVisionTextRecognizer textRecognizer =
@@ -231,6 +265,8 @@ public class MainActivity extends AppCompatActivity {
 
                         String text = firebaseVisionText.getText();
 
+                        String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
+                        images.add(upToNCharacters);
                         Log.d(DEBUG, "TEXT:    " + text);
 
                     }
@@ -240,8 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                 });
-
-
 
 
                 try {
@@ -258,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
                         BuildConfig.APPLICATION_ID,
                         cameraPhotoFile);
 
-                images.add(cameraPhotoUri.toString());
+
                 Log.d(DEBUG, "uri before saving: " + cameraPhotoUri);
                 SharedPreferences mPrefs = getSharedPreferences("uri",0);
                 SharedPreferences.Editor mEditor = mPrefs.edit();

@@ -23,5 +23,6 @@
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
     <string name="main_activity">main_activity</string>
+    <string name="ui_profile_photo_content_description">Picture</string>
 
 </resources>
