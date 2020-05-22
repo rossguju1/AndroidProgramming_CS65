@@ -1,13 +1,11 @@
 package edu.dartmouth.cs.myorganizer;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
@@ -15,19 +13,15 @@ import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
-import androidx.loader.app.LoaderManager;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 import android.os.Environment;
-import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
@@ -36,19 +30,24 @@ import android.widget.ImageView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import edu.dartmouth.cs.myorganizer.adapters.ActionTabsViewPagerAdapter;
+import edu.dartmouth.cs.myorganizer.fragments.AddfileFragmentFragment;
+import edu.dartmouth.cs.myorganizer.fragments.LabelsFragment;
+import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
 
 public class MainActivity extends AppCompatActivity {
     private static final int PICK_PDF_FILE = 2;
@@ -74,6 +73,13 @@ public class MainActivity extends AppCompatActivity {
     public RecyclerView recyclerView;
     public static FilesAdapter mAdapter;
 
+    //Tab stuff
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
+    private BottomNavigationView bottomNavigationView;
+    private ArrayList<Fragment> fragments;
+    private ActionTabsViewPagerAdapter myViewPageAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +101,42 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(mAdapter);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        // Get viewPager instance
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // create a fragment list in order.
+        fragments = new ArrayList<>();
+        fragments.add(new PictureGridFragment());
+        fragments.add(new LabelsFragment());
+
+
+        // use FragmentPagerAdapter to bind the TabLayout (tabs with different titles)
+        // and ViewPager (different pages of fragment) together.
+        myViewPageAdapter = new ActionTabsViewPagerAdapter(getSupportFragmentManager(),
+                fragments);
+        // add the PagerAdapter to the viewPager
+        viewPager.setAdapter(myViewPageAdapter);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    switch (item.getItemId()) {
+                        case R.id.navigation_grid:
+                            viewPager.setCurrentItem(0);
+                            break;
+                        case R.id.navigation_labels:
+                            viewPager.setCurrentItem(1);
+                            break;
+                    }
+                    return false;
+                }
+            }
+        );
+
 
 
 

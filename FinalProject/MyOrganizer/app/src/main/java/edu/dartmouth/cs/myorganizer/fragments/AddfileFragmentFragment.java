@@ -1,4 +1,4 @@
-package edu.dartmouth.cs.myorganizer;
+package edu.dartmouth.cs.myorganizer.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -7,6 +7,9 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
+
+import edu.dartmouth.cs.myorganizer.MainActivity;
+import edu.dartmouth.cs.myorganizer.R;
 
 public class AddfileFragmentFragment extends DialogFragment {
 
