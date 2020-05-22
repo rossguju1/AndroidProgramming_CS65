@@ -49,9 +49,7 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ViewHolder> 
         Log.d("FilesAdapter", order);
 
 
-
         holder.imageUri.setText(order);
-
 
         //Here, calling itemView (equivalent of listAdapter.getView()) and setting a onClickListener as an example. You can do whatever you want.
         holder.itemView.setOnClickListener(new View.OnClickListener() {

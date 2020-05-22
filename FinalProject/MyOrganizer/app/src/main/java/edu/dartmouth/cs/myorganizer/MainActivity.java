@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         images = new  ArrayList<String>();
-        images.add("Helllo");
+
         mAdapter = new FilesAdapter(this, images);
 
        // recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -186,27 +186,8 @@ public class MainActivity extends AppCompatActivity {
 //            return;
 //        }
         switch (requestCode) {
-//https://developer.android.com/training/data-storage/shared/documents-files
-            case (PICK_DIRECTORY):
-                Log.d(DEBUG, "PICK_DIRECTORY");
-                // The result data contains a URI for the document or directory that
-                // the user selected.
 
-//                if (data != null) {
-//                    uri = data.getData();
-//                    // Perform operations on the document using its URI.
-//                }
 
-                //do stuff
-                break;
-            case (PICK_PDF_FILE):
-                // The result data contains a URI for the document or directory that
-                // the user selected.
-
-//                uri = data.getData();
-                // Perform operations on the document using its URI.
-
-                break;
             case LOAD_IMAGE:
                 Log.d(DEBUG, "LOAD_IMAGE");
                 loadPhotoUri = data.getData();
@@ -262,41 +243,8 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter.notifyItemRangeInserted(curSize, 1);
 
-       // recyclerView.setAdapter(mAdapter);
+
     }
-
-    private void openFile(Uri pickerInitialUri) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/pdf");
-
-        // Optionally, specify a URI for the file that should appear in the
-        // system file picker when it loads.
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, pickerInitialUri);
-
-        startActivityForResult(intent, PICK_PDF_FILE);
-    }
-
-    public void openDirectory(Uri uriToLoad) {
-        // Choose a directory using the system's file picker.
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-
-        // Provide read access to files and sub-directories in the user-selected
-        // directory.
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        final int takeFlags = intent.getFlags()
-                & (Intent.FLAG_GRANT_READ_URI_PERMISSION
-                | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-// Check for the freshest data.
-        getContentResolver().takePersistableUriPermission(uriToLoad, takeFlags);
-
-        // Optionally, specify a URI for the directory that should be opened in
-        // the system file picker when it loads.
-        intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, uriToLoad);
-
-        startActivityForResult(intent, PICK_DIRECTORY);
-    }
-
 
     private void dispatchTakePictureIntent() {
 
