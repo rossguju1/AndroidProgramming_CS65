@@ -2,6 +2,9 @@ package edu.dartmouth.cs.myorganizer.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -24,24 +27,53 @@ public class LabelsFragment extends Fragment {
 
     public RecyclerView recyclerView;
     public LabelAdapter mAdapter;
+    ArrayList<String> itemsData;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_labels, container, false);
         setHasOptionsMenu(true);
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerLabels);
-        ArrayList<String> itemsData= new ArrayList<String>();
+        itemsData= new ArrayList<String>();
         itemsData.add("Math");
         itemsData.add("Phyics");
         itemsData.add("Biology");
         itemsData.add("Chemistry");
 
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mAdapter = new LabelAdapter(getContext(), itemsData);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        recyclerView.setAdapter(mAdapter);
 
         return v;
     }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_labels, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+       if (id == R.id.action_syncro) {
+
+           recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+           mAdapter = new LabelAdapter(getContext(), itemsData);
+           recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+           recyclerView.setAdapter(mAdapter);
+
+           return true;
+       }
+
+
+        return super.onOptionsItemSelected(item);
+    }
+
 }

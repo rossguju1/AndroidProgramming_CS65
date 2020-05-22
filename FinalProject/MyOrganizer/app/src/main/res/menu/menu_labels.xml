@@ -1,0 +1,12 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="edu.dartmouth.cs.myorganizer.MainActivity">
+
+    <item
+        android:id="@+id/action_syncro"
+        android:icon="@mipmap/ic_syncro"
+        android:title="@string/action_syncro"
+        app:showAsAction="ifRoom"/>
+
+</menu>
