@@ -1,5 +1,6 @@
 package edu.dartmouth.cs.myorganizer;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -46,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
                                     Log.d(TAG, "createUserWithEmail:failure", task.getException());
                                     Toast.makeText(LoginActivity.this, "Authentication worked.",
                                             Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                    startActivity(intent);
                                 } else {
                                     // If sign in fails, display a message to the user.
                                     Log.w(TAG, "createUserWithEmail:failure", task.getException());

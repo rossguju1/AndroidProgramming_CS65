@@ -32,6 +32,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.ml.vision.FirebaseVision;
+import com.google.firebase.ml.vision.common.FirebaseVisionImage;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -191,6 +198,8 @@ public class MainActivity extends AppCompatActivity {
             case LOAD_IMAGE:
                 Log.d(DEBUG, "LOAD_IMAGE");
                 loadPhotoUri = data.getData();
+                //ImageView imageView;
+                //imageView.setImageBitmap(imageBitmap);
 
                 images.add(loadPhotoUri.toString());
                 Log.d(DEBUG, "PICK_IMAGE URI before save: " + loadPhotoUri);
@@ -212,6 +221,29 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA: loadPhotofile: " + loadPhotoFile);
 
                 Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
+
+                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
+                FirebaseVisionTextRecognizer textRecognizer =
+                        FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+                textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                    @Override
+                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+
+                        String text = firebaseVisionText.getText();
+
+                        Log.d(DEBUG, "TEXT:    " + text);
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+
+                    }
+                });
+
+
+
+
                 try {
                     cameraPhotoFile = createImageFile();
                     FileOutputStream fOut = new FileOutputStream(cameraPhotoFile);
