@@ -208,7 +208,12 @@ public class MainActivity extends AppCompatActivity {
                 //imageView.setImageBitmap(imageBitmap);
 
 
-                Bitmap mBitmap = MediaStore.Images.Media.getBitmap(this. getContentResolver(), loadPhotoUri);
+                Bitmap mBitmap = null;
+                try {
+                    mBitmap = MediaStore.Images.Media.getBitmap(this. getContentResolver(), loadPhotoUri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 //mImageView.setImageBitmap(rotatedBitmap);
 
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
