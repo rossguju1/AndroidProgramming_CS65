@@ -238,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
-                images.add(loadPhotoUri.toString());
+
                 Log.d(DEBUG, "PICK_IMAGE URI before save: " + loadPhotoUri);
 
                 SharedPreferences mPrefs1 = getSharedPreferences("uri",0);
