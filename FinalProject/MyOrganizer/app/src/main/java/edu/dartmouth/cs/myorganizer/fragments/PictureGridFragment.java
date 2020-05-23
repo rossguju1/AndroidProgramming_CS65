@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
+import android.graphics.Picture;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
@@ -51,6 +52,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import edu.dartmouth.cs.myorganizer.R;
+import edu.dartmouth.cs.myorganizer.database.MyPicture;
 
 
 // do this https://stackoverflow.com/questions/45239381/refresh-the-fragment-after-camera-intent
@@ -206,13 +208,16 @@ public class PictureGridFragment extends Fragment {
                 //ImageView imageView;
                 //imageView.setImageBitmap(imageBitmap);
 
+                final MyPicture entry = new MyPicture();
 
                 Bitmap mBitmap = null;
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), loadPhotoUri);
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 //mImageView.setImageBitmap(rotatedBitmap);
                 String text;
 
@@ -225,8 +230,11 @@ public class PictureGridFragment extends Fragment {
                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
 
                         String text = firebaseVisionText.getText();
+                        entry.setmImage(finalMBitmap);
                         mImages.add(finalMBitmap);
                         mText.add(text);
+                        entry.setmText(text);
+                        entry.setmLabel(-1);
 
                         String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
 
@@ -262,29 +270,38 @@ public class PictureGridFragment extends Fragment {
 //                FileInputStream fis = openFileInput(loadPhotoFile.getAbsolutePath());
 //                Bitmap bmap = BitmapFactory.decodeStream(fis);
                 final Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
-                //mImageView.setImageBitmap(rotatedBitmap);
+                //mImageView.setImageBitmap(rotatedBitmap)
+                final MyPicture entry2 = new MyPicture();
+                try {
+                    FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
+                    FirebaseVisionTextRecognizer textRecognizer =
+                            FirebaseVision.getInstance().getOnDeviceTextRecognizer();
+                    textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
+                        @Override
+                        public void onSuccess(FirebaseVisionText firebaseVisionText) {
 
-                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
-                FirebaseVisionTextRecognizer textRecognizer =
-                        FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-                textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-                    @Override
-                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
+                            String text = firebaseVisionText.getText();
 
-                        String text = firebaseVisionText.getText();
+                            String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
+                            mImages.add(rotatedBitmap);
+                            entry2.setmImage(rotatedBitmap);
+                            entry2.setmLabel(-1);
 
-                        String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
-                        mImages.add(rotatedBitmap);
-                        mText.add(text);
-                        Log.d(DEBUG, "TEXT:    " + text);
+                            mText.add(text);
+                            entry2.setmText(text);
+                            Log.d(DEBUG, "TEXT:    " + text);
 
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 
-                    }
-                });
+                        }
+                    });
+                } catch (Exception e){
+
+                }
+
 
 
                 try {
