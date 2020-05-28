@@ -1,34 +1,34 @@
 {
   "project_info": {
-    "project_number": "62383148410",
-    "firebase_url": "https://myorganizer-54517.firebaseio.com",
-    "project_id": "myorganizer-54517",
-    "storage_bucket": "myorganizer-54517.appspot.com"
+    "project_number": "986161848969",
+    "firebase_url": "https://myorganizer-dad98.firebaseio.com",
+    "project_id": "myorganizer-dad98",
+    "storage_bucket": "myorganizer-dad98.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:62383148410:android:e56a974abebb26b7cf1ac3",
+        "mobilesdk_app_id": "1:986161848969:android:8290b9a462cf01b2b8dc58",
         "android_client_info": {
           "package_name": "edu.dartmouth.cs.myorganizer"
         }
       },
       "oauth_client": [
         {
-          "client_id": "62383148410-gae29kia2m966ehdiv0mdd97kmfdrpp9.apps.googleusercontent.com",
+          "client_id": "986161848969-q72be4a0t48ot75p9kmoocusabkfcuut.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBnDPK15PFc_KOTJe0uFQUsTmtBI2RriOE"
+          "current_key": "AIzaSyCrxDqdgiXUjiC0Tj3pOgCT8ZpNUHRs8p8"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "62383148410-gae29kia2m966ehdiv0mdd97kmfdrpp9.apps.googleusercontent.com",
+              "client_id": "986161848969-q72be4a0t48ot75p9kmoocusabkfcuut.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

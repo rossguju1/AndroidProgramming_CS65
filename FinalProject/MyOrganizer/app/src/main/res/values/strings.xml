@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MyOrganizer</string>
+    <string name="app_name">My Organizer</string>
     <string name="action_settings">Settings</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -30,5 +30,14 @@
     <string name="labels_label">Labels</string>
     <string name="action_camera">Camera</string>
     <string name="action_gallery">Gallery</string>
+    <string name="email_hint">Keep Guessing</string>
+    <string name="password_hint">Keep Guessing</string>
+    <string name="login_button_label">Log In</string>
+    <string name="sign_up_text">Sign Up</string>
+    <string name="login_error_message">Email or Password are empty</string>
+    <string name="login_error_title">Sign in Error</string>
+    <string name="signup_error_message">Password/Email can\'t be Empty</string>
+    <string name="signup_error_title">Sign Up Error</string>
+    <string name="sign_up_button_label">Sign Up</string>
 
 </resources>

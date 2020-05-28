@@ -32,6 +32,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
@@ -80,14 +84,28 @@ public class MainActivity extends AppCompatActivity{
     private ArrayList<Fragment> fragments;
     private ActionTabsViewPagerAdapter myViewPageAdapter;
 
-    public static ArrayList<String> mText;
-    public static ArrayList<Bitmap> mImages;
 
 
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mDatabase;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
+        // Initialize Firebase Auth and Database Reference
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+
+
+
+
+
 
 
         checkPermissions();
@@ -128,6 +146,12 @@ public class MainActivity extends AppCompatActivity{
         );
 
 
+        if (mFirebaseUser == null) {
+            // Not logged in, launch the Log In activity
+           Log.d(DEBUG, "mFirebaseUser == null");
+        } else {
+            mDatabase.setValue("Hello, World!");
+        }
 
 
     }
