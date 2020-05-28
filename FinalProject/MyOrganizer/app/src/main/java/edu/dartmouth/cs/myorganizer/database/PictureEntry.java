@@ -7,6 +7,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -40,6 +41,7 @@ public class PictureEntry {
                 "INSERTED");
         ContentValues values = new ContentValues();
         // insert values
+        Log.d("Inside Insert image Uri: ", entry.getmImage());
         //values.put( ExerciseEntryDbHelper.COLUMN_ID, entry.getId());
         values.put( PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
         values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
@@ -50,8 +52,7 @@ public class PictureEntry {
                 values);
         entry.setId(insertId);
 
-        Cursor cursor = database.query(PictureEntryDbHelper.TABLE_PICTURES,
-                ALL_COLUMNS,
+        Cursor cursor = database.query(PictureEntryDbHelper.TABLE_PICTURES, ALL_COLUMNS,
                 PictureEntryDbHelper.COLUMN_ID + " = " + insertId, null,
                 null,
                 null,
@@ -110,7 +111,7 @@ public class PictureEntry {
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             MyPicture current_exercise = cursorToPicture(cursor);
-            Long exercise_id = current_exercise.getId();
+            long exercise_id = current_exercise.getId();
             Log.d(TAG, "got Exercise = " + exercise_id);
             mExercises.add(current_exercise);
             cursor.moveToNext();
@@ -127,10 +128,11 @@ public class PictureEntry {
         MyPicture mMyPicture = new MyPicture();
 
         mMyPicture.setId(cursor.getLong(0));
-        byte[]byteArray = cursor.getBlob(1);
-
-        Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0 ,byteArray.length);
-        mMyPicture.setmImage(bm);
+        mMyPicture.setmImage(Uri.parse(cursor.getString(1)));
+//        byte[] byteArray = cursor.getBlob(1);
+//
+//        Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0 ,byteArray.length);
+//        mMyPicture.setmImage(bm);
         mMyPicture.setmText(cursor.getString(2));
         mMyPicture.setmLabel(cursor.getInt(3));
 

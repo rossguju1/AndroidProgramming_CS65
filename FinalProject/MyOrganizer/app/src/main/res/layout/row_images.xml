@@ -15,5 +15,17 @@
         android:src="@mipmap/ic_launcher"
         />
 
+    <TextView
+        android:id="@+id/date_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#00ffffff"
+        android:gravity="center"
+        android:autoSizeTextType="uniform"
+        android:autoSizeMinTextSize="3sp"
+        android:autoSizeMaxTextSize="10sp"
+
+        />
+
 
 </RelativeLayout>

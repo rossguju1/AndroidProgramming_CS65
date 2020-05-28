@@ -2,10 +2,12 @@ package edu.dartmouth.cs.myorganizer.fragments;
 
 import android.Manifest;
 import android.content.ActivityNotFoundException;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.Picture;
 import android.media.ExifInterface;
@@ -31,6 +33,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -44,6 +48,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -53,6 +58,7 @@ import java.util.Date;
 
 import edu.dartmouth.cs.myorganizer.R;
 import edu.dartmouth.cs.myorganizer.database.MyPicture;
+import edu.dartmouth.cs.myorganizer.database.PictureEntry;
 
 
 // do this https://stackoverflow.com/questions/45239381/refresh-the-fragment-after-camera-intent
@@ -63,6 +69,7 @@ public class PictureGridFragment extends Fragment {
     private static final int LOAD_IMAGE = 77;;
     private static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
     private static final int ALL_COMMENTS_LOADER_ID = 1;
+    PictureEntry ex;
     Uri cameraPhotoUri;
     Uri loadPhotoUri;
     Uri fileUri;
@@ -88,14 +95,14 @@ public class PictureGridFragment extends Fragment {
     PictureAdapter mAdapter;
 
     public static ArrayList<String> mText;
-    public static ArrayList<Bitmap> mImages;
+    public static ArrayList<Uri> mImages;
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_grid, container, false);
         setHasOptionsMenu(true);
-        mImages = new ArrayList<Bitmap>();
+        mImages = new ArrayList<Uri>();
         mText = new ArrayList<String>();
 
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerViewGrid);
@@ -104,6 +111,7 @@ public class PictureGridFragment extends Fragment {
         recyclerView.setLayoutManager(gridLayoutManager); // set LayoutManager to RecyclerView
         //  call the constructor of CustomAdapter to send the reference and data to Adapter
         mAdapter= new PictureAdapter(getContext(), mImages, mText);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
 
         return v;
@@ -166,15 +174,17 @@ public class PictureGridFragment extends Fragment {
                 break;
 
             case AddfileFragmentFragment.LOAD_PHOTO_ITEM:
-                try {
-                    //Create file to save photo
-                    loadPhotoFile = createImageFile();
-                } catch (IOException ex) {
-                    // Error occurred while creating the File
-                    ex.printStackTrace();
-                }
+//                try {
+//                    //Create file to save photo
+//                    loadPhotoFile = createImageFile();
+//                } catch (IOException ex) {
+//                    // Error occurred while creating the File
+//                    ex.printStackTrace();
+//                }
                 //Intent used when selecting from image gallery i.e picking image
                 Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                //i.putExtra(MediaStore.EXTRA_OUTPUT, loadPhotoFile);
                 startActivityForResult(i, LOAD_IMAGE);
             case AddfileFragmentFragment.OTHER_FILE_ITEM:
                 Log.d("HERE", "");
@@ -193,8 +203,12 @@ public class PictureGridFragment extends Fragment {
         Log.d(DEBUG, "onActivityResult: result code " + resultCode);
         Log.d(DEBUG, "onActivityResult: requestcode " + requestCode);
         int curSize = mAdapter.getItemCount();
+
+
+
         Log.d(DEBUG, "curSize: " + curSize);
-        Uri uri = null;
+
+
 //        if (resultCode != Activity.RESULT_OK) {
 //            Log.d(DEBUG, "onActivity Result not ok");
 //            return;
@@ -203,13 +217,39 @@ public class PictureGridFragment extends Fragment {
 
 
             case LOAD_IMAGE:
-                Log.d(DEBUG, "LOAD_IMAGE");
-                loadPhotoUri = data.getData();
-                //ImageView imageView;
-                //imageView.setImageBitmap(imageBitmap);
+                //Log.d(DEBUG, "LOAD_IMAGE:");
+                if (data.getData() == null){
+                    return;
+                }
+                Uri picUri = data.getData();
+                Log.d(DEBUG, "LOAD_IMAGE PicUri: " + picUri );
+//                int takeFlags = data.getFlags();
+//                takeFlags &= Intent.FLAG_GRANT_READ_URI_PERMISSION;
+//                getContext().getContentResolver().takePersistableUriPermission(loadPhotoUri, takeFlags);
+//               // BitmapUri bitmapUri = new BitmapUri(Uri.decode(loadPhotoUri.toString()), data.getFlags());
+
+
+                try {
+                    Bitmap mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), picUri);
+
+                    loadPhotoFile = createImageFile();
+                    FileOutputStream fOut = new FileOutputStream(loadPhotoFile);
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                    fOut.flush();
+                    fOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //Set mImageCaptureUri so we can save the state if stop in lifecycle
+                loadPhotoUri = FileProvider.getUriForFile(getContext(),
+                        BuildConfig.APPLICATION_ID,
+                        loadPhotoFile);
+                Log.d("Picture Frag", "loadPhotoUri:  " + loadPhotoUri);
+                Log.d("Picture Frag", "loadPhotoFile:  " + loadPhotoFile);
+
 
                 final MyPicture entry = new MyPicture();
-
+                final String temp_text;
                 Bitmap mBitmap = null;
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), loadPhotoUri);
@@ -218,59 +258,95 @@ public class PictureGridFragment extends Fragment {
                     e.printStackTrace();
                 }
 
-                //mImageView.setImageBitmap(rotatedBitmap);
-                String text;
-
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
                 FirebaseVisionTextRecognizer _textRecognizer =
                         FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-                final Bitmap finalMBitmap = mBitmap;
+
                 _textRecognizer.processImage(_image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
                     @Override
                     public void onSuccess(FirebaseVisionText firebaseVisionText) {
-
+                        int siz = mAdapter.getItemCount();
                         String text = firebaseVisionText.getText();
-                        entry.setmImage(finalMBitmap);
-                        mImages.add(finalMBitmap);
+                        //temp_text = new String(text);
+                        entry.setmImage(loadPhotoUri);
+                        Log.d("Presave: ", "" + loadPhotoUri);
+                        mImages.add(loadPhotoUri);
                         mText.add(text);
                         entry.setmText(text);
                         entry.setmLabel(-1);
+
+                        PictureEntry pp = new PictureEntry(getContext());
+                        pp.open();
+                        pp.insertEntry(entry);
+                        pp.close();
 
                         String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
 
                         Log.d(DEBUG, "TEXT:    " + text);
 
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-
+                            Log.d(DEBUG, "onFailure");
                     }
                 });
 
 
 
+
+
                 Log.d(DEBUG, "PICK_IMAGE URI before save: " + loadPhotoUri);
-
-                SharedPreferences mPrefs1 = getActivity().getSharedPreferences("uri",0);
-                SharedPreferences.Editor mEditor1 = mPrefs1.edit();
-                mEditor1.putString("imageURI", loadPhotoUri.toString()).commit();
-
-                SharedPreferences settings = getActivity().getSharedPreferences("uri", 0);
-                String imageUriString = settings.getString("imageURI", null);
-                Uri imageUri = Uri.parse(imageUriString);
-
-                Log.d(DEBUG, "PICK_IMAGE: uri after saving: " + imageUri);
-                //ImageView imageView;
-                //imageView.setImageBitmap(imageBitmap);
+                mAdapter.notifyItemInserted( mImages.size()-1);
+               // mAdapter.notifyItemRangeInserted(curSize, 1);
 
                 break;
             case REQUEST_TAKE_PICTURE_FROM_CAMERA:
-                Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA: loadPhotofile: " + loadPhotoFile);
+                Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA");
+
+             if (cameraPhotoUri == null){
+                 Log.d(DEBUG, "cameraPhotoUri == null");
+                 return;
+             }
+
+                Log.d("Picture Frag", "(OLD)loadPhotoUri:  " + loadPhotoUri);
+                Log.d("Picture Frag", "(OLD)loadPhotoFile:  " + loadPhotoFile);
+
+
+
+
+
+
 //                FileInputStream fis = openFileInput(loadPhotoFile.getAbsolutePath());
 //                Bitmap bmap = BitmapFactory.decodeStream(fis);
+
                 final Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
-                //mImageView.setImageBitmap(rotatedBitmap)
+
+
+
+                try {
+                    //Bitmap mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), picUri);
+
+                    loadPhotoFile = createImageFile();
+                    FileOutputStream fOut = new FileOutputStream(loadPhotoFile);
+                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
+                    fOut.flush();
+                    fOut.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //Set mImageCaptureUri so we can save the state if stop in lifecycle
+                loadPhotoUri = FileProvider.getUriForFile(getContext(),
+                        BuildConfig.APPLICATION_ID,
+                        loadPhotoFile);
+                Log.d(DEBUG, "(NEW)loadPhotoUri:  " + loadPhotoUri);
+                Log.d(DEBUG, "(NEW)loadPhotoFile:  " + loadPhotoFile);
+
+
+
+
+
                 final MyPicture entry2 = new MyPicture();
                 try {
                     FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
@@ -283,13 +359,28 @@ public class PictureGridFragment extends Fragment {
                             String text = firebaseVisionText.getText();
 
                             String upToNCharacters = text.substring(0, Math.min(text.length(), 30));
-                            mImages.add(rotatedBitmap);
-                            entry2.setmImage(rotatedBitmap);
-                            entry2.setmLabel(-1);
+                            mImages.add(cameraPhotoUri);
+                            entry2.setmImage(cameraPhotoUri);
+
+                            Log.d("Presave Camera: ", "" + cameraPhotoUri);
+
 
                             mText.add(text);
                             entry2.setmText(text);
+
+
+                            entry2.setmLabel(-1);
+
+                            PictureEntry p = new PictureEntry(getContext());
+                            p.open();
+                            p.insertEntry(entry2);
+                            p.close();
+
+
                             Log.d(DEBUG, "TEXT:    " + text);
+
+                            mAdapter.notifyItemInserted( mImages.size()-1);
+
 
                         }
                     }).addOnFailureListener(new OnFailureListener() {
@@ -298,42 +389,26 @@ public class PictureGridFragment extends Fragment {
 
                         }
                     });
-                } catch (Exception e){
+
+
+
+                } catch (Exception e) {
 
                 }
 
 
-
-                try {
-                    cameraPhotoFile = createImageFile();
-                    FileOutputStream fOut = new FileOutputStream(cameraPhotoFile);
-                    rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fOut);
-                    fOut.flush();
-                    fOut.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                //Set mImageCaptureUri so we can save the state if stop in lifecycle
-                cameraPhotoUri = FileProvider.getUriForFile(getContext(),
-                        BuildConfig.APPLICATION_ID,
-                        cameraPhotoFile);
-
-
-                Log.d(DEBUG, "uri before saving: " + cameraPhotoUri);
-                SharedPreferences mPrefs = getActivity().getSharedPreferences("uri",0);
-                SharedPreferences.Editor mEditor = mPrefs.edit();
-                mEditor.putString("imageURI", cameraPhotoUri.toString()).commit();
-
-                SharedPreferences setting = getActivity().getSharedPreferences("uri", 0);
-                String imageUriStrings = setting.getString("imageURI", null);
-                Uri imageUris = Uri.parse(imageUriStrings);
-                Log.d(DEBUG, "uri after saving: " + imageUris);
                 break;
+            default:
 
+                break;
 
         }
 
+
+
+
         mAdapter.notifyItemRangeInserted(curSize, 1);
+
 
 
     }
@@ -475,6 +550,102 @@ public class PictureGridFragment extends Fragment {
         return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(),
                 matrix, true);
     }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(DEBUG, "onStart");
+        ex = new PictureEntry(getContext());
+        ex.open();
+        ArrayList<MyPicture> temp = ex.getAllPictures();
+        for (int i = 0; i < temp.size(); i ++){
+            MyPicture t = temp.get(i);
+            Uri b = Uri.parse(t.getmImage());
+            String tex = t.getmText();
+            Log.d(DEBUG, "TEXT: " + tex);
+            Log.d(DEBUG, "URI TEXT:  " + b);
+
+            // Uri tempy =  Uri.parse(b);
+//            Bitmap bitmap = null;
+//            try {
+//                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),tempy);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+            // Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+            mImages.add(b);
+            mText.add(tex);
+
+        }
+
+        ex.close();
+
+        //mAdapter = new PictureAdapter(getContext(), mImages, mText);
+
+        recyclerView.setAdapter(mAdapter);
+        mAdapter.notifyItemInserted(mImages.size() - 1);
+       // mAdapter.notifyDataSetChanged();
+
+
+
+    }
+
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG, "onResume()");
+//        ex = new PictureEntry(getContext());
+//        ex.open();
+//        ArrayList<MyPicture> temp = ex.getAllPictures();
+//        for (int i = 0; i < temp.size(); i ++){
+//        MyPicture t = temp.get(i);
+//        Uri b = Uri.parse(t.getmImage());
+//        String tex = t.getmText();
+//        Log.d(DEBUG, "TEXT: " + tex);
+//        Log.d(DEBUG, "URI TEXT:  " + b);
+//
+//         // Uri tempy =  Uri.parse(b);
+////            Bitmap bitmap = null;
+////            try {
+////                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(),tempy);
+////            } catch (IOException e) {
+////                e.printStackTrace();
+////            }
+//            // Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
+//        mImages.add(b);
+//        mText.add(tex);
+//
+//        }
+//
+//        ex.close();
+//
+//        //mAdapter = new PictureAdapter(getContext(), mImages, mText);
+//
+//        recyclerView.setAdapter(mAdapter);
+//        mAdapter.notifyDataSetChanged();
+//
+
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG, "onPause");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(DEBUG, "onDestroy");
+    }
+
+
+
 
     private void createCustomFile(String fileName) {
         File path = new File(getContext().getFilesDir(), "MyOrganizer" + File.separator + "Images");

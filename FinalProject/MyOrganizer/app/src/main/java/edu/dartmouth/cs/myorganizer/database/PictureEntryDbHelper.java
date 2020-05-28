@@ -24,7 +24,7 @@ public class PictureEntryDbHelper extends SQLiteOpenHelper {
     private static final String CREATE_TABLE_ENTRIES = "create table "
             + TABLE_PICTURES + "("
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_IMAGE + " blob not null, "
+            + COLUMN_IMAGE + " text not null, "
             + COLUMN_TEXT + " text not null, "
             + COLUMN_LABEL + " integer);";
 
