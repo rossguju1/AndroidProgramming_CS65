@@ -19,15 +19,11 @@ import edu.dartmouth.cs.myorganizer.R;
 
 public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder> {
 
-
-
     ArrayList<String> mLabels;
     Context context;
 
     public LabelAdapter(Context context,ArrayList<String> labels) {
         this.context = context;
-
-
         this.mLabels = labels;
     }
 
@@ -51,7 +47,6 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
             public void onClick(View view) {
                 // open another activity on item click
                 Intent intent = new Intent(context, LabelActivity.class);
-
                 context.startActivity(intent); // start Intent
             }
         });
@@ -67,7 +62,6 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
     public class MyViewHolder extends RecyclerView.ViewHolder {
         // init the item view's
         TextView labels;
-
 
         public MyViewHolder(View itemView) {
             super(itemView);

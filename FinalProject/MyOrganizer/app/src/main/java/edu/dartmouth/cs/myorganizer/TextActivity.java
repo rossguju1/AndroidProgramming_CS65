@@ -48,11 +48,8 @@ public class TextActivity extends AppCompatActivity {
         tv.addView(tv1);
         tv.addView(tv2);
 
-
-
         Intent intent = getIntent();
         tv.setText(intent.getStringExtra("text"));
-
 
         class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
 

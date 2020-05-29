@@ -39,9 +39,6 @@ public class LabelsFragment extends Fragment {
         itemsData.add("Biology");
         itemsData.add("Chemistry");
 
-
-
-
         return v;
     }
 
@@ -50,8 +47,6 @@ public class LabelsFragment extends Fragment {
         inflater.inflate(R.menu.menu_labels, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
-
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -62,16 +57,12 @@ public class LabelsFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
        if (id == R.id.action_syncro) {
-
            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
            mAdapter = new LabelAdapter(getContext(), itemsData);
            recyclerView.setItemAnimator(new DefaultItemAnimator());
-
            recyclerView.setAdapter(mAdapter);
-
            return true;
        }
-
 
         return super.onOptionsItemSelected(item);
     }

@@ -76,40 +76,27 @@ public class MainActivity extends AppCompatActivity{
 
     public RecyclerView recyclerView;
 
-
     //Tab stuff
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private BottomNavigationView bottomNavigationView;
     private ArrayList<Fragment> fragments;
     private ActionTabsViewPagerAdapter myViewPageAdapter;
-
-
-
-
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
     private DatabaseReference mDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         // Initialize Firebase Auth and Database Reference
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
-
-
-
-
-
-
         checkPermissions();
-
 
         // Get viewPager instance
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -119,7 +106,6 @@ public class MainActivity extends AppCompatActivity{
         fragments = new ArrayList<>();
         fragments.add(new PictureGridFragment());
         fragments.add(new LabelsFragment());
-
 
         // use FragmentPagerAdapter to bind the TabLayout (tabs with different titles)
         // and ViewPager (different pages of fragment) together.
@@ -145,15 +131,12 @@ public class MainActivity extends AppCompatActivity{
             }
         );
 
-
         if (mFirebaseUser == null) {
             // Not logged in, launch the Log In activity
            Log.d(DEBUG, "mFirebaseUser == null");
         } else {
             mDatabase.setValue("Hello, World!");
         }
-
-
     }
 
     private void checkPermissions() {
@@ -203,14 +186,10 @@ public class MainActivity extends AppCompatActivity{
                 .commit();
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
         Log.d(DEBUG, "onResume");
-
-
     }
-
 
 }
