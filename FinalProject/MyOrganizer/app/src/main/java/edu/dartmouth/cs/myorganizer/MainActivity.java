@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
@@ -76,6 +77,10 @@ public class MainActivity extends AppCompatActivity{
 
     public RecyclerView recyclerView;
 
+    public SharedPreferences sharedPreferences;
+
+
+
 
     //Tab stuff
     private TabLayout tabLayout;
@@ -96,16 +101,11 @@ public class MainActivity extends AppCompatActivity{
         setContentView(R.layout.activity_main);
 
 
+
         // Initialize Firebase Auth and Database Reference
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-
-
-
-
-
 
 
         checkPermissions();
@@ -128,15 +128,23 @@ public class MainActivity extends AppCompatActivity{
         // add the PagerAdapter to the viewPager
         viewPager.setAdapter(myViewPageAdapter);
 
+        if (LoadInt() >= 0){
+
+            viewPager.setCurrentItem(LoadInt());
+        }
+
         bottomNavigationView.setOnNavigationItemSelectedListener(
             new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
                 public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                     switch (item.getItemId()) {
                         case R.id.navigation_grid:
+                            SaveInt(0);
                             viewPager.setCurrentItem(0);
+
                             break;
                         case R.id.navigation_labels:
+                            SaveInt(1);
                             viewPager.setCurrentItem(1);
                             break;
                     }
@@ -167,6 +175,14 @@ public class MainActivity extends AppCompatActivity{
                 || checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED || checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(DEBUG, "onPause");
+
+
     }
 
 //
@@ -208,9 +224,20 @@ public class MainActivity extends AppCompatActivity{
     public void onResume() {
         super.onResume();
         Log.d(DEBUG, "onResume");
+        viewPager.setCurrentItem(LoadInt());
 
 
     }
-
+    public void SaveInt(int value){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("key", value);
+        editor.commit();
+    }
+    public int LoadInt(){
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+       int current_page = sharedPreferences.getInt("key", -1);
+        return current_page;
+    }
 
 }

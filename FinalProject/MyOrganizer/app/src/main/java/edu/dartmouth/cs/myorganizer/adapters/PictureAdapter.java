@@ -31,20 +31,19 @@ import java.util.Date;
 
 import edu.dartmouth.cs.myorganizer.R;
 import edu.dartmouth.cs.myorganizer.TextActivity;
+import edu.dartmouth.cs.myorganizer.database.MyPicture;
 
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHolder> {
 
+    ArrayList<MyPicture> mInput;
 
-    ArrayList<Uri> mmImages;
-    ArrayList<String> mmText;
     Context context;
 
-    public PictureAdapter(Context context,ArrayList<Uri> Images, ArrayList<String> Text) {
+    public PictureAdapter(Context context, ArrayList<MyPicture> input) {
         this.context = context;
+        this.mInput = input;
 
-        this.mmImages = Images;
-        this.mmText = Text;
     }
 
     @Override
@@ -58,29 +57,33 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
     @Override
     public void onBindViewHolder(final PictureAdapter.ViewHolder holder, final int position) {
         // set the data in items
-
-        Uri temp_im = mmImages.get(position);
-
-        Log.d("Reading save: (Uri in Adapter)", "" + temp_im);
+        Log.d("Picture Adapter", "adapter position: " + holder.getAdapterPosition());
+        Log.d("Picture Adapter", "position: " + position);
 
 
+        MyPicture res = mInput.get(holder.getAdapterPosition());
 
-        File tempFile= new File(mmImages.get(position).getPath());
+        Uri resUri = Uri.parse(res.getmImage());
+
+
+        File tempFile= new File(resUri.getPath());
         Log.d("Picture Adapter  ", "URI TO FILE : " + tempFile);
 
         Bitmap bitmap = null;
         try {
-           // bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), temp_im);
-           bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), temp_im);
+           bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), resUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         holder.image.setImageBitmap(bitmap);
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm a");
-        String formattedDate = sdf.format(date);
-        holder.date.setText(formattedDate);
+
+
+
+        holder.date.setText(res.getmDate());
+
+
+
         // implement setOnClickListener event on item view.
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +91,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
                 Log.d("Label Adapter:", "clicked on image: pos "+ position);
                 Intent intent = new Intent(v.getContext(), TextActivity.class);
-                intent.putExtra("text", mmText.get(position)); // put image data in Intent
+                intent.putExtra("text", mInput.get(position).getmText()); // put image data in Intent
                 context.startActivity(intent); // start Intent
 
             }
@@ -101,7 +104,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mmImages.size();
+        return mInput.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder  {

@@ -13,6 +13,7 @@ public class MyPicture {
     private int mLabel;
     private Uri mImage;
     private String mText;
+    private String mDate;
 
     public long getId(){
 
@@ -64,4 +65,11 @@ public class MyPicture {
         this.mText = text;
     }
 
+    public String getmDate() {
+        return mDate;
+    }
+
+    public void setmDate(String mDate) {
+        this.mDate = mDate;
+    }
 }

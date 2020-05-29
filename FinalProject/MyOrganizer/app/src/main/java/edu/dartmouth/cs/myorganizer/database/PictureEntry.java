@@ -22,7 +22,9 @@ public class PictureEntry {
                     PictureEntryDbHelper.COLUMN_ID, // cursor index 0
                     PictureEntryDbHelper.COLUMN_IMAGE, // cursor index 1
                     PictureEntryDbHelper.COLUMN_TEXT, // cursor index 2
-                    PictureEntryDbHelper.COLUMN_LABEL
+                    PictureEntryDbHelper.COLUMN_LABEL, //curor 3
+                    PictureEntryDbHelper.COLUMN_DATE //cursor 4
+
             };
 
     public PictureEntry(Context context) {
@@ -46,6 +48,7 @@ public class PictureEntry {
         values.put( PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
         values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
         values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
+        values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
 
 
         long insertId = database.insert( PictureEntryDbHelper.TABLE_PICTURES, null,
@@ -135,6 +138,7 @@ public class PictureEntry {
 //        mMyPicture.setmImage(bm);
         mMyPicture.setmText(cursor.getString(2));
         mMyPicture.setmLabel(cursor.getInt(3));
+        mMyPicture.setmDate(cursor.getString(4));
 
 
         return mMyPicture;
@@ -150,30 +154,11 @@ public class PictureEntry {
         values.put(PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
         values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
         values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
+        values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
 
 
         database.update(PictureEntryDbHelper.TABLE_PICTURES, values, "_id="+ _id, null);
     }
-
-//    public void printExercise(Picture ex){
-//
-//        Log.d("EXERCISE", "ID: " + ex.getId()
-//                + "  Input: " + ex.getmInputType()
-//                + " Activity:    " + ex.getmActivityType()
-//                + " Date:   " + ex.getmDateTime()
-//                + "  mDuration:  " + ex.getmDuration()
-//                + "  mDistance  " + ex.getmDistance()
-//                + "  mAvgPace:  " + ex.getmAvgPace()
-//                + "  mAvgSpeed:  " + ex.getmAvgSpeed()
-//                + "  mCalorie:   " + ex.getmCalories()
-//                + "  mClimb   " + ex.getmClimb()
-//                + "  mHeartRate  " + ex.getmHeartRate()
-//                + "  mComment  " + ex.getmComment()
-//                + "  mPrivacy   " + ex.getmPrivacy()
-//                + "  mLocationList:  " + ex.getmLocationList()
-//                + "  mSpeed:  " + ex.getmSpeed()
-//        );
-//    }
 
     public int deletePicture(long id){
         if (database.delete(PictureEntryDbHelper.TABLE_PICTURES,PictureEntryDbHelper.COLUMN_ID
@@ -185,7 +170,16 @@ public class PictureEntry {
     }
 
 
+    public void printPicture(MyPicture ex){
 
+        Log.d("Picuture DB Entry", "ID: "
+                + ex.getId()
+                +"\n Image URI:  " + ex.getmImage()
+                + "\n Text:     " + ex.getmText()
+                + "\n Label   " + ex.getmLabel()
+                + "\n  mDuration:  " + ex.getmDate());
+    return;
+    }
 
 
 

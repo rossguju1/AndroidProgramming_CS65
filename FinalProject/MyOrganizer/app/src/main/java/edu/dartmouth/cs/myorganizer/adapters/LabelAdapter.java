@@ -51,6 +51,7 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
             public void onClick(View view) {
                 // open another activity on item click
                 Intent intent = new Intent(context, LabelActivity.class);
+                intent.putExtra("label", position); // put image data in Intent
 
                 context.startActivity(intent); // start Intent
             }
