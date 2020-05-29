@@ -206,11 +206,7 @@ public class TextActivity extends AppCompatActivity {
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG, "Delete Done:   " + pos);
             task = null;
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
             finish();
 
         }

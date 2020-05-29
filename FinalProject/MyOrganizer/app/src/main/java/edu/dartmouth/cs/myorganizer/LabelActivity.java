@@ -80,7 +80,11 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
 
-
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         ex = new PictureEntry(this);
         ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
@@ -92,7 +96,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     public void onResume() {
         super.onResume();
         Log.d(DEBUG, "onResume");
-
 
 
     }
@@ -127,6 +130,8 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
             if (mInput.isEmpty() || mInput == null){
 
                 Log.d(DEBUG, "(mInput.isEmpty() || mInput == null)");
+                mAdapter = new PictureAdapter(this, mInput);
+                recyclerView.setAdapter(mAdapter);
 
             } else {
 
