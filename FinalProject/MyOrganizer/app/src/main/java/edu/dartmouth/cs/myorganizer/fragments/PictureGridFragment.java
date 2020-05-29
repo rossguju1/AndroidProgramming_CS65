@@ -85,7 +85,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
     Bitmap rotatedBitmap;
 
-
+    public long inserted_id;
 
     public RecyclerView recyclerView;
 
@@ -571,7 +571,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         PictureEntry pp = new PictureEntry(getContext());
                         pp.printPicture(entry);
                         pp.open();
-                        pp.insertEntry(entry);
+                        inserted_id = pp.insertEntry(entry);
                         pp.close();
 
                     }

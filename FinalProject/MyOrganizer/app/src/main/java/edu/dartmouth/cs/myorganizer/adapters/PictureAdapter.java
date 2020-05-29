@@ -89,9 +89,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
             @Override
             public void onClick(View v) {
 
-                Log.d("Label Adapter:", "clicked on image: pos "+ position);
+                Log.d("Label Adapter:", "clicked on image: pos "+ position + "ID: " + mInput.get(position).getId());
                 Intent intent = new Intent(v.getContext(), TextActivity.class);
                 intent.putExtra("text", mInput.get(position).getmText()); // put image data in Intent
+                intent.putExtra("id", mInput.get(position).getId());
                 context.startActivity(intent); // start Intent
 
             }

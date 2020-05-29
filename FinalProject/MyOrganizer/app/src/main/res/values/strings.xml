@@ -39,5 +39,6 @@
     <string name="signup_error_message">Password/Email can\'t be Empty</string>
     <string name="signup_error_title">Sign Up Error</string>
     <string name="sign_up_button_label">Sign Up</string>
+    <string name="delete">Delete</string>
 
 </resources>

@@ -94,6 +94,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         Log.d(DEBUG, "onResume");
 
 
+
     }
 
 
@@ -121,9 +122,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
                     mInput.add(data.get(i));
                 }
             }
-
-
-
 
 
             if (mInput.isEmpty() || mInput == null){
@@ -155,6 +153,16 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     @Override
     public void onLoaderReset(@NonNull Loader<ArrayList<MyPicture>> loader) {
         Log.d(DEBUG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent data) {
+
+
+        super.onActivityResult(requestCode, resultCode, data);
+
 
     }
 
