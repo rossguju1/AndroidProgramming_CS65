@@ -27,6 +27,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import edu.dartmouth.cs.myorganizer.BuildConfig;
+import edu.dartmouth.cs.myorganizer.Globals;
 import edu.dartmouth.cs.myorganizer.adapters.ActionTabsViewPagerAdapter;
 import edu.dartmouth.cs.myorganizer.adapters.PictureAdapter;
 
@@ -47,6 +48,10 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
@@ -76,6 +81,10 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     private static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
     private static final int ALL_COMMENTS_LOADER_ID = 1;
     public SharedPreferences sharedPreferences;
+
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mDatabase;
     PictureEntry ex;
     Uri cameraPhotoUri;
     Uri loadPhotoUri;
@@ -105,6 +114,18 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         setHasOptionsMenu(true);
         Log.d(DEBUG, "onCreateView()");
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String email = sharedPreferences.getString("email", "");
+
+
+        Log.d(DEBUG, "Email: " + email);
+
+
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         //mInput = new ArrayList<MyPicture>();
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerViewGrid);
         // set a GridLayoutManager with 2 number of columns , horizontal gravity and false value for reverseLayout to show the items from start to end
@@ -132,8 +153,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-
+        if (id == R.id.action_signout) {
+            Log.d(DEBUG, "signout Clicked");
 
             return true;
         } else if (id == R.id.action_syncro) {
@@ -161,13 +182,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 break;
 
             case AddfileFragmentFragment.LOAD_PHOTO_ITEM:
-//                try {
-//                    //Create file to save photo
-//                    loadPhotoFile = createImageFile();
-//                } catch (IOException ex) {
-//                    // Error occurred while creating the File
-//                    ex.printStackTrace();
-//                }
+
                 //Intent used when selecting from image gallery i.e picking image
                 Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
 
@@ -291,44 +306,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 task = new AsyncInsert();
                 task.execute();
 
-
-
-//                final MyPicture entry2 = new MyPicture();
-//                FirebaseVisionImage image = FirebaseVisionImage.fromBitmap(rotatedBitmap);
-//                FirebaseVisionTextRecognizer textRecognizer =
-//                        FirebaseVision.getInstance().getOnDeviceTextRecognizer();
-//                textRecognizer.processImage(image).addOnSuccessListener(new OnSuccessListener<FirebaseVisionText>() {
-//                    @Override
-//                    public void onSuccess(FirebaseVisionText firebaseVisionText) {
-//
-//                        String text = firebaseVisionText.getText();
-//
-//
-//                        entry2.setmImage(cameraPhotoUri);
-//                        entry2.setmText(text);
-//                        entry2.setmLabel(-1);
-//                        mInput.add(entry2);
-//
-//                        Log.d("Presave Camera: ", "" + cameraPhotoUri);
-//
-//
-//                        PictureEntry p = new PictureEntry(getContext());
-//                        p.open();
-//                        p.insertEntry(entry2);
-//                        p.close();
-//
-//
-//                        Log.d(DEBUG, "TEXT:    " + text);
-//
-//                        mAdapter.notifyItemInserted( mInput.size()-1);
-//
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//
-//                    }
-//                });
 
 
                 break;
@@ -640,6 +617,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
             return null;
         }
+
 
         @Override
         protected void onProgressUpdate(String... name) {

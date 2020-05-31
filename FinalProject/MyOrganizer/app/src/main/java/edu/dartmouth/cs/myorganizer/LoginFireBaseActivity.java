@@ -2,6 +2,7 @@ package edu.dartmouth.cs.myorganizer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import android.content.Intent;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.util.Log;
 import android.view.View;
@@ -28,6 +30,10 @@ public class LoginFireBaseActivity extends AppCompatActivity {
     protected Button logInButton;
     protected TextView signUpTextView;
     private FirebaseAuth mFirebaseAuth;
+
+    private static final String DEBUG = "LoginFireBaseActivity";
+
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,12 +72,21 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                             .setPositiveButton(android.R.string.ok, null);
                     AlertDialog dialog = builder.create();
                     dialog.show();
+
                 } else {
+                    final String finalEmail = email;
                     mFirebaseAuth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener(LoginFireBaseActivity.this, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        Log.d(DEBUG, "EMAIL : " + finalEmail);
+                                        Globals.FUEGOBASE_EMAIL = finalEmail;
+
+                                        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                                        editor.putString("email", finalEmail);
+                                        editor.commit();
                                         Intent intent = new Intent(LoginFireBaseActivity.this, MainActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -90,5 +105,7 @@ public class LoginFireBaseActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
 }
