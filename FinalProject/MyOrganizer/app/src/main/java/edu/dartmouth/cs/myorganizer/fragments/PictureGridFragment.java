@@ -53,8 +53,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
@@ -123,6 +126,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
 
 
+
+
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
@@ -140,6 +145,29 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         //recyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
 
+
+
+
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.getValue() == null) {
+                    Log.d(DEBUG, "database is empty");
+
+                    // The child doesn't exist
+                } else {
+                    Log.d(DEBUG, "database is not empty");
+
+                    
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         return v;
     }
 
@@ -687,5 +715,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
 
     }
+
+
 
 }
