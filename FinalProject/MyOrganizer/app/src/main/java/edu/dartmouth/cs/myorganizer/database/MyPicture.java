@@ -14,7 +14,7 @@ public class MyPicture {
     private Uri mImage;
     private String mText;
     private String mDate;
-
+    private int mSynced;
     public long getId(){
 
         return id;
@@ -71,5 +71,13 @@ public class MyPicture {
 
     public void setmDate(String mDate) {
         this.mDate = mDate;
+    }
+
+    public int getmSynced() {
+        return mSynced;
+    }
+
+    public void setmSynced(int mSynced) {
+        this.mSynced = mSynced;
     }
 }

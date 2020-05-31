@@ -20,6 +20,8 @@ public class PictureEntryDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_TEXT = "text";
     public static final String COLUMN_LABEL= "label";
     public static final String COLUMN_DATE= "date";
+    public static final String COLUMN_SYNC= "synced";
+
 
 
     private static final String CREATE_TABLE_ENTRIES = "create table "
@@ -28,7 +30,8 @@ public class PictureEntryDbHelper extends SQLiteOpenHelper {
             + COLUMN_IMAGE + " text not null, "
             + COLUMN_TEXT + " text not null, "
             + COLUMN_LABEL + " integer not null, "
-            + COLUMN_DATE + " text not null);";
+            + COLUMN_DATE + " text not null, "
+            + COLUMN_SYNC + " integer not null);";
 
     public PictureEntryDbHelper(Context context) {
         // DATABASE_NAME is, of course the name of the database, which is defined as a string constant

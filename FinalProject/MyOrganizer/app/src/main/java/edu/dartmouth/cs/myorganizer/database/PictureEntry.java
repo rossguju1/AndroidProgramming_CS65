@@ -23,7 +23,10 @@ public class PictureEntry {
                     PictureEntryDbHelper.COLUMN_IMAGE, // cursor index 1
                     PictureEntryDbHelper.COLUMN_TEXT, // cursor index 2
                     PictureEntryDbHelper.COLUMN_LABEL, //curor 3
-                    PictureEntryDbHelper.COLUMN_DATE //cursor 4
+                    PictureEntryDbHelper.COLUMN_DATE, //cursor 4
+                    PictureEntryDbHelper.COLUMN_SYNC //cursor 5
+
+
 
             };
 
@@ -49,6 +52,7 @@ public class PictureEntry {
         values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
         values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
         values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
+        values.put( PictureEntryDbHelper.COLUMN_SYNC, entry.getmSynced());
 
 
         long insertId = database.insert( PictureEntryDbHelper.TABLE_PICTURES, null,
@@ -139,6 +143,7 @@ public class PictureEntry {
         mMyPicture.setmText(cursor.getString(2));
         mMyPicture.setmLabel(cursor.getInt(3));
         mMyPicture.setmDate(cursor.getString(4));
+        mMyPicture.setmSynced(cursor.getInt(5));
 
 
         return mMyPicture;
@@ -155,6 +160,7 @@ public class PictureEntry {
         values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
         values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
         values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
+        values.put(PictureEntryDbHelper.COLUMN_SYNC, entry.getmSynced());
 
 
         database.update(PictureEntryDbHelper.TABLE_PICTURES, values, "_id="+ _id, null);
@@ -177,7 +183,8 @@ public class PictureEntry {
                 +"\n Image URI:  " + ex.getmImage()
                 + "\n Text:     " + ex.getmText()
                 + "\n Label   " + ex.getmLabel()
-                + "\n  mDuration:  " + ex.getmDate());
+                + "\n  mDuration:  " + ex.getmDate()
+                + "\n synced? : " + ex.getmSynced());
     return;
     }
 

@@ -30,6 +30,9 @@ import edu.dartmouth.cs.myorganizer.BuildConfig;
 import edu.dartmouth.cs.myorganizer.Globals;
 import edu.dartmouth.cs.myorganizer.adapters.ActionTabsViewPagerAdapter;
 import edu.dartmouth.cs.myorganizer.adapters.PictureAdapter;
+import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
+
+import java.sql.Timestamp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -61,6 +64,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -103,6 +107,9 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     private static ArrayList<MyPicture> mInput;
 
 
+    private String mUserId;
+
+
     private AsyncInsert task = null;
    // private AsyncDelete delete_task = null;
     private int pic_result;
@@ -114,17 +121,14 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         setHasOptionsMenu(true);
         Log.d(DEBUG, "onCreateView()");
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        String email = sharedPreferences.getString("email", "");
-
-
-        Log.d(DEBUG, "Email: " + email);
 
 
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mUserId = mFirebaseUser.getUid();
+
+        mDatabase = FirebaseDatabase.getInstance().getReference("user_" + mUserId);
 
         //mInput = new ArrayList<MyPicture>();
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerViewGrid);
@@ -481,9 +485,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
             mEntry.close();
 
 
-
-
-
         }
     }
 
@@ -539,7 +540,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm a");
                         String formattedDate = sdf.format(date);
                         entry.setmDate(formattedDate);
-
+                        entry.setmSynced(0);
                         mInput.add(entry);
 
 
@@ -550,6 +551,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         pp.open();
                         inserted_id = pp.insertEntry(entry);
                         pp.close();
+
+                        insertPictureFuegoBase(entry);
 
                     }
 
@@ -589,7 +592,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm a");
                         String formattedDate = sdf.format(date);
                         entry.setmDate(formattedDate);
-
+                        entry.setmSynced(0);
                         mInput.add(entry);
                         mAdapter.notifyItemRangeInserted(prev, 1);
 
@@ -598,6 +601,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         pp.open();
                         pp.insertEntry(entry);
                         pp.close();
+
+                        insertPictureFuegoBase(entry);
 
                     }
 
@@ -642,6 +647,45 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("organized", value);
         editor.commit();
+    }
+
+    public void insertPictureFuegoBase(MyPicture entry){
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String email = sharedPreferences.getString("email", "");
+
+
+
+        Log.d(DEBUG, "Email: " + email);
+
+//        public String id;
+//        public String imageUri;
+//        public String text;
+//        public String label;
+//        public String date;
+        FuegoBaseEntry FuegoEntry = new FuegoBaseEntry(email, String.valueOf(entry.getId()), entry.getmImage().toString(), entry.getmText(), String.valueOf(entry.getmLabel()), entry.getmDate(), String.valueOf(entry.getmSynced()));
+
+
+       String ts= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+
+        Log.d(DEBUG, "TimeStamp: " + ts);
+
+        mDatabase.child("picture_entries").push().setValue(FuegoEntry).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(DEBUG, "successfully inserted entry");
+                // Write was successful!
+                // ...
+            }}).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d(DEBUG, "Failed to inserted entry");
+
+                // Write failed
+                // ...
+            }});
+
+
     }
 
 }
