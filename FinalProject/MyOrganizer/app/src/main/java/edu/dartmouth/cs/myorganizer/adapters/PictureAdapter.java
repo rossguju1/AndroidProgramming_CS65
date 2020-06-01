@@ -1,5 +1,6 @@
 package edu.dartmouth.cs.myorganizer.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 
 import android.content.Intent;
@@ -92,8 +93,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
                 Log.d("Label Adapter:", "clicked on image: pos "+ position + "ID: " + mInput.get(position).getId());
                 Intent intent = new Intent(v.getContext(), TextActivity.class);
                 intent.putExtra("text", mInput.get(position).getmText()); // put image data in Intent
+                intent.putExtra("pos", position);
                 intent.putExtra("id", mInput.get(position).getId());
-                context.startActivity(intent); // start Intent
+                ((Activity) context).startActivityForResult(intent, 1);
+                //context.startActivity(intent); // start Intent
 
             }
 

@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.myorganizer.adapters;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -52,7 +53,7 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
                 // open another activity on item click
                 Intent intent = new Intent(context, LabelActivity.class);
                 intent.putExtra("label", position); // put image data in Intent
-
+           //    ((Activity) context).startActivityForResult(intent, 1);
                 context.startActivity(intent); // start Intent
             }
         });

@@ -10,11 +10,21 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.CollationElementIterator;
 import java.util.ArrayList;
@@ -22,8 +32,10 @@ import java.util.Arrays;
 
 import edu.dartmouth.cs.myorganizer.adapters.PictureAdapter;
 import edu.dartmouth.cs.myorganizer.database.AsyncPictureLoader;
+import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
 import edu.dartmouth.cs.myorganizer.database.MyPicture;
 import edu.dartmouth.cs.myorganizer.database.PictureEntry;
+import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
 
 public class LabelActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<MyPicture>> {
     private static final String DEBUG = "LabelActivity";
@@ -32,10 +44,14 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     private int clickedLabel;
     RecyclerView recyclerView;
     private PictureAdapter mAdapter;
-
+    //private long id;
+    private int LAUNCH_TEXT_ACTIVITY = 1;
+    private FirebaseAuth mFirebaseAuth;
+    private FirebaseUser mFirebaseUser;
+    private DatabaseReference mDatabase;
     private static final int ALL_COMMENTS_LOADER_ID = 1;
     private PictureEntry ex;
-
+    private AsyncDelete delete_task = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,12 +181,108 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent data) {
 
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                Log.d(DEBUG, "delete selected");
+                int prev = mInput.size();
+                final long result_id =data.getLongExtra("result", -1);
+                int result_pos=data.getIntExtra("pos", -1);
+                Log.d(DEBUG, "delete selected: result_id and result_pos :" + result_id + "  " + result_pos);
+
+                mFirebaseAuth = FirebaseAuth.getInstance();
+                mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                String mUserId = mFirebaseUser.getUid();
+                Log.d(DEBUG, "indelete userId: " + mUserId);
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference("user_" + mUserId);
+                mDatabase.child("picture_entries").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+
+
+                        for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                            //getting userinfo
+                            FuegoBaseEntry entry = postSnapshot.getValue(FuegoBaseEntry.class);
+                            long current_id = Long.parseLong(entry.getId());
+                            Log.d(DEBUG, "Found item: " + current_id);
+                            if (current_id == result_id){
+                                Log.d(DEBUG, "Found item: " + current_id);
+
+                                postSnapshot.getRef().removeValue();
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                mInput.remove(result_pos);
+                mAdapter.notifyItemRangeRemoved(prev, 1);
+                delete_task=new AsyncDelete(result_id);
+                delete_task.execute();
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+
+
 
         super.onActivityResult(requestCode, resultCode, data);
-
-
     }
 
+
+    class AsyncDelete extends AsyncTask<Void, String, Void> {
+
+        int pos;
+        private long id;
+        AsyncDelete(long id){
+            this.id = id;
+
+        }
+        @Override
+        protected Void doInBackground(Void... unused) {
+
+            Log.d(DEBUG, "USER HIT DELETE! and wants to Delete: " + id);
+
+
+
+            PictureEntry mEntry = new PictureEntry(getApplicationContext());
+            mEntry.open();
+
+            int ret = mEntry.deletePicture(id);
+            mEntry.close();
+
+            if (ret>0){
+                Log.d("DEBUG", "DeleteWorked and removed: " + id);
+
+            } else {
+                Log.d("DEBUG", "Delete Failed to remove: " + id);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... name) {
+            if (!isCancelled()) {
+                //mAdapter.add(name[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+           // Log.d(DEBUG, "Delete Done:   " + pos);
+            delete_task = null;
+
+
+
+
+        }
+    }
 
 
 }

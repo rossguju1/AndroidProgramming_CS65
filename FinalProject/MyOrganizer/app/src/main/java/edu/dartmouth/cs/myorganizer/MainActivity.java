@@ -1,6 +1,7 @@
 package edu.dartmouth.cs.myorganizer;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 
@@ -35,8 +37,11 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.text.FirebaseVisionText;
@@ -50,6 +55,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import edu.dartmouth.cs.myorganizer.adapters.ActionTabsViewPagerAdapter;
+import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
+import edu.dartmouth.cs.myorganizer.database.MyPicture;
+import edu.dartmouth.cs.myorganizer.database.PictureEntry;
 import edu.dartmouth.cs.myorganizer.fragments.AddfileFragmentFragment;
 import edu.dartmouth.cs.myorganizer.fragments.LabelsFragment;
 import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
@@ -72,7 +80,7 @@ public class MainActivity extends AppCompatActivity{
     Bitmap rotatedBitmap;
     File myorganizerDir;
     private ImageView mImageView;
-
+    private AsyncDelete delete_task = null;
     ArrayList<String> images;
 
     public RecyclerView recyclerView;
@@ -103,9 +111,9 @@ public class MainActivity extends AppCompatActivity{
 
 
         // Initialize Firebase Auth and Database Reference
-        mFirebaseAuth = FirebaseAuth.getInstance();
-        mFirebaseUser = mFirebaseAuth.getCurrentUser();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+//        mFirebaseUser = mFirebaseAuth.getCurrentUser();
+        //mDatabase = FirebaseDatabase.getInstance().getReference();
 
 
         checkPermissions();
@@ -187,6 +195,64 @@ public class MainActivity extends AppCompatActivity{
 
     }
 
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent data) {
+
+        if (requestCode == 1) {
+            if(resultCode == Activity.RESULT_OK){
+                Log.d(DEBUG, "delete selected");
+               // int prev = mInput.size();
+                final long result_id =data.getLongExtra("result", -1);
+                int result_pos=data.getIntExtra("pos", -1);
+                Log.d(DEBUG, "delete selected: result_id and result_pos :" + result_id + "  " + result_pos);
+                //mInput.remove(result_pos);
+                // mAdapter.notifyItemRangeRemoved(prev, 1);
+                delete_task=new AsyncDelete(result_id);
+                delete_task.execute();
+
+                mFirebaseAuth = FirebaseAuth.getInstance();
+                mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                String mUserId = mFirebaseUser.getUid();
+                Log.d(DEBUG, "indelete userId: " + mUserId);
+                mDatabase = FirebaseDatabase.getInstance().getReference("user_" + mUserId);
+                mDatabase.child("picture_entries").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+
+
+                        for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                            //getting userinfo
+                            FuegoBaseEntry entry = postSnapshot.getValue(FuegoBaseEntry.class);
+                            long current_id = Long.parseLong(entry.getId());
+                            Log.d(DEBUG, "Found item: " + current_id);
+                            if (current_id == result_id){
+                                Log.d(DEBUG, "Found item: " + current_id);
+
+                                postSnapshot.getRef().removeValue();
+                            }
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+                // mAdapter.notifyDataSetChanged();
+               // mAdapter.notifyItemRangeRemoved(prev, 1);
+            }
+            if (resultCode == Activity.RESULT_CANCELED) {
+                //Write your code if there's no result
+            }
+        }
+
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
 
 
     @Override
@@ -198,7 +264,7 @@ public class MainActivity extends AppCompatActivity{
 
         if (id == R.id.action_signout) {
             Log.d(DEBUG, "signout Clicked");
-
+            mFirebaseAuth = FirebaseAuth.getInstance();
             mFirebaseAuth.signOut();
             loadLogInView();
             return true;
@@ -238,6 +304,52 @@ public class MainActivity extends AppCompatActivity{
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
        int current_page = sharedPreferences.getInt("key", -1);
         return current_page;
+    }
+
+    class AsyncDelete extends AsyncTask<Void, String, Void> {
+        int pos;
+        private long delete_id;
+        AsyncDelete(long id){
+            this.delete_id = id;
+
+        }
+        @Override
+        protected Void doInBackground(Void... unused) {
+
+            Log.d(DEBUG, "USER HIT DELETE! and wants to Delete: " + delete_id);
+
+
+            PictureEntry mEntry = new PictureEntry(getApplicationContext());
+            mEntry.open();
+
+            int ret = mEntry.deletePicture(delete_id);
+            mEntry.close();
+            if (ret>0){
+                Log.d("DEBUG", "DeleteWorked and removed: " + delete_id);
+
+            } else {
+                Log.d("DEBUG", "Delete Failed to remove: " + delete_id);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... name) {
+            if (!isCancelled()) {
+                //mAdapter.add(name[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void unused) {
+            // Log.d(DEBUG, "Delete Done:   " + pos);
+            delete_task = null;
+
+
+
+
+        }
     }
 
 }

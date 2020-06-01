@@ -3,6 +3,7 @@ package edu.dartmouth.cs.myorganizer;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Picture;
 import android.graphics.Typeface;
@@ -26,9 +27,10 @@ public class TextActivity extends AppCompatActivity {
     TextSwitcher tv;
     int imageIdx = 0;
     GestureDetector gestureDetector;
-    private long id;
+    private long _id;
     PictureEntry mEntry;
-    private AsyncDelete task = null;
+    private int pos;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,9 +61,9 @@ public class TextActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         tv.setText(intent.getStringExtra("text"));
-
-        id = intent.getLongExtra("id", -1);
-        Log.d(DEBUG, "TextActivity got ID: " + id);
+        pos = intent.getIntExtra("pos", -1);
+        _id = intent.getLongExtra("id", -1);
+        Log.d(DEBUG, "TextActivity got ID: " + _id);
 
 
 
@@ -160,57 +162,28 @@ public class TextActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.delete) {
-            task = new AsyncDelete();
-            task.execute();
+
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result", _id);
+            returnIntent.putExtra("pos", pos);
+            setResult(Activity.RESULT_OK,returnIntent);
+            finish();
+//            task = new AsyncDelete();
+//            task.execute();
+
         } else if (id == android.R.id.home) {         //On home button click
             //finish();
             //return true;
             //.onBackPressed();
             // ((AppCompatActivity)getActivity()).onBackPressed();
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("result", -1);
+            setResult(Activity.RESULT_CANCELED,returnIntent);
             finish();
         }
         return true;
     }
-    class AsyncDelete extends AsyncTask<Void, String, Void> {
-        int pos;
-        @Override
-        protected Void doInBackground(Void... unused) {
-            Log.d(DEBUG, "USER HIT DELETE! and wants to Delete: " + id);
 
-
-
-            mEntry = new PictureEntry(getApplicationContext());
-            mEntry.open();
-
-            int ret = mEntry.deletePicture(id);
-            mEntry.close();
-
-            if (ret>0){
-                Log.d("DEBUG", "DeleteWorked and removed: " + id);
-
-            } else {
-                Log.d("DEBUG", "Delete Failed to remove: " + id);
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(String... name) {
-            if (!isCancelled()) {
-                //mAdapter.add(name[0]);
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Void unused) {
-            Log.d(DEBUG, "Delete Done:   " + pos);
-            task = null;
-
-            finish();
-
-        }
-    }
 
 
 }

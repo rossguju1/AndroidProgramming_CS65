@@ -1,6 +1,8 @@
 package edu.dartmouth.cs.myorganizer.fragments;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -14,9 +16,11 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import java.util.UUID;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -84,10 +88,12 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     private static final int PICK_PDF_FILE = 2;
     private static final int PICK_DIRECTORY = 3;
     private static final String DEBUG = "PictureGridFragment";
-    private static final int LOAD_IMAGE = 77;;
+    private static final int LOAD_IMAGE = 77;
+    ;
     private static final int REQUEST_TAKE_PICTURE_FROM_CAMERA = 0;
     private static final int ALL_COMMENTS_LOADER_ID = 1;
     public SharedPreferences sharedPreferences;
+    private String base64Image;
 
     private FirebaseAuth mFirebaseAuth;
     private FirebaseUser mFirebaseUser;
@@ -114,7 +120,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
 
     private AsyncInsert task = null;
-   // private AsyncDelete delete_task = null;
+
     private int pic_result;
 
 
@@ -123,9 +129,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         View v = inflater.inflate(R.layout.fragment_grid, container, false);
         setHasOptionsMenu(true);
         Log.d(DEBUG, "onCreateView()");
-
-
-
 
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -138,14 +141,12 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         //mInput = new ArrayList<MyPicture>();
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerViewGrid);
         // set a GridLayoutManager with 2 number of columns , horizontal gravity and false value for reverseLayout to show the items from start to end
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(),2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager); // set LayoutManager to RecyclerView
         //  call the constructor of CustomAdapter to send the reference and data to Adapter
-       // mAdapter= new PictureAdapter(getContext(),  mInput);
+        // mAdapter= new PictureAdapter(getContext(),  mInput);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         //recyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
-
-
 
 
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -158,7 +159,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 } else {
                     Log.d(DEBUG, "database is not empty");
 
-                    
 
                 }
             }
@@ -194,13 +194,12 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
             return true;
         } else if (id == R.id.action_camera) {
             onPhotoPickerItemSelected(REQUEST_TAKE_PICTURE_FROM_CAMERA);
-        } else if(id == R.id.action_gallery){
+        } else if (id == R.id.action_gallery) {
             onPhotoPickerItemSelected(AddfileFragmentFragment.LOAD_PHOTO_ITEM);
         }
 
         return super.onOptionsItemSelected(item);
     }
-
 
 
     public void onPhotoPickerItemSelected(int item) {
@@ -240,31 +239,26 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         int prev_minput_size = mInput.size();
 
 
-
         Log.d(DEBUG, "previous adapter size: " + prev_adapter_size);
         Log.d(DEBUG, "previous minput size: " + prev_minput_size);
 
 
-
-//        if (resultCode != Activity.RESULT_OK) {
-//            Log.d(DEBUG, "onActivity Result not ok");
-//            return;
-//        }
         switch (requestCode) {
 
 
             case LOAD_IMAGE:
                 //Log.d(DEBUG, "LOAD_IMAGE:");
-                try{
-                if (data.getData() == null){
-                    return;
-                }}catch (Exception e){
+                try {
+                    if (data.getData() == null) {
+                        return;
+                    }
+                } catch (Exception e) {
 
                     return;
                 }
 
                 Uri picUri = data.getData();
-                Log.d(DEBUG, "LOAD_IMAGE PicUri: " + picUri );
+                Log.d(DEBUG, "LOAD_IMAGE PicUri: " + picUri);
                 pic_result = requestCode;
 
                 try {
@@ -292,10 +286,11 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
             case REQUEST_TAKE_PICTURE_FROM_CAMERA:
                 Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA");
                 try {
-                 if (cameraPhotoUri == null){
-                     Log.d(DEBUG, "cameraPhotoUri == null");
-                     return;
-                 }} catch (Exception e){
+                    if (cameraPhotoUri == null) {
+                        Log.d(DEBUG, "cameraPhotoUri == null");
+                        return;
+                    }
+                } catch (Exception e) {
                     return;
                 }
 
@@ -305,12 +300,11 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 pic_result = requestCode;
 
 
-
 //                FileInputStream fis = openFileInput(loadPhotoFile.getAbsolutePath());
 //                Bitmap bmap = BitmapFactory.decodeStream(fis);
 
                 final Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
-                if (rotatedBitmap == null){
+                if (rotatedBitmap == null) {
                     return;
                 }
 
@@ -334,10 +328,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 Log.d(DEBUG, "(NEW)loadPhotoFile:  " + cameraPhotoFile);
 
 
-
                 task = new AsyncInsert();
                 task.execute();
-
 
 
                 break;
@@ -346,9 +338,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 break;
 
         }
-
-
-
 
 
     }
@@ -447,7 +436,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     }
 
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -459,7 +447,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
 
     }
-
 
 
     @Override
@@ -484,12 +471,11 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     }
 
 
-
     @NonNull
     @Override
     public Loader<ArrayList<MyPicture>> onCreateLoader(int id, @Nullable Bundle args) {
         Log.d(DEBUG, "onCreateLoader: Thread ID: " + Thread.currentThread().getId());
-        if (id == ALL_COMMENTS_LOADER_ID){
+        if (id == ALL_COMMENTS_LOADER_ID) {
             return new AsyncPictureLoader(getContext());
         }
         return null;
@@ -524,10 +510,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     }
 
 
-
-
-
-
     class AsyncInsert extends AsyncTask<Void, String, Void> {
         @Override
         protected Void doInBackground(Void... unused) {
@@ -536,16 +518,22 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
             final MyPicture entry = new MyPicture();
 
 
-            if(pic_result == 0){
+            if (pic_result == 0) {
 
 
                 Bitmap mBitmap = null;
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), cameraPhotoUri);
-
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] _bytes = baos.toByteArray();
+                    base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+
+
 
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
                 FirebaseVisionTextRecognizer _textRecognizer =
@@ -591,7 +579,13 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         Log.d(DEBUG, "onFailure");
                     }
                 });
-            } else if (pic_result == 77){
+
+                Bitmap converetdImage = getResizedBitmap(mBitmap, 500);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                converetdImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] _bytes = baos.toByteArray();
+                base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
+            } else if (pic_result == 77) {
 
                 Bitmap mBitmap = null;
                 try {
@@ -600,6 +594,14 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                options.inSampleSize = 8; // shrink it down otherwise we will use stupid amounts of memory
+//               Bitmap _bitmap = BitmapFactory.decodeFile(loadPhotoUri.toString(), options);
+//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                //byte[] _bytes = baos.toByteArray();
+               // base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
                 FirebaseVisionTextRecognizer _textRecognizer =
@@ -641,10 +643,14 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                         Log.d(DEBUG, "onFailure");
                     }
                 });
-
+                Bitmap converetdImage = getResizedBitmap(mBitmap, 500);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                converetdImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                byte[] _bytes = baos.toByteArray();
+                base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 
             } else {
-              Log.d(DEBUG, "Insert failed because of bad URI");
+                Log.d(DEBUG, "Insert failed because of bad URI");
             }
 
 
@@ -670,31 +676,47 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         }
     }
 
-    public void SaveLabelState(int value){
+    public void SaveLabelState(int value) {
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt("organized", value);
         editor.commit();
     }
 
-    public void insertPictureFuegoBase(MyPicture entry){
+    public void insertPictureFuegoBase(MyPicture entry) {
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String email = sharedPreferences.getString("email", "");
 
 
-
         Log.d(DEBUG, "Email: " + email);
 
-//        public String id;
-//        public String imageUri;
-//        public String text;
-//        public String label;
-//        public String date;
-        FuegoBaseEntry FuegoEntry = new FuegoBaseEntry(email, String.valueOf(entry.getId()), entry.getmImage().toString(), entry.getmText(), String.valueOf(entry.getmLabel()), entry.getmDate(), String.valueOf(entry.getmSynced()));
+//        private String email;
+//        private String id;
+//        private String imageUri;
+//        private String imageBase64;
+//        private String text;
+//        private String label;
+//        private String date;
+//        private String synced;
+
+//        BitmapFactory.Options options = new BitmapFactory.Options();
+//        options.inSampleSize = 8; // shrink it down otherwise we will use stupid amounts of memory
+//        Bitmap bitmap = BitmapFactory.decodeFile(entry.getmImage(), options);
+//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//        byte[] bytes = baos.toByteArray();
+//        String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
+        //For the API less than 28 (Android version 8 )
+        //String base64Image = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
 
 
-       String ts= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+        // we finally have our base64 string version of the image, save it.
+        //    firebase.child("pic").setValue(base64Image);
+        FuegoBaseEntry FuegoEntry = new FuegoBaseEntry(email, String.valueOf(entry.getId()), entry.getmImage(), base64Image, entry.getmText(), String.valueOf(entry.getmLabel()), entry.getmDate(), String.valueOf(entry.getmSynced()));
+
+
+        String ts = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
         Log.d(DEBUG, "TimeStamp: " + ts);
 
@@ -704,17 +726,34 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 Log.d(DEBUG, "successfully inserted entry");
                 // Write was successful!
                 // ...
-            }}).addOnFailureListener(new OnFailureListener() {
+            }
+        }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(DEBUG, "Failed to inserted entry");
 
                 // Write failed
                 // ...
-            }});
-
+            }
+        });
 
     }
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
 
 
 

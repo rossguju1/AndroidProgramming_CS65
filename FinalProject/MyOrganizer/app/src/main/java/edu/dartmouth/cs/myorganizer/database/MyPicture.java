@@ -35,7 +35,7 @@ public class MyPicture {
 
     public String getmImage(){
         String res =  mImage.toString();
-        Log.d("MyPicture", "getmImage():" + res);
+        //Log.d("MyPicture", "getmImage():" + res);
         return res;
     }
 
