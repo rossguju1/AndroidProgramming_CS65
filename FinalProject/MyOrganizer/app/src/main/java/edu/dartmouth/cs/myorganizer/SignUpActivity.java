@@ -13,6 +13,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
+import edu.dartmouth.cs.myorganizer.database.PictureEntry;
+
 public class SignUpActivity extends AppCompatActivity {
 
     protected EditText passwordEditText;
@@ -54,6 +56,10 @@ public class SignUpActivity extends AppCompatActivity {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        PictureEntry p = new PictureEntry(getApplicationContext());
+                                        p.open();
+                                        p.deleteAllExercises();
+                                        p.close();
                                         Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);

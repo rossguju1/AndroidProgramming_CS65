@@ -524,10 +524,10 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 Bitmap mBitmap = null;
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), cameraPhotoUri);
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] _bytes = baos.toByteArray();
-                    base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
+//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+//                    byte[] _bytes = baos.toByteArray();
+//                    base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -582,7 +582,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
                 Bitmap converetdImage = getResizedBitmap(mBitmap, 500);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                converetdImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                converetdImage.compress(Bitmap.CompressFormat.JPEG, 30, baos);
                 byte[] _bytes = baos.toByteArray();
                 base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
             } else if (pic_result == 77) {
@@ -645,7 +645,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
                 });
                 Bitmap converetdImage = getResizedBitmap(mBitmap, 500);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                converetdImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                converetdImage.compress(Bitmap.CompressFormat.JPEG, 40, baos);
                 byte[] _bytes = baos.toByteArray();
                 base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 

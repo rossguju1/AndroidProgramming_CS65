@@ -119,10 +119,25 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                                     if (task.isSuccessful()) {
                                         Log.d(DEBUG, "EMAIL : " + finalEmail);
                                         Globals.FUEGOBASE_EMAIL = finalEmail;
+
                                         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                                        editor.putString("email", finalEmail);
-                                        editor.commit();
+                                        String email = sharedPreferences.getString("email", "");
+                                        if (email.equals(finalEmail)){
+
+
+
+
+                                        }else {
+                                            PictureEntry p = new PictureEntry(getApplicationContext());
+                                            p.open();
+                                            p.deleteAllExercises();
+                                            p.close();
+
+                                            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                                            editor.putString("email", finalEmail);
+                                            editor.commit();
+                                        }
 
                                        // mFirebaseAuth = FirebaseAuth.getInstance();
                                         mFirebaseUser = mFirebaseAuth.getCurrentUser();
