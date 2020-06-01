@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity{
 
     public SharedPreferences sharedPreferences;
 
-
+    private int result_pos;
 
 
     //Tab stuff
@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity{
                 Log.d(DEBUG, "delete selected");
                // int prev = mInput.size();
                 final long result_id =data.getLongExtra("result", -1);
-                int result_pos=data.getIntExtra("pos", -1);
+                result_pos=data.getIntExtra("pos", -1);
                 Log.d(DEBUG, "delete selected: result_id and result_pos :" + result_id + "  " + result_pos);
                 //mInput.remove(result_pos);
                 // mAdapter.notifyItemRangeRemoved(prev, 1);
@@ -345,9 +345,10 @@ public class MainActivity extends AppCompatActivity{
         protected void onPostExecute(Void unused) {
             // Log.d(DEBUG, "Delete Done:   " + pos);
             delete_task = null;
-
-
-
+            int prev = PictureGridFragment.mInput.size();
+            PictureGridFragment.mInput.remove(pos);
+            PictureGridFragment.mAdapter.notifyItemRangeRemoved(prev, 1);
+            PictureGridFragment.mAdapter.notifyDataSetChanged();
 
         }
     }

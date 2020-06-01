@@ -112,8 +112,8 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     public RecyclerView recyclerView;
 
 
-    private PictureAdapter mAdapter;
-    private static ArrayList<MyPicture> mInput;
+    public static PictureAdapter mAdapter;
+    public static ArrayList<MyPicture> mInput;
 
 
     private String mUserId;
