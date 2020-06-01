@@ -29,6 +29,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import edu.dartmouth.cs.myorganizer.BuildConfig;
 import edu.dartmouth.cs.myorganizer.Globals;
@@ -111,7 +112,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
     public RecyclerView recyclerView;
 
-
+private ProgressBar progressBar;
     public static PictureAdapter mAdapter;
     public static ArrayList<MyPicture> mInput;
 
@@ -129,6 +130,9 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         View v = inflater.inflate(R.layout.fragment_grid, container, false);
         setHasOptionsMenu(true);
         Log.d(DEBUG, "onCreateView()");
+
+        progressBar = v.findViewById(R.id.progressBarGrid);
+
 
 
         mFirebaseAuth = FirebaseAuth.getInstance();
@@ -476,6 +480,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     public Loader<ArrayList<MyPicture>> onCreateLoader(int id, @Nullable Bundle args) {
         Log.d(DEBUG, "onCreateLoader: Thread ID: " + Thread.currentThread().getId());
         if (id == ALL_COMMENTS_LOADER_ID) {
+            progressBar.setVisibility(View.VISIBLE);
             return new AsyncPictureLoader(getContext());
         }
         return null;
@@ -497,6 +502,7 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
 
             PictureEntry mEntry = new PictureEntry(getActivity());
             mEntry.close();
+            progressBar.setVisibility(View.GONE);
 
 
         }
@@ -753,8 +759,6 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
-
-
 
 
 }

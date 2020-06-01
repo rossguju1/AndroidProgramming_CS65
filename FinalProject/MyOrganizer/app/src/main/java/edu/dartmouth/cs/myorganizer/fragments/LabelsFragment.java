@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
@@ -33,11 +34,13 @@ public class LabelsFragment extends Fragment {
     public RecyclerView recyclerView;
     public LabelAdapter mAdapter;
     private ArrayList<String> itemsData;
+    private ProgressBar progressBar;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_labels, container, false);
         setHasOptionsMenu(true);
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerLabels);
+
         itemsData= new ArrayList<String>();
         itemsData.add("Math");
         itemsData.add("Phyics");

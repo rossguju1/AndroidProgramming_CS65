@@ -16,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,12 +55,12 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     private AsyncDelete delete_task = null;
     private int prev;
     private int result_pos;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_label);
-
         itemsData= new ArrayList<String>();
         itemsData.add("Math");
         itemsData.add("Phyics");
@@ -166,6 +167,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
 
 
         }
+
     }
 
 

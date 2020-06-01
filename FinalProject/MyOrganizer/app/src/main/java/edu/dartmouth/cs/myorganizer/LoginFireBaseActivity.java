@@ -23,6 +23,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -56,7 +58,7 @@ import edu.dartmouth.cs.myorganizer.database.PictureEntry;
 import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
 
 public class LoginFireBaseActivity extends AppCompatActivity {
-
+    private ProgressBar progressBar;
     protected EditText emailEditText;
     protected EditText passwordEditText;
     protected Button logInButton;
@@ -128,6 +130,8 @@ public class LoginFireBaseActivity extends AppCompatActivity {
 
 
                                         }else {
+
+
                                             PictureEntry p = new PictureEntry(getApplicationContext());
                                             p.open();
                                             p.deleteAllExercises();
@@ -138,7 +142,8 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                                             editor.putString("email", finalEmail);
                                             editor.commit();
                                         }
-
+                                        progressBar = findViewById(R.id.progressBar);
+                                        progressBar.setVisibility(View.VISIBLE);
                                        // mFirebaseAuth = FirebaseAuth.getInstance();
                                         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
@@ -300,7 +305,7 @@ public class LoginFireBaseActivity extends AppCompatActivity {
             Log.d(DEBUG, "INSERT THREAD DONE");
             task = null;
             pp.close();
-
+            progressBar.setVisibility(View.GONE);
             Intent intent = new Intent(LoginFireBaseActivity.this, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
