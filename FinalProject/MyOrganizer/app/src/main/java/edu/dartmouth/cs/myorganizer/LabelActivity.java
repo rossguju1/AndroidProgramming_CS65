@@ -52,6 +52,8 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     private static final int ALL_COMMENTS_LOADER_ID = 1;
     private PictureEntry ex;
     private AsyncDelete delete_task = null;
+    private int prev;
+    private int result_pos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,11 +98,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
 
-        try {
-            Thread.sleep(1500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         ex = new PictureEntry(this);
         ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
@@ -184,9 +182,9 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
                 Log.d(DEBUG, "delete selected");
-                int prev = mInput.size();
+                prev = mInput.size();
                 final long result_id =data.getLongExtra("result", -1);
-                int result_pos=data.getIntExtra("pos", -1);
+                result_pos=data.getIntExtra("pos", -1);
                 Log.d(DEBUG, "delete selected: result_id and result_pos :" + result_id + "  " + result_pos);
 
                 mFirebaseAuth = FirebaseAuth.getInstance();
@@ -219,10 +217,12 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
 
                     }
                 });
-                mInput.remove(result_pos);
-                mAdapter.notifyItemRangeRemoved(prev, 1);
+
                 delete_task=new AsyncDelete(result_id);
                 delete_task.execute();
+//                mInput.remove(result_pos);
+//                mAdapter.notifyItemRangeRemoved(prev, 1);
+//                mAdapter.notifyDataSetChanged();
             }
             if (resultCode == Activity.RESULT_CANCELED) {
                 //Write your code if there's no result
@@ -278,7 +278,9 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
            // Log.d(DEBUG, "Delete Done:   " + pos);
             delete_task = null;
 
-
+            mInput.remove(result_pos);
+            mAdapter.notifyItemRangeRemoved(prev, 1);
+            mAdapter.notifyDataSetChanged();
 
 
         }

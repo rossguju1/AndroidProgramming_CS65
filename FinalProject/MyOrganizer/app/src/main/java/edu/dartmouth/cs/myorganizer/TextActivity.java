@@ -168,14 +168,10 @@ public class TextActivity extends AppCompatActivity {
             returnIntent.putExtra("pos", pos);
             setResult(Activity.RESULT_OK,returnIntent);
             finish();
-//            task = new AsyncDelete();
-//            task.execute();
+
 
         } else if (id == android.R.id.home) {         //On home button click
-            //finish();
-            //return true;
-            //.onBackPressed();
-            // ((AppCompatActivity)getActivity()).onBackPressed();
+
             Intent returnIntent = new Intent();
             returnIntent.putExtra("result", -1);
             setResult(Activity.RESULT_CANCELED,returnIntent);
