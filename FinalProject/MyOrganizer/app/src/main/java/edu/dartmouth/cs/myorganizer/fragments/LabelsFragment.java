@@ -77,17 +77,15 @@ public class LabelsFragment extends Fragment {
         itemsData.add("Biology");
         itemsData.add("Math"); // 0
         itemsData.add("History");
-        itemsData.add("Phyics"); // 1
+        itemsData.add("Physics"); // 1
         itemsData.add("Thermodynamics");
         itemsData.add("Smartphone");
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         if (LoadState() ==1){
-
             mAdapter = new LabelAdapter(getContext(), itemsData);
             recyclerView.setAdapter(mAdapter);
         }
-
 
         LABEL_CONSTANTS.put(BIO, 0);
         LABEL_CONSTANTS.put(MATH, 1);
@@ -109,7 +107,6 @@ public class LabelsFragment extends Fragment {
         history = getVocab("historyCleaned.txt");
         thermo = getVocab("thermoCleaned.txt");
         smartphone = getVocab("smartphoneCleaned.txt");
-
 
         return v;
     }
@@ -174,7 +171,7 @@ public class LabelsFragment extends Fragment {
            //recyclerView.setItemAnimator(new DefaultItemAnimator());
 
            recyclerView.setAdapter(mAdapter);
-            task = new AsyncInsert();
+           task = new AsyncInsert();
            task.execute();
 
           SaveState(1);
