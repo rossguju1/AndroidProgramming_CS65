@@ -104,7 +104,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         itemsData.add("Thermodynamics");
         itemsData.add("Smartphone");
 
-
         Intent i = getIntent();
         clickedLabel = i.getIntExtra("label", -1);
         Log.d(DEBUG, "clicked Label" + clickedLabel);
@@ -130,21 +129,15 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
             return;
         }
 
-
-
         ex = new PictureEntry(this);
         ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
-
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
         Log.d(DEBUG, "onResume");
-
-
     }
 
 
@@ -170,11 +163,9 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
             for (int i = 0; i < data.size(); i++){
 
                 if (data.get(i).getmLabel() == clickedLabel){
-
                     mInput.add(data.get(i));
                 }
             }
-
 
             if (mInput.isEmpty() || mInput == null){
 
@@ -187,21 +178,15 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
                 mAdapter = new PictureAdapter(this, mInput);
                 recyclerView.setAdapter(mAdapter);
 
-
                 PictureEntry mEntry = new PictureEntry(this);
 
                 for (int i = 0; i < mInput.size(); i++) {
                     mEntry.printPicture(mInput.get(i));
 
                 }
-
                 mEntry.close();
             }
-
-
-
         }
-
     }
 
 
@@ -213,9 +198,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent data) {
-
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 1) {
             if(resultCode == Activity.RESULT_OK){
                 Log.d(DEBUG, "delete selected");
@@ -233,7 +216,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
                 mDatabase.child("picture_entries").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
-
 
                         for (DataSnapshot postSnapshot : snapshot.getChildren()) {
                             //getting userinfo
@@ -253,6 +235,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
+
                 });
 
                 delete_task=new AsyncDelete(result_id);
@@ -265,8 +248,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
                 //Write your code if there's no result
             }
         }
-
-
 
         super.onActivityResult(requestCode, resultCode, data);
     }
@@ -284,8 +265,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         protected Void doInBackground(Void... unused) {
 
             Log.d(DEBUG, "USER HIT DELETE! and wants to Delete: " + id);
-
-
 
             PictureEntry mEntry = new PictureEntry(getApplicationContext());
             mEntry.open();

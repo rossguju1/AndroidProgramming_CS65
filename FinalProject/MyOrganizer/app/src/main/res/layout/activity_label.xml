@@ -9,16 +9,16 @@ android:layout_height="match_parent"
 tools:context=".LabelActivity">
 
 
-<androidx.recyclerview.widget.RecyclerView
-    android:id="@+id/recyclerViewLabel"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginLeft="4dp"
-    android:layout_marginRight="4dp"
-    android:elevation="2dp"
-    app:layout_constraintBottom_toBottomOf="parent"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewLabel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="10dp"
+        android:elevation="2dp"
 
-    />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
     <ProgressBar
         android:id="@+id/progressBarLabel"

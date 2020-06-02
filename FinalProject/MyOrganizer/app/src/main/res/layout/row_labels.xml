@@ -11,10 +11,10 @@
         android:id="@+id/labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="50sp"
-        android:textStyle="bold"
         android:background="@drawable/label_border"
-         />
-
+        android:drawablePadding="5dp"
+        android:padding="5dp"
+        android:textSize="40sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>
