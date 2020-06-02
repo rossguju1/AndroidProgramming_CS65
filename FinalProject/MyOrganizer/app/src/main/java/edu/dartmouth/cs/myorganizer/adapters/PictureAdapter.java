@@ -1,21 +1,32 @@
 package edu.dartmouth.cs.myorganizer.adapters;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.view.Window;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import android.view.LayoutInflater;
+import android.widget.RelativeLayout;
 import android.widget.TextSwitcher;
 import android.widget.TextView;
 
@@ -36,10 +47,12 @@ import edu.dartmouth.cs.myorganizer.database.MyPicture;
 
 
 public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHolder> {
-
+    private ViewGroup parent;
     ArrayList<MyPicture> mInput;
-
+    private Animator currentAnimator;
+    private int shortAnimationDuration;
     Context context;
+    View v2;
 
     public PictureAdapter(Context context, ArrayList<MyPicture> input) {
         this.context = context;
@@ -50,8 +63,10 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
     @Override
     public PictureAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // infalte the item Layout
+        this.parent = parent;
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.row_images, parent, false);
         // set the view's size, margins, paddings and layout parameters
+        v2 = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_layout, parent, false);
         return new ViewHolder(v);
     }
 
@@ -72,7 +87,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
         Bitmap bitmap = null;
         try {
-           bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), resUri);
+            bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), resUri);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -83,10 +98,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
         holder.date.setText(res.getmDate());
 
-
-
-        // implement setOnClickListener event on item view.
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        holder.image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -96,11 +108,35 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
                 intent.putExtra("pos", position);
                 intent.putExtra("id", mInput.get(position).getId());
                 ((Activity) context).startActivityForResult(intent, 1);
-                //context.startActivity(intent); // start Intent
-
             }
 
         });
+
+
+        final Bitmap finalBitmap = bitmap;
+
+        holder.image.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if(v2.getParent() != null) {
+                    ((ViewGroup)v2.getParent()).removeView(v2); // <- fix
+                }
+
+                Dialog settingsDialog = new Dialog(context);
+
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
+                settingsDialog.setContentView(v2);
+
+                ImageView im= v2.findViewById(R.id.image_dialog);
+                im.getMaxHeight();
+
+                im.setImageBitmap(finalBitmap);
+                settingsDialog.show();
+                return false;
+            }
+        });
+
 
 
     }
@@ -116,6 +152,7 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
         private ImageView image;
         private TextView date;
 
+
         public ViewHolder(View itemView) {
             super(itemView);
 
@@ -127,4 +164,5 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
 
     }
+
 }

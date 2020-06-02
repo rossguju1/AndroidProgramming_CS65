@@ -72,7 +72,7 @@ public class LabelsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_labels, container, false);
         setHasOptionsMenu(true);
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerLabels);
-
+  
         itemsData= new ArrayList<String>();
         itemsData.add("Biology");
         itemsData.add("Math"); // 0
@@ -165,6 +165,7 @@ public class LabelsFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
        if (id == R.id.action_syncro) {
+
 
          //  recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
            mAdapter = new LabelAdapter(getContext(), itemsData);
