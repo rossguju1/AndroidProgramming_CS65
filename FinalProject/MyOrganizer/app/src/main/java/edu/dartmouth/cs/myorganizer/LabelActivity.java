@@ -3,6 +3,7 @@ package edu.dartmouth.cs.myorganizer;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -12,12 +13,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,10 +31,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.text.CollationElementIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
+import java.util.Hashtable;
+import java.util.Iterator;
 
+import edu.dartmouth.cs.myorganizer.ML.TextProcessing;
 import edu.dartmouth.cs.myorganizer.adapters.PictureAdapter;
 import edu.dartmouth.cs.myorganizer.database.AsyncPictureLoader;
 import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
@@ -40,11 +55,31 @@ import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
 
 public class LabelActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<MyPicture>> {
     private static final String DEBUG = "LabelActivity";
+//    private static final String BIO = "BIO";
+//    private static final String MATH = "MATH";
+//    private static final String HISTORY = "HISTORY";
+//    private static final String PHYSICS = "PHYSICS";
+//    private static final String THERMO = "THERMO";
+//    private static final String SMARTPHONE = "SMARTPHONE";
+//
+//    Hashtable<String, Integer> FREQUENCY_COUNTS = new Hashtable<>();
+//    Hashtable<String, Integer> LABEL_CONSTANTS = new Hashtable<>();
+//    Hashtable<Integer, String> LABELS_TO_STRING = new Hashtable<>();
+//
+//    private String[] bio;
+//    private String[] math;
+//    private String[] physics;
+//    private String[] history;
+//    private String[] thermo;
+//    private String[] smartphone;
+
+
     private ArrayList<String> itemsData;
     private ArrayList<MyPicture> mInput;
     private int clickedLabel;
     RecyclerView recyclerView;
     private PictureAdapter mAdapter;
+    private static final String AUTHORITY="edu.dartmouth.cs.myorganizer";
     //private long id;
     private int LAUNCH_TEXT_ACTIVITY = 1;
     private FirebaseAuth mFirebaseAuth;
@@ -56,16 +91,19 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     private int prev;
     private int result_pos;
     private ProgressBar progressBar;
-
+    private Resources resources;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_label);
-        itemsData= new ArrayList<String>();
-        itemsData.add("Math");
-        itemsData.add("Phyics");
+        itemsData = new ArrayList<String>();
         itemsData.add("Biology");
-        itemsData.add("Chemistry");
+        itemsData.add("Math"); // 0
+        itemsData.add("History");
+        itemsData.add("Phyics"); // 1
+        itemsData.add("Thermodynamics");
+        itemsData.add("Smartphone");
+
 
         Intent i = getIntent();
         clickedLabel = i.getIntExtra("label", -1);
@@ -73,17 +111,11 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerViewLabel);
         // set a GridLayoutManager with 2 number of columns , horizontal gravity and false value for reverseLayout to show the items from start to end
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,2);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(gridLayoutManager); // set LayoutManager to RecyclerView
         //  call the constructor of CustomAdapter to send the reference and data to Adapter
         // mAdapter= new PictureAdapter(getContext(),  mInput);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-
-
-       // TextView item1 =  findViewById(R.id.ui_sameple_image);
-
-        //item1.setText("Classified Images ");
 
 
     }
@@ -134,9 +166,11 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
 
             Log.d(DEBUG, "onLoadFinished: dataSize: " + data.size());
           mInput = new ArrayList<MyPicture>();
+
             for (int i = 0; i < data.size(); i++){
 
                 if (data.get(i).getmLabel() == clickedLabel){
+
                     mInput.add(data.get(i));
                 }
             }
@@ -169,6 +203,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
         }
 
     }
+
 
 
     @Override
