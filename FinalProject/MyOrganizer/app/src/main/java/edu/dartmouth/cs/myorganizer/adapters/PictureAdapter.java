@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.w3c.dom.Text;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -86,13 +87,19 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
         Log.d("Picture Adapter  ", "URI TO FILE : " + tempFile);
 
         Bitmap bitmap = null;
+        Bitmap converetdImage = null;
         try {
             bitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(), resUri);
+           converetdImage = getResizedBitmap(bitmap, 500);  
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            converetdImage.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        holder.image.setImageBitmap(bitmap);
+
+        holder.image.setImageBitmap(converetdImage);
 
 
 
@@ -164,5 +171,22 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
 
     }
+
+
+    public Bitmap getResizedBitmap(Bitmap image, int maxSize) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float)width / (float) height;
+        if (bitmapRatio > 1) {
+            width = maxSize;
+            height = (int) (width / bitmapRatio);
+        } else {
+            height = maxSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
+    }
+
 
 }

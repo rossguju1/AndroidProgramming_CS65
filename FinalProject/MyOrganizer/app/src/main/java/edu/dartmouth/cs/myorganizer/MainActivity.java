@@ -107,6 +107,7 @@ public class MainActivity extends AppCompatActivity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(DEBUG, "onCreate");
 
 
 
@@ -285,6 +286,15 @@ public class MainActivity extends AppCompatActivity{
                 .commit();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        Log.d(DEBUG, "onStart");
+        viewPager.setCurrentItem(LoadInt());
+
+
+    }
 
     @Override
     public void onResume() {
@@ -294,6 +304,15 @@ public class MainActivity extends AppCompatActivity{
 
 
     }
+
+    @Override
+    public void onDestroy(){
+        Log.d(DEBUG, "onDestroy");
+
+        super.onDestroy();
+    }
+
+
     public void SaveInt(int value){
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -352,5 +371,7 @@ public class MainActivity extends AppCompatActivity{
 
         }
     }
+
+
 
 }

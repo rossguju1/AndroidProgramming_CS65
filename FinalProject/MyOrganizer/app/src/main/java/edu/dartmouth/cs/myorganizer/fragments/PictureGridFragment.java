@@ -181,6 +181,16 @@ private ProgressBar progressBar;
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(DEBUG, "onResume");
+
+
+    }
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
@@ -233,6 +243,7 @@ private ProgressBar progressBar;
     }
 
 
+
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent data) {
@@ -282,7 +293,7 @@ private ProgressBar progressBar;
                         loadPhotoFile);
                 Log.d("Picture Frag", "loadPhotoUri:  " + loadPhotoUri);
                 Log.d("Picture Frag", "loadPhotoFile:  " + loadPhotoFile);
-
+                SaveLabelState(-1);
                 task = new AsyncInsert();
                 task.execute();
 
@@ -331,7 +342,7 @@ private ProgressBar progressBar;
                 Log.d(DEBUG, "(NEW)loadPhotoUri:  " + cameraPhotoUri);
                 Log.d(DEBUG, "(NEW)loadPhotoFile:  " + cameraPhotoFile);
 
-
+                SaveLabelState(-1);
                 task = new AsyncInsert();
                 task.execute();
 
@@ -345,7 +356,6 @@ private ProgressBar progressBar;
 
 
     }
-
     private void dispatchTakePictureIntent() {
 
         // Explicit intent used to take photo
@@ -453,13 +463,7 @@ private ProgressBar progressBar;
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(DEBUG, "onResume()");
 
-
-    }
 
     @Override
     public void onPause() {
@@ -563,10 +567,10 @@ private ProgressBar progressBar;
                         String formattedDate = sdf.format(date);
                         entry.setmDate(formattedDate);
                         entry.setmSynced(0);
-                        mInput.add(entry);
+                        //mInput.add(entry);
 
-
-                        mAdapter.notifyItemRangeInserted(prev, 1);
+//                        mInput.add(entry);
+//                        mAdapter.notifyItemRangeInserted(prev, 1);
 
                         PictureEntry pp = new PictureEntry(getContext());
                         pp.printPicture(entry);
@@ -591,6 +595,8 @@ private ProgressBar progressBar;
                 converetdImage.compress(Bitmap.CompressFormat.JPEG, 30, baos);
                 byte[] _bytes = baos.toByteArray();
                 base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
+
+
             } else if (pic_result == 77) {
 
                 Bitmap mBitmap = null;
@@ -677,7 +683,8 @@ private ProgressBar progressBar;
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG, "INSERT THREAD DONE");
             task = null;
-            SaveLabelState(-1);
+
+
 
         }
     }

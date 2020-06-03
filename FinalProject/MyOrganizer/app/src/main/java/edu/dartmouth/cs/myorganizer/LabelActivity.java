@@ -74,7 +74,6 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
 //    private String[] smartphone;
 
 
-    private ArrayList<String> itemsData;
     private ArrayList<MyPicture> mInput;
     private int clickedLabel;
     RecyclerView recyclerView;
@@ -96,13 +95,7 @@ public class LabelActivity extends AppCompatActivity implements LoaderManager.Lo
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_label);
-        itemsData = new ArrayList<String>();
-        itemsData.add("Biology");
-        itemsData.add("Math"); // 0
-        itemsData.add("History");
-        itemsData.add("Phyics"); // 1
-        itemsData.add("Thermodynamics");
-        itemsData.add("Smartphone");
+
 
         Intent i = getIntent();
         clickedLabel = i.getIntExtra("label", -1);
