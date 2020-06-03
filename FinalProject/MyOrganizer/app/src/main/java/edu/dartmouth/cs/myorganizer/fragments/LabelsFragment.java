@@ -1,6 +1,5 @@
 package edu.dartmouth.cs.myorganizer.fragments;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.os.AsyncTask;
@@ -18,7 +17,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,25 +26,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
 
-import edu.dartmouth.cs.myorganizer.LoginFireBaseActivity;
 import edu.dartmouth.cs.myorganizer.ML.TextProcessing;
-import edu.dartmouth.cs.myorganizer.MainActivity;
 import edu.dartmouth.cs.myorganizer.R;
 import edu.dartmouth.cs.myorganizer.adapters.LabelAdapter;
-import edu.dartmouth.cs.myorganizer.adapters.PictureAdapter;
 import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
 import edu.dartmouth.cs.myorganizer.database.MyPicture;
 import edu.dartmouth.cs.myorganizer.database.PictureEntry;
@@ -93,12 +85,6 @@ public class LabelsFragment extends Fragment {
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerLabels);
         current_labels = new ArrayList<Integer>();
         itemsData= new ArrayList<Integer>();
-//        itemsData.add("Biology");
-//        itemsData.add("Math"); // 0
-//        itemsData.add("History");
-//        itemsData.add("Physics"); // 1
-//        itemsData.add("Thermodynamics");
-//        itemsData.add("Smartphone");
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setItemAnimator(new DefaultItemAnimator());
 
@@ -129,7 +115,6 @@ public class LabelsFragment extends Fragment {
 
     private String[] getVocab(String filename){
 
-       // File f=new File(getFilesDir(), filename);
         AssetManager assets=getContext().getAssets();
         BufferedReader br = null;
         try {
@@ -181,40 +166,22 @@ public class LabelsFragment extends Fragment {
 
         //noinspection SimplifiableIfStatement
        if (id == R.id.action_syncro) {
-
-
-         //  recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
            progressBar.setVisibility(View.VISIBLE);
            task = new AsyncInsert();
            task.execute();
-
-
-
-
            SaveState(1);
-
-
            return true;
        }
-
-
         return super.onOptionsItemSelected(item);
     }
 
-
-
-
     @Override
     public void onDestroy(){
-        Log.d(DEBUG, "onDestroy");
-
         super.onDestroy();
     }
 
     @Override
     public void onPause() {
-
-        Log.d(DEBUG, "onPause");
         super.onPause();
     }
     public void SaveState(int value){
@@ -231,29 +198,15 @@ public class LabelsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG, "onResume");
-
-
     }
     @Override
     public void onStart() {
         super.onStart();
-
-        Log.d(DEBUG, "onStart");
         if (LoadState() == 1){
-            //progressBar.setVisibility(View.VISIBLE);
             progressBar.setVisibility(View.VISIBLE);
-
             Vtask = new AsyncView();
             Vtask.execute();
-
-        } else {
-//            itemsData = new ArrayList<Integer>();
-//            recyclerView.setAdapter(mAdapter);
-
         }
-
-
     }
 
     int FindLabel(){
@@ -268,18 +221,13 @@ public class LabelsFragment extends Fragment {
                 Label = LABEL_CONSTANTS.get(mapElement.getKey());
             }
         }
-
-        Log.d(DEBUG, "\n\nClassified as Label" + LABELS_TO_STRING.get(Label));
-
         return Label;
-
     }
 
 
     class AsyncInsert extends AsyncTask<Void, String, Void> {
         @Override
         protected Void doInBackground(Void... unused) {
-            Log.d(DEBUG, "AsyncInsert doInBackground()");
             PictureEntry mEntry=new PictureEntry(getContext());
             mEntry.open();
 
@@ -292,69 +240,48 @@ public class LabelsFragment extends Fragment {
                 String[] tokens = TP.preprocess(data.get(i).getmText());
                 for (int t = 0; t < bio.length; t++) {
                     for (int tt = 0; tt < tokens.length; tt++) {
-
                         if (tokens[tt].equals(bio[t])) {
-
                             biocounter++;
                         }
                     }
                 }
                 FREQUENCY_COUNTS.put(BIO, biocounter);
-                Log.d(DEBUG, "biologoy frequency counts: " + biocounter);
-
-
                 int mathcounter = 0;
                 for (int t = 0; t < math.length; t++) {
                     for (int tt = 0; tt < tokens.length; tt++) {
-
                         if (tokens[tt].equals(math[t])) {
-
                             mathcounter++;
                         }
                     }
                 }
                 FREQUENCY_COUNTS.put(MATH, mathcounter);
-                Log.d(DEBUG, "math frequency counts: " + mathcounter);
-
-
                 int historycounter = 0;
                 for (int t = 0; t < history.length; t++) {
                     for (int tt = 0; tt < tokens.length; tt++) {
-
                         if (tokens[tt].equals(history[t])) {
-
                             historycounter++;
                         }
                     }
                 }
                 FREQUENCY_COUNTS.put(HISTORY, historycounter);
-                Log.d(DEBUG, "history frequency counts: " + historycounter);
                 int physicscounter = 0;
                 for (int t = 0; t < physics.length; t++) {
                     for (int tt = 0; tt < tokens.length; tt++) {
-
                         if (tokens[tt].equals(physics[t])) {
-
                             physicscounter++;
                         }
                     }
                 }
-                Log.d(DEBUG, "physics frequency counts: " + physicscounter);
                 FREQUENCY_COUNTS.put(PHYSICS, physicscounter);
                 int thermocounter = 0;
                 for (int t = 0; t < thermo.length; t++) {
                     for (int tt = 0; tt < tokens.length; tt++) {
-
                         if (tokens[tt].equals(thermo[t])) {
-
                             thermocounter++;
                         }
                     }
                 }
-                Log.d(DEBUG, "thermo frequency counts: " + thermocounter);
-
                 FREQUENCY_COUNTS.put(THERMO, thermocounter);
-
 
                 int smartphonecounter = 0;
                 for (int t = 0; t < smartphone.length; t++) {
@@ -366,10 +293,8 @@ public class LabelsFragment extends Fragment {
                         }
                     }
                 }
-                Log.d(DEBUG, "smartphone frequency counts: " + smartphonecounter);
 
                 FREQUENCY_COUNTS.put(SMARTPHONE, smartphonecounter);
-
 
                 final int retLabel = FindLabel();
                 addLabelAdapter(retLabel);
@@ -379,7 +304,6 @@ public class LabelsFragment extends Fragment {
                 data.get(i).setId(new_id);
 
                 mEntry.deletePicture(old_id);
-
 
                 FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
@@ -395,10 +319,8 @@ public class LabelsFragment extends Fragment {
                             FuegoBaseEntry entry = postSnapshot.getValue(FuegoBaseEntry.class);
                             if (old_id == Long.parseLong(entry.getId())) {
 
-
                                 FuegoBaseEntry FuegoEntry = new FuegoBaseEntry(entry.getEmail(), String.valueOf(new_id), entry.getImageUri(), entry.getImageBase64(), entry.getText(), String.valueOf(retLabel), entry.getDate(), entry.getSynced());
 
-                                //entry.setLabel(String.valueOf(all_pics.get(i).getmLabel()));
                                 postSnapshot.getRef().removeValue();
 
                                 FirebaseDatabase.getInstance().getReference("user_" + mUserId).child("picture_entries").push().setValue(FuegoEntry).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -412,15 +334,12 @@ public class LabelsFragment extends Fragment {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.d(DEBUG, "Failed to inserted entry");
-
                                         // Write failed
                                         // ...
                                     }
                                 });
                             }
-
                         }
-
                     }
 
                     @Override
@@ -428,25 +347,16 @@ public class LabelsFragment extends Fragment {
 
                     }
                 });
-
-
             }
-
             mEntry.close();
-
-
-
-
             return null;
         }
-
 
         @Override
         protected void onProgressUpdate(String... name) {
             if (!isCancelled()) {
                 // ((MainActivity) context).onResult(result);
                 //mAdapter.add(name[0]);
-
             }
         }
 
@@ -456,20 +366,14 @@ public class LabelsFragment extends Fragment {
             task = null;
             progressBar.setVisibility(View.GONE);
             mAdapter = new LabelAdapter(getContext(), itemsData);
-            //recyclerView.setItemAnimator(new DefaultItemAnimator());
-
             recyclerView.setAdapter(mAdapter);
-
-
         }
-
     }
 
     void addLabelAdapter(int label) {
         if (itemsData.contains(label)) {
             return;
         } else {
-
             itemsData.add(label);
             return;
         }
@@ -478,7 +382,6 @@ public class LabelsFragment extends Fragment {
     class AsyncView extends AsyncTask<Void, String, Void> {
         @Override
         protected Void doInBackground(Void... unused) {
-
             PictureEntry p = new PictureEntry(getContext());
             p.open();
            ArrayList<MyPicture> pics =  p.getAllPictures();
@@ -493,8 +396,6 @@ public class LabelsFragment extends Fragment {
         protected void onProgressUpdate(String... name) {
             if (!isCancelled()) {
                 // ((MainActivity) context).onResult(result);
-                //mAdapter.add(name[0]);
-
             }
         }
 
@@ -502,17 +403,9 @@ public class LabelsFragment extends Fragment {
         protected void onPostExecute(Void unused) {
             Log.d(DEBUG, "INSERT THREAD DONE");
             Vtask = null;
-
             progressBar.setVisibility(View.GONE);
             mAdapter = new LabelAdapter(getContext(), itemsData);
-            //recyclerView.setItemAnimator(new DefaultItemAnimator());
-
             recyclerView.setAdapter(mAdapter);
-
-
         }
-
     }
-
-
 }

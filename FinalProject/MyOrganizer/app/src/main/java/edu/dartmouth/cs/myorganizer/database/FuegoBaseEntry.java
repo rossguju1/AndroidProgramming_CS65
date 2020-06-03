@@ -1,7 +1,5 @@
 package edu.dartmouth.cs.myorganizer.database;
 
-import android.net.Uri;
-
 import com.google.firebase.database.IgnoreExtraProperties;
 
 @IgnoreExtraProperties
@@ -16,8 +14,7 @@ public class FuegoBaseEntry {
     private String synced;
 
 
-
-    public FuegoBaseEntry(String email, String id, String imageUri, String imageBase64, String text, String label, String date, String synced){
+    public FuegoBaseEntry(String email, String id, String imageUri, String imageBase64, String text, String label, String date, String synced) {
 
         this.email = email;
         this.id = id;
@@ -29,7 +26,7 @@ public class FuegoBaseEntry {
         this.synced = synced;
     }
 
-    public FuegoBaseEntry(){
+    public FuegoBaseEntry() {
 
     }
 
@@ -98,4 +95,3 @@ public class FuegoBaseEntry {
         this.imageBase64 = imageBase64;
     }
 }
-

@@ -35,33 +35,17 @@ public class MyPicture {
 
     public String getmImage(){
         String res =  mImage.toString();
-        //Log.d("MyPicture", "getmImage():" + res);
         return res;
     }
 
     public void setmImage(Uri imageUri){
-
-
-
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//        byte[] b = baos.toByteArray();
-//        String encodedImageString = Base64.encodeToString(b, Base64.DEFAULT);
-//
-//        byte[] bytarray = Base64.decode(encodedImageString, Base64.DEFAULT);
-//        Bitmap bmimage = BitmapFactory.decodeByteArray(bytarray, 0,
-//                bytarray.length);
-
         this.mImage = imageUri;
     }
 
     public String getmText(){
-
         return mText;
     }
     public void setmText(String text){
-
-
         this.mText = text;
     }
 

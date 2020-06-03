@@ -10,9 +10,6 @@ import androidx.loader.content.AsyncTaskLoader;
 
 import java.util.ArrayList;
 
-
-import edu.dartmouth.cs.myorganizer.database.PictureEntry;
-
 public class AsyncPictureLoader extends AsyncTaskLoader<ArrayList<MyPicture>> {
 
     private static final String DEBUG_TAG = "AsyncPictureLoader";

@@ -16,7 +16,9 @@ import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+
 import java.util.UUID;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -102,26 +104,16 @@ public class PictureGridFragment extends Fragment implements LoaderManager.Loade
     PictureEntry ex;
     Uri cameraPhotoUri;
     Uri loadPhotoUri;
-
     File cameraPhotoFile;
     File loadPhotoFile;
-
     Bitmap rotatedBitmap;
-
     public long inserted_id;
-
     public RecyclerView recyclerView;
-
-private ProgressBar progressBar;
+    private ProgressBar progressBar;
     public static PictureAdapter mAdapter;
     public static ArrayList<MyPicture> mInput;
-
-
     private String mUserId;
-
-
     private AsyncInsert task = null;
-
     private int pic_result;
 
 
@@ -133,37 +125,25 @@ private ProgressBar progressBar;
 
         progressBar = v.findViewById(R.id.progressBarGrid);
 
-
-
         mFirebaseAuth = FirebaseAuth.getInstance();
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
-
         mUserId = mFirebaseUser.getUid();
-
         mDatabase = FirebaseDatabase.getInstance().getReference("user_" + mUserId);
-
-        //mInput = new ArrayList<MyPicture>();
         recyclerView = (RecyclerView) v.findViewById(R.id.recyclerViewGrid);
         // set a GridLayoutManager with 2 number of columns , horizontal gravity and false value for reverseLayout to show the items from start to end
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
         recyclerView.setLayoutManager(gridLayoutManager); // set LayoutManager to RecyclerView
         //  call the constructor of CustomAdapter to send the reference and data to Adapter
-        // mAdapter= new PictureAdapter(getContext(),  mInput);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        //recyclerView.setAdapter(mAdapter); // set the Adapter to RecyclerView
-
 
         mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.getValue() == null) {
                     Log.d(DEBUG, "database is empty");
-
                     // The child doesn't exist
                 } else {
                     Log.d(DEBUG, "database is not empty");
-
-
                 }
             }
 
@@ -181,15 +161,10 @@ private ProgressBar progressBar;
         super.onCreateOptionsMenu(menu, inflater);
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
-        Log.d(DEBUG, "onResume");
-
-
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -200,8 +175,6 @@ private ProgressBar progressBar;
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_signout) {
-            Log.d(DEBUG, "signout Clicked");
-
             return true;
         } else if (id == R.id.action_syncro) {
 
@@ -217,52 +190,34 @@ private ProgressBar progressBar;
 
 
     public void onPhotoPickerItemSelected(int item) {
-        Log.d(DEBUG, "onPhotoPickerItemSelected");
         switch (item) {
             case AddfileFragmentFragment.TAKE_PHOTO_PHOTO_ITEM:
                 // Explicit intent used to take photo
-                Log.d("HERE", "");
                 dispatchTakePictureIntent();
-
                 break;
 
             case AddfileFragmentFragment.LOAD_PHOTO_ITEM:
-
                 //Intent used when selecting from image gallery i.e picking image
                 Intent i = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                 //i.putExtra(MediaStore.EXTRA_OUTPUT, loadPhotoFile);
                 startActivityForResult(i, LOAD_IMAGE);
             case AddfileFragmentFragment.OTHER_FILE_ITEM:
-                Log.d("HERE", "");
-
 
             default:
                 return;
         }
     }
 
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(DEBUG, "onActivityResult: result code " + resultCode);
-        Log.d(DEBUG, "onActivityResult: requestcode " + requestCode);
         int prev_adapter_size = mAdapter.getItemCount();
         int prev_minput_size = mInput.size();
 
-
-        Log.d(DEBUG, "previous adapter size: " + prev_adapter_size);
-        Log.d(DEBUG, "previous minput size: " + prev_minput_size);
-
-
         switch (requestCode) {
 
-
             case LOAD_IMAGE:
-                //Log.d(DEBUG, "LOAD_IMAGE:");
                 try {
                     if (data.getData() == null) {
                         return;
@@ -273,9 +228,7 @@ private ProgressBar progressBar;
                 }
 
                 Uri picUri = data.getData();
-                Log.d(DEBUG, "LOAD_IMAGE PicUri: " + picUri);
                 pic_result = requestCode;
-
                 try {
                     Bitmap mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), picUri);
 
@@ -291,15 +244,12 @@ private ProgressBar progressBar;
                 loadPhotoUri = FileProvider.getUriForFile(getContext(),
                         BuildConfig.APPLICATION_ID,
                         loadPhotoFile);
-                Log.d("Picture Frag", "loadPhotoUri:  " + loadPhotoUri);
-                Log.d("Picture Frag", "loadPhotoFile:  " + loadPhotoFile);
                 SaveLabelState(-1);
                 task = new AsyncInsert();
                 task.execute();
 
                 break;
             case REQUEST_TAKE_PICTURE_FROM_CAMERA:
-                Log.d(DEBUG, "REQUEST_TAKE_PICTURE_FROM_CAMERA");
                 try {
                     if (cameraPhotoUri == null) {
                         Log.d(DEBUG, "cameraPhotoUri == null");
@@ -309,23 +259,13 @@ private ProgressBar progressBar;
                     return;
                 }
 
-                Log.d("Picture Frag", "(OLD)loadPhotoUri:  " + cameraPhotoFile);
-                Log.d("Picture Frag", "(OLD)loadPhotoFile:  " + cameraPhotoFile);
-
                 pic_result = requestCode;
-
-
-//                FileInputStream fis = openFileInput(loadPhotoFile.getAbsolutePath());
-//                Bitmap bmap = BitmapFactory.decodeStream(fis);
-
                 final Bitmap rotatedBitmap = imageOrientationValidator(cameraPhotoFile);
                 if (rotatedBitmap == null) {
                     return;
                 }
 
-
                 try {
-                    //Bitmap mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), picUri);
 
                     cameraPhotoFile = createImageFile();
                     FileOutputStream fOut = new FileOutputStream(cameraPhotoFile);
@@ -335,27 +275,21 @@ private ProgressBar progressBar;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
                 //Set mImageCaptureUri so we can save the state if stop in lifecycle
                 cameraPhotoUri = FileProvider.getUriForFile(getContext(),
                         BuildConfig.APPLICATION_ID,
                         cameraPhotoFile);
-                Log.d(DEBUG, "(NEW)loadPhotoUri:  " + cameraPhotoUri);
-                Log.d(DEBUG, "(NEW)loadPhotoFile:  " + cameraPhotoFile);
-
                 SaveLabelState(-1);
                 task = new AsyncInsert();
                 task.execute();
 
-
                 break;
             default:
-
                 break;
-
         }
-
-
     }
+
     private void dispatchTakePictureIntent() {
 
         // Explicit intent used to take photo
@@ -386,7 +320,6 @@ private ProgressBar progressBar;
         } catch (ActivityNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     private File createImageFile() throws IOException {
@@ -449,21 +382,13 @@ private ProgressBar progressBar;
                 matrix, true);
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
-        Log.d(DEBUG, "onStart");
-
         ex = new PictureEntry(getContext());
         ex.open();
         LoaderManager.getInstance(this).initLoader(ALL_COMMENTS_LOADER_ID, null, this);
-
-
     }
-
-
-
 
     @Override
     public void onPause() {
@@ -475,9 +400,7 @@ private ProgressBar progressBar;
     public void onDestroy() {
         super.onDestroy();
         Log.d(DEBUG, "onDestroy");
-
     }
-
 
     @NonNull
     @Override
@@ -494,21 +417,12 @@ private ProgressBar progressBar;
     public void onLoadFinished(@NonNull Loader<ArrayList<MyPicture>> loader, ArrayList<MyPicture> data) {
         Log.d(DEBUG, "onLoadFinished: Thread ID: " + Thread.currentThread().getId());
         if (loader.getId() == ALL_COMMENTS_LOADER_ID) {
-
-            Log.d(DEBUG, "onLoadFinished: dataSize: " + data.size());
-            //ArrayList<MyPicture> mInput =  (ArrayList<MyPicture>) data.clone();
             mInput = data;
-            Log.d(DEBUG, "mInput Size in loader:" + mInput.size());
-            Log.d(DEBUG, "Creating adapter");
             mAdapter = new PictureAdapter(getContext(), mInput);
             recyclerView.setAdapter(mAdapter);
-
-
             PictureEntry mEntry = new PictureEntry(getActivity());
             mEntry.close();
             progressBar.setVisibility(View.GONE);
-
-
         }
     }
 
@@ -516,34 +430,20 @@ private ProgressBar progressBar;
     @Override
     public void onLoaderReset(@NonNull Loader<ArrayList<MyPicture>> loader) {
         Log.d(DEBUG, "onLoaderReset: Thread ID: " + Thread.currentThread().getId());
-
     }
 
 
     class AsyncInsert extends AsyncTask<Void, String, Void> {
         @Override
         protected Void doInBackground(Void... unused) {
-            Log.d(DEBUG, "AsyncInsert doInBackground()");
-
             final MyPicture entry = new MyPicture();
-
-
             if (pic_result == 0) {
-
-
                 Bitmap mBitmap = null;
                 try {
                     mBitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), cameraPhotoUri);
-//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//                    byte[] _bytes = baos.toByteArray();
-//                    base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-
-
 
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
                 FirebaseVisionTextRecognizer _textRecognizer =
@@ -556,10 +456,6 @@ private ProgressBar progressBar;
                         int prev = mInput.size();
                         entry.setmImage(cameraPhotoUri);
                         entry.setmText(text);
-
-                        //Random random = new Random();
-                        //int randomInteger = random.nextInt(4);
-                        //Log.d(DEBUG, "label number: " + randomInteger);
                         entry.setmLabel(-1);
 
                         Date date = new Date();
@@ -567,7 +463,6 @@ private ProgressBar progressBar;
                         String formattedDate = sdf.format(date);
                         entry.setmDate(formattedDate);
                         entry.setmSynced(0);
-                        //mInput.add(entry);
 
                         mInput.add(entry);
                         mAdapter.notifyItemRangeInserted(prev, 1);
@@ -596,7 +491,6 @@ private ProgressBar progressBar;
                 byte[] _bytes = baos.toByteArray();
                 base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 
-
             } else if (pic_result == 77) {
 
                 Bitmap mBitmap = null;
@@ -606,14 +500,6 @@ private ProgressBar progressBar;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
-//                BitmapFactory.Options options = new BitmapFactory.Options();
-//                options.inSampleSize = 8; // shrink it down otherwise we will use stupid amounts of memory
-//               Bitmap _bitmap = BitmapFactory.decodeFile(loadPhotoUri.toString(), options);
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                //bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                //byte[] _bytes = baos.toByteArray();
-               // base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 
                 FirebaseVisionImage _image = FirebaseVisionImage.fromBitmap(mBitmap);
                 FirebaseVisionTextRecognizer _textRecognizer =
@@ -626,9 +512,6 @@ private ProgressBar progressBar;
                         int prev = mInput.size();
                         entry.setmImage(loadPhotoUri);
                         entry.setmText(text);
-                        //Random random = new Random();
-                        //int randomInteger = random.nextInt(4);
-                        //Log.d(DEBUG, "label number: " + randomInteger);
                         entry.setmLabel(-1);
                         Date date = new Date();
                         SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm a");
@@ -643,7 +526,6 @@ private ProgressBar progressBar;
                         pp.open();
                         pp.insertEntry(entry);
                         pp.close();
-
                         insertPictureFuegoBase(entry);
 
                     }
@@ -673,19 +555,13 @@ private ProgressBar progressBar;
         @Override
         protected void onProgressUpdate(String... name) {
             if (!isCancelled()) {
-                // ((MainActivity) context).onResult(result);
-                //mAdapter.add(name[0]);
 
             }
         }
 
         @Override
         protected void onPostExecute(Void unused) {
-            Log.d(DEBUG, "INSERT THREAD DONE");
             task = null;
-
-
-
         }
     }
 
@@ -701,38 +577,8 @@ private ProgressBar progressBar;
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String email = sharedPreferences.getString("email", "");
 
-
-        Log.d(DEBUG, "Email: " + email);
-
-//        private String email;
-//        private String id;
-//        private String imageUri;
-//        private String imageBase64;
-//        private String text;
-//        private String label;
-//        private String date;
-//        private String synced;
-
-//        BitmapFactory.Options options = new BitmapFactory.Options();
-//        options.inSampleSize = 8; // shrink it down otherwise we will use stupid amounts of memory
-//        Bitmap bitmap = BitmapFactory.decodeFile(entry.getmImage(), options);
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//        byte[] bytes = baos.toByteArray();
-//        String base64Image = Base64.encodeToString(bytes, Base64.DEFAULT);
-        //For the API less than 28 (Android version 8 )
-        //String base64Image = android.util.Base64.encodeToString(bytes, android.util.Base64.DEFAULT);
-
-
-        // we finally have our base64 string version of the image, save it.
-        //    firebase.child("pic").setValue(base64Image);
         FuegoBaseEntry FuegoEntry = new FuegoBaseEntry(email, String.valueOf(entry.getId()), entry.getmImage(), base64Image, entry.getmText(), String.valueOf(entry.getmLabel()), entry.getmDate(), String.valueOf(entry.getmSynced()));
-
-
         String ts = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-
-        Log.d(DEBUG, "TimeStamp: " + ts);
-
         mDatabase.child("picture_entries").push().setValue(FuegoEntry).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -744,7 +590,6 @@ private ProgressBar progressBar;
             @Override
             public void onFailure(@NonNull Exception e) {
                 Log.d(DEBUG, "Failed to inserted entry");
-
                 // Write failed
                 // ...
             }
@@ -756,7 +601,7 @@ private ProgressBar progressBar;
         int width = image.getWidth();
         int height = image.getHeight();
 
-        float bitmapRatio = (float)width / (float) height;
+        float bitmapRatio = (float) width / (float) height;
         if (bitmapRatio > 1) {
             width = maxSize;
             height = (int) (width / bitmapRatio);
@@ -766,6 +611,4 @@ private ProgressBar progressBar;
         }
         return Bitmap.createScaledBitmap(image, width, height, true);
     }
-
-
 }

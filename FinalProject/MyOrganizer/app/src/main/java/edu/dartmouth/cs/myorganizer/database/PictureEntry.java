@@ -5,8 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.util.Log;
 
@@ -25,9 +23,6 @@ public class PictureEntry {
                     PictureEntryDbHelper.COLUMN_LABEL, //curor 3
                     PictureEntryDbHelper.COLUMN_DATE, //cursor 4
                     PictureEntryDbHelper.COLUMN_SYNC //cursor 5
-
-
-
             };
 
     public PictureEntry(Context context) {
@@ -37,6 +32,7 @@ public class PictureEntry {
     public void open() throws SQLException {
         database = dbHelper.getWritableDatabase();
     }
+
     public void close() {
         dbHelper.close();
     }
@@ -46,16 +42,14 @@ public class PictureEntry {
                 "INSERTED");
         ContentValues values = new ContentValues();
         // insert values
-        Log.d("Inside Insert image Uri: ", entry.getmImage());
-        //values.put( ExerciseEntryDbHelper.COLUMN_ID, entry.getId());
-        values.put( PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
-        values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
-        values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
-        values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
-        values.put( PictureEntryDbHelper.COLUMN_SYNC, entry.getmSynced());
+        values.put(PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
+        values.put(PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
+        values.put(PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
+        values.put(PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
+        values.put(PictureEntryDbHelper.COLUMN_SYNC, entry.getmSynced());
 
 
-        long insertId = database.insert( PictureEntryDbHelper.TABLE_PICTURES, null,
+        long insertId = database.insert(PictureEntryDbHelper.TABLE_PICTURES, null,
                 values);
         entry.setId(insertId);
 
@@ -65,20 +59,14 @@ public class PictureEntry {
                 null,
                 null);
         cursor.moveToFirst();
-        // Log the comment stored
-        Log.d(TAG, "Picture Inserted = " + " insert ID = " + insertId);
-
         cursor.close();
         return insertId;
     }
 
 
     public void removeEntry(long id) {
-        // long id = comment.getId();
-
         database.delete(PictureEntryDbHelper.TABLE_PICTURES, PictureEntryDbHelper.COLUMN_ID
                 + " = " + id, null);
-        Log.d(TAG, "delete comment = " + id);
     }
 
     public void deleteAllExercises() {
@@ -87,8 +75,6 @@ public class PictureEntry {
         database.delete(PictureEntryDbHelper.TABLE_PICTURES, null, null);
         Log.d(TAG, "delete all ");
     }
-
-
 
     // Query a specific entry by its index.
     public MyPicture fetchEntryByIndex(long rowId) {
@@ -128,67 +114,54 @@ public class PictureEntry {
         return mExercises;
     }
 
-
-
     private MyPicture cursorToPicture(Cursor cursor) {
 
         MyPicture mMyPicture = new MyPicture();
-
         mMyPicture.setId(cursor.getLong(0));
         mMyPicture.setmImage(Uri.parse(cursor.getString(1)));
-//        byte[] byteArray = cursor.getBlob(1);
-//
-//        Bitmap bm = BitmapFactory.decodeByteArray(byteArray, 0 ,byteArray.length);
-//        mMyPicture.setmImage(bm);
         mMyPicture.setmText(cursor.getString(2));
         mMyPicture.setmLabel(cursor.getInt(3));
         mMyPicture.setmDate(cursor.getString(4));
         mMyPicture.setmSynced(cursor.getInt(5));
-
-
         return mMyPicture;
     }
 
 
-    public void updatePicture(MyPicture entry){
+    public void updatePicture(MyPicture entry) {
 
         long _id = entry.getId();
 
         ContentValues values = new ContentValues();
 
         values.put(PictureEntryDbHelper.COLUMN_IMAGE, entry.getmImage());
-        values.put( PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
-        values.put( PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
-        values.put( PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
+        values.put(PictureEntryDbHelper.COLUMN_TEXT, entry.getmText());
+        values.put(PictureEntryDbHelper.COLUMN_LABEL, entry.getmLabel());
+        values.put(PictureEntryDbHelper.COLUMN_DATE, entry.getmDate());
         values.put(PictureEntryDbHelper.COLUMN_SYNC, entry.getmSynced());
-
-
-        database.update(PictureEntryDbHelper.TABLE_PICTURES, values, "_id="+ _id, null);
+        database.update(PictureEntryDbHelper.TABLE_PICTURES, values, "_id=" + _id, null);
     }
 
-    public int deletePicture(long id){
-        if (database.delete(PictureEntryDbHelper.TABLE_PICTURES,PictureEntryDbHelper.COLUMN_ID
-                + " = " + id, null) > 0){
+    public int deletePicture(long id) {
+        if (database.delete(PictureEntryDbHelper.TABLE_PICTURES, PictureEntryDbHelper.COLUMN_ID
+                + " = " + id, null) > 0) {
             return 1;
-        } else{
+        } else {
             return -1;
         }
     }
 
 
-    public void printPicture(MyPicture ex){
+    public void printPicture(MyPicture ex) {
 
         Log.d("Picuture DB Entry", "ID: "
                 + ex.getId()
-                +"\n Image URI:  " + ex.getmImage()
+                + "\n Image URI:  " + ex.getmImage()
                 + "\n Text:     " + ex.getmText()
                 + "\n Label   " + ex.getmLabel()
                 + "\n  mDuration:  " + ex.getmDate()
                 + "\n synced? : " + ex.getmSynced());
-    return;
+        return;
     }
-
-
 
 
 }

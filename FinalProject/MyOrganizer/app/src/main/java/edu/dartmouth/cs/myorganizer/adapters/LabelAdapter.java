@@ -1,30 +1,22 @@
 package edu.dartmouth.cs.myorganizer.adapters;
 
-
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.Map;
 
 import edu.dartmouth.cs.myorganizer.LabelActivity;
 import edu.dartmouth.cs.myorganizer.R;
 
 public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder> {
-
 
     private Hashtable<Integer, String> LABELS_TO_STRING = new Hashtable<>();
     int BiologyColor = Color.parseColor("#4BAF4F");
@@ -96,13 +88,11 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
                 Intent intent = new Intent(context, LabelActivity.class);
                 Log.d("<~~~~~~>", " " + mLabels.get(position));
                 intent.putExtra("label", mLabels.get(position)); // put image data in Intent
-           //    ((Activity) context).startActivityForResult(intent, 1);
+                // ((Activity) context).startActivityForResult(intent, 1);
                 context.startActivity(intent); // start Intent
             }
         });
-
     }
-
 
     @Override
     public int getItemCount() {
@@ -119,5 +109,6 @@ public class LabelAdapter extends RecyclerView.Adapter<LabelAdapter.MyViewHolder
             labels = (TextView) itemView.findViewById(R.id.labels);
         }
     }
+
 }
 

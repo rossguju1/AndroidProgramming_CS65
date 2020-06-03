@@ -10,26 +10,21 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.content.Intent;
-import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.PreferenceManager;
 
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,10 +34,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.ml.vision.FirebaseVision;
-import com.google.firebase.ml.vision.common.FirebaseVisionImage;
-import com.google.firebase.ml.vision.text.FirebaseVisionText;
-import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -50,12 +41,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Random;
 
 import edu.dartmouth.cs.myorganizer.database.FuegoBaseEntry;
 import edu.dartmouth.cs.myorganizer.database.MyPicture;
 import edu.dartmouth.cs.myorganizer.database.PictureEntry;
-import edu.dartmouth.cs.myorganizer.fragments.PictureGridFragment;
 
 public class LoginFireBaseActivity extends AppCompatActivity {
     private ProgressBar progressBar;
@@ -124,14 +113,9 @@ public class LoginFireBaseActivity extends AppCompatActivity {
 
                                         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
                                         String email = sharedPreferences.getString("email", "");
-                                        if (email.equals(finalEmail)){
+                                        if (email.equals(finalEmail)) {
 
-
-
-
-                                        }else {
-
-
+                                        } else {
                                             PictureEntry p = new PictureEntry(getApplicationContext());
                                             p.open();
                                             p.deleteAllExercises();
@@ -144,7 +128,6 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                                         }
                                         progressBar = findViewById(R.id.progressBar);
                                         progressBar.setVisibility(View.VISIBLE);
-                                       // mFirebaseAuth = FirebaseAuth.getInstance();
                                         mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
                                         String mUserId = mFirebaseUser.getUid();
@@ -164,22 +147,19 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                                                     Log.d(DEBUG, "database is not empty");
                                                     PictureEntry pp = new PictureEntry(getApplicationContext());
                                                     pp.open();
-                                                   ArrayList<MyPicture> all_pics = pp.getAllPictures();
-                                                    if (all_pics.isEmpty() || all_pics.size()==0) {
+                                                    ArrayList<MyPicture> all_pics = pp.getAllPictures();
+                                                    if (all_pics.isEmpty() || all_pics.size() == 0) {
 
                                                         AsyncInsert task = new AsyncInsert(snapshot);
 
                                                         task.execute();
-                                                    } else{
+                                                    } else {
                                                         pp.close();
                                                         Intent intent = new Intent(LoginFireBaseActivity.this, MainActivity.class);
                                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                                         startActivity(intent);
                                                     }
-
-
-
                                                 }
                                             }
 
@@ -188,7 +168,6 @@ public class LoginFireBaseActivity extends AppCompatActivity {
 
                                             }
                                         });
-
 
 
                                     } else {
@@ -221,12 +200,10 @@ public class LoginFireBaseActivity extends AppCompatActivity {
 
         public AsyncInsert(DataSnapshot snapshot) {
             super();
-
             this.snapshot = snapshot;
-
-
             // do stuff
         }
+
         @Override
         protected Void doInBackground(Void... unused) {
             Log.d(DEBUG, "AsyncInsert doInBackground()");
@@ -276,21 +253,16 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                 }
                 db_entry.setmImage(Uri.fromFile(loadPhotoFile));
 
-
-
                 pp.printPicture(db_entry);
 
                 long new_id = pp.insertEntry(db_entry);
                 entry.setId(String.valueOf(new_id));
                 postSnapshot.getRef().setValue(entry);
 
-
-
             }
 
             return null;
         }
-
 
         @Override
         protected void onProgressUpdate(String... name) {
@@ -310,7 +282,6 @@ public class LoginFireBaseActivity extends AppCompatActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-
         }
     }
 
@@ -324,8 +295,6 @@ public class LoginFireBaseActivity extends AppCompatActivity {
                 ".jpg",
                 storageDir
         );
-        String currentPhotoPath = image.getAbsolutePath();
-
         return image;
     }
 

@@ -19,21 +19,16 @@ public class AddfileFragmentFragment extends DialogFragment {
     // Key for dialog camera option
     public static final int LOAD_PHOTO_ITEM = 1;
 
-
     // Key for dialog option to take a picture
-    public static final int TAKE_PHOTO_PHOTO_ITEM= 0;
+    public static final int TAKE_PHOTO_PHOTO_ITEM = 0;
 
     public static final int OTHER_FILE_ITEM = 2;
 
-
-
     private static final String DIALOG_ID_KEY = "dialog_id";
-
-
 
     // Creates a new instance of the dialog
     public static AddfileFragmentFragment newInstance(int dialog_id) {
-        AddfileFragmentFragment frag = new  AddfileFragmentFragment();
+        AddfileFragmentFragment frag = new AddfileFragmentFragment();
         Bundle args = new Bundle();
         args.putInt(DIALOG_ID_KEY, dialog_id);
         frag.setArguments(args);
@@ -54,8 +49,6 @@ public class AddfileFragmentFragment extends DialogFragment {
                 builder.setTitle(R.string.picture_picker_fragment);
                 DialogInterface.OnClickListener dialoglistener = new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
-
-                        //parent.onPhotoPickerItemSelected(item);
                     }
                 };
                 final CharSequence[] items = {"Take Picture", "Add Photo", "Add other File"};

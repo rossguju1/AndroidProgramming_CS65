@@ -1,9 +1,9 @@
 package edu.dartmouth.cs.myorganizer.adapters;
 
-//import android.app.Fragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -15,7 +15,8 @@ import java.util.ArrayList;
 // visits will be kept in memory.
 
 public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
-    private static final String TAG = ActionTabsViewPagerAdapter.class.getSimpleName();;
+    private static final String TAG = ActionTabsViewPagerAdapter.class.getSimpleName();
+    ;
     private ArrayList<Fragment> fragments;
 
     public static final int GRID = 0;
@@ -23,19 +24,19 @@ public class ActionTabsViewPagerAdapter extends FragmentPagerAdapter {
     public static final String UI_TAB_GRID = "GRID";
     public static final String UI_TAB_LABELS = "LABELS";
 
-    public ActionTabsViewPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments){
+    public ActionTabsViewPagerAdapter(FragmentManager fm, ArrayList<Fragment> fragments) {
         super(fm);
         this.fragments = fragments;
     }
 
     // Return the Fragment associated with a specified position.
-    public Fragment getItem(int pos){
+    public Fragment getItem(int pos) {
         Log.d(TAG, "getItem " + "position" + pos);
         return fragments.get(pos);
     }
 
     // Return the number of views available
-    public int getCount(){
+    public int getCount() {
         Log.d(TAG, "getCount " + "size " + fragments.size());
         return fragments.size();
     }

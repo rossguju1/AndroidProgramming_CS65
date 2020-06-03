@@ -1,9 +1,12 @@
 package edu.dartmouth.cs.myorganizer;
+
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,9 +33,9 @@ public class SignUpActivity extends AppCompatActivity {
         // Initialize FirebaseAuth
         mFirebaseAuth = FirebaseAuth.getInstance();
 
-        passwordEditText = (EditText)findViewById(R.id.passwordField);
-        emailEditText = (EditText)findViewById(R.id.emailField);
-        signUpButton = (Button)findViewById(R.id.signupButton);
+        passwordEditText = (EditText) findViewById(R.id.passwordField);
+        emailEditText = (EditText) findViewById(R.id.emailField);
+        signUpButton = (Button) findViewById(R.id.signupButton);
 
         signUpButton.setOnClickListener(new View.OnClickListener() {
             @Override

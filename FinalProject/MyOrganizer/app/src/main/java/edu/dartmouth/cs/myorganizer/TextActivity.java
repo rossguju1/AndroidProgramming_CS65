@@ -49,7 +49,6 @@ public class TextActivity extends AppCompatActivity {
         TextView tv1 = new TextView(getApplicationContext());
         TextView tv2 = new TextView(getApplicationContext());
 
-
         tv1.setTextColor(getResources().getColor(android.R.color.black));
         tv2.setTextColor(getResources().getColor(android.R.color.black));
         tv1.setTextSize(22);
@@ -58,13 +57,11 @@ public class TextActivity extends AppCompatActivity {
         tv.addView(tv1);
         tv.addView(tv2);
 
-
         Intent intent = getIntent();
         tv.setText(intent.getStringExtra("text"));
         pos = intent.getIntExtra("pos", -1);
         _id = intent.getLongExtra("id", -1);
         Log.d(DEBUG, "TextActivity got ID: " + _id);
-
 
 
         class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
@@ -151,7 +148,6 @@ public class TextActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.delete_menu, menu);
         //Set the appropriate button title depending on navigation context
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -166,20 +162,16 @@ public class TextActivity extends AppCompatActivity {
             Intent returnIntent = new Intent();
             returnIntent.putExtra("result", _id);
             returnIntent.putExtra("pos", pos);
-            setResult(Activity.RESULT_OK,returnIntent);
+            setResult(Activity.RESULT_OK, returnIntent);
             finish();
-
 
         } else if (id == android.R.id.home) {         //On home button click
 
             Intent returnIntent = new Intent();
             returnIntent.putExtra("result", -1);
-            setResult(Activity.RESULT_CANCELED,returnIntent);
+            setResult(Activity.RESULT_CANCELED, returnIntent);
             finish();
         }
         return true;
     }
-
-
-
 }

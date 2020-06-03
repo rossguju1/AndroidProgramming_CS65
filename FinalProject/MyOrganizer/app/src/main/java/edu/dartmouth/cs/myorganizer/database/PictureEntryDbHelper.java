@@ -18,10 +18,9 @@ public class PictureEntryDbHelper extends SQLiteOpenHelper {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_IMAGE = "image";
     public static final String COLUMN_TEXT = "text";
-    public static final String COLUMN_LABEL= "label";
-    public static final String COLUMN_DATE= "date";
-    public static final String COLUMN_SYNC= "synced";
-
+    public static final String COLUMN_LABEL = "label";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_SYNC = "synced";
 
 
     private static final String CREATE_TABLE_ENTRIES = "create table "
