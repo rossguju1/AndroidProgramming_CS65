@@ -10,9 +10,8 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewGrid"
         android:layout_width="match_parent"
+        android:layout_marginBottom="55dp"
         android:layout_height="wrap_content" />
-
-
 
     <ProgressBar
         android:id="@+id/progressBarGrid"
