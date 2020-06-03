@@ -569,8 +569,8 @@ private ProgressBar progressBar;
                         entry.setmSynced(0);
                         //mInput.add(entry);
 
-//                        mInput.add(entry);
-//                        mAdapter.notifyItemRangeInserted(prev, 1);
+                        mInput.add(entry);
+                        mAdapter.notifyItemRangeInserted(prev, 1);
 
                         PictureEntry pp = new PictureEntry(getContext());
                         pp.printPicture(entry);
@@ -657,7 +657,7 @@ private ProgressBar progressBar;
                 });
                 Bitmap converetdImage = getResizedBitmap(mBitmap, 500);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                converetdImage.compress(Bitmap.CompressFormat.JPEG, 40, baos);
+                converetdImage.compress(Bitmap.CompressFormat.JPEG, 30, baos);
                 byte[] _bytes = baos.toByteArray();
                 base64Image = Base64.encodeToString(_bytes, Base64.DEFAULT);
 
